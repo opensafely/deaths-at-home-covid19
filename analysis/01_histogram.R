@@ -6,9 +6,10 @@ df_input <- read_csv(
 )
 
 plot_age <- ggplot(data=df_input, aes(df_input$age)) + 
-geom_histogram()
+geom_histogram() +
+theme_bw()
 
 ggsave(
   plot = plot_age,
-  filename ="descriptive.png", path = here::here("output"),
+  filename ="histogram.png", path = here::here("output"),
 )
