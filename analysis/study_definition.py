@@ -101,26 +101,89 @@ study = StudyDefinition(
         return_expectations={
             "rate": "universal",
             "category": {"ratios": {"E02000001": 0.5, "E02000002": 0.5}},
-        },
+        }
     ),
 
-    # Clinical
+    # Long term conditions
 
-    # Activity
-
-    admission=patients.admitted_to_hospital(
-        returning="binary_flag",
+    ltc=patients.with_these_clinical_events(
+        ltc_codes,
         between=["died_date_ons - 1 year", "died_date_ons"],
-        find_first_match_in_period=True,
-        return_expectations={"date": {"earliest": "2018-03-01"}},
+        returning="binary_flag",
+        find_first_match_in_period=True
     ),
 
-    emergency_care=patients.attended_emergency_care(
-        returning="binary_flag",
+    physical_ltc=patients.with_these_clinical_events(
+        physical_ltc_codes,
         between=["died_date_ons - 1 year", "died_date_ons"],
-        find_first_match_in_period=True,
-        return_expectations={"date": {"earliest": "2018-03-01"}},
+        returning="binary_flag",
+        find_first_match_in_period=True
     ),
+
+    mental_ltc=patients.with_these_clinical_events(
+        mental_ltc_codes,
+        between=["died_date_ons - 1 year", "died_date_ons"],
+        returning="binary_flag",
+        find_first_match_in_period=True
+    ),
+
+    # Hospital activity in year prior to death
+
+    ae_visits_1yr=patients.attended_emergency_care(
+        returning="number_of_matches_in_period",
+        between=["died_date_ons - 1 year", "died_date_ons"],
+        return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
+    ),
+
+    admissions_1yr=patients.admitted_to_hospital(
+        returning="number_of_matches_in_period",
+        between=["died_date_ons - 1 year", "died_date_ons"],
+        return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
+    ),
+
+    emergency_admissions_1yr=patients.admitted_to_hospital(
+        returning="number_of_matches_in_period",
+        between=["died_date_ons - 1 year", "died_date_ons"],
+        with_admission_method=['21', '2A', '22', '23', '24', '25', '2D'],
+        return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
+    ),
+
+    elective_admissions_1yr=patients.admitted_to_hospital(
+        returning="number_of_matches_in_period",
+        between=["died_date_ons - 1 year", "died_date_ons"],
+        with_admission_method=['11', '12', '13'],
+        return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
+    ),
+
+    #outpatient_appointments_1yr=patients.outpatient_appointment_date(
+    #    returning="number_of_matches_in_period",
+    #    between=["died_date_ons - 1 year", "died_date_ons"],
+    #    attended=True,
+    #    return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
+    #),
+
+    #outpatient_attended_1yr=patients.outpatient_appointment_date(
+    #    returning="number_of_matches_in_period",
+    #    between=["died_date_ons - 1 year", "died_date_ons"],
+    #    attended=True,
+    #    return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
+    #),
+
+    # Clinically coded activity in year prior to death
+
+    gp_contact_1yr=patients.with_gp_consultations(
+        returning="number_of_matches_in_period",
+        between=["died_date_ons - 1 year", "died_date_ons"],
+        return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
+    ),
+    # Not sure if this is the best way to do this
+
+    # gp_ooh_1yr=patients.with_these_clinical_events(
+    #    codelist=nhs111,
+    #    returning="number_of_matches_in_period",
+    #    between=["died_date_ons - 1 year", "died_date_ons"],
+    # )
+
 )
 
 # How to just keep people who died in period of interest?

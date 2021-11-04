@@ -5,6 +5,108 @@
       "url": "https://codelists.opensafely.org/codelist/opensafely/ethnicity/2020-04-27/",
       "downloaded_at": "2021-10-28 10:06:58.602069Z",
       "sha": "3d2f3998b71863a80b24d60f6f4282e14191ae13"
+    },
+    "opensafely-asthma-diagnosis.csv": {
+      "id": "opensafely/asthma-diagnosis/2020-04-15",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/asthma-diagnosis/2020-04-15/",
+      "downloaded_at": "2021-11-04 15:24:42.357136Z",
+      "sha": "722a6ba77a1289a0941cfaa7ce0b9fa32c836f3c"
+    },
+    "opensafely-chronic-cardiac-disease.csv": {
+      "id": "opensafely/chronic-cardiac-disease/2020-04-08",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/chronic-cardiac-disease/2020-04-08/",
+      "downloaded_at": "2021-11-04 15:24:42.544685Z",
+      "sha": "2267f6fada9c77a2bbf62ce7a1c07ddf48348d61"
+    },
+    "opensafely-chronic-liver-disease.csv": {
+      "id": "opensafely/chronic-liver-disease/2020-06-02",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/chronic-liver-disease/2020-06-02/",
+      "downloaded_at": "2021-11-04 15:24:42.707280Z",
+      "sha": "d31d212d23c5f0e15f63236d2106282fb070bd7c"
+    },
+    "opensafely-chronic-respiratory-disease.csv": {
+      "id": "opensafely/chronic-respiratory-disease/2020-04-10",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/chronic-respiratory-disease/2020-04-10/",
+      "downloaded_at": "2021-11-04 15:24:42.854338Z",
+      "sha": "77946d9b844f348daf5c8c9e81346b9776d13998"
+    },
+    "opensafely-diabetes.csv": {
+      "id": "opensafely/diabetes/2020-04-15",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/diabetes/2020-04-15/",
+      "downloaded_at": "2021-11-04 15:24:43.014256Z",
+      "sha": "605104b3e3770b7ab703d12943f5f15fa8eafe77"
+    },
+    "opensafely-chronic-kidney-disease.csv": {
+      "id": "opensafely/chronic-kidney-disease/2020-04-14",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/chronic-kidney-disease/2020-04-14/",
+      "downloaded_at": "2021-11-04 15:24:43.195931Z",
+      "sha": "08e003f1222fe26781288b2eeff22db99780f202"
+    },
+    "opensafely-hypertension.csv": {
+      "id": "opensafely/hypertension/2020-04-28",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/hypertension/2020-04-28/",
+      "downloaded_at": "2021-11-04 15:24:43.332931Z",
+      "sha": "b0d7bbf6ea767366db458bc6f6d37955ae331cc7"
+    },
+    "opensafely-cancer-excluding-lung-and-haematological.csv": {
+      "id": "opensafely/cancer-excluding-lung-and-haematological/2020-04-15",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/cancer-excluding-lung-and-haematological/2020-04-15/",
+      "downloaded_at": "2021-11-04 16:49:30.276934Z",
+      "sha": "8fa1164b587028c4bd5903289e0948642d399e56"
+    },
+    "opensafely-haematological-cancer.csv": {
+      "id": "opensafely/haematological-cancer/2020-04-15",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/haematological-cancer/2020-04-15/",
+      "downloaded_at": "2021-11-04 16:49:30.449025Z",
+      "sha": "59d65c613a7b984ba46eca8a74eedcc6320609fe"
+    },
+    "opensafely-lung-cancer.csv": {
+      "id": "opensafely/lung-cancer/2020-04-15",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/lung-cancer/2020-04-15/",
+      "downloaded_at": "2021-11-04 16:49:30.593919Z",
+      "sha": "645584a20f81c4d76187a2c305c904e8b8c63dbb"
+    },
+    "opensafely-inflammatory-bowel-disease.csv": {
+      "id": "opensafely/inflammatory-bowel-disease/2020-04-07",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/inflammatory-bowel-disease/2020-04-07/",
+      "downloaded_at": "2021-11-04 16:49:30.739413Z",
+      "sha": "cd2175107ab3e81151fc31cd8ffd754ce5902f8b"
+    },
+    "opensafely-other-neurological-conditions.csv": {
+      "id": "opensafely/other-neurological-conditions/2020-06-02",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/other-neurological-conditions/2020-06-02/",
+      "downloaded_at": "2021-11-04 16:49:30.897905Z",
+      "sha": "855e7e09a0500401ae2429c6a401978e8c9075ec"
+    },
+    "opensafely-rheumatoid-arthritis.csv": {
+      "id": "opensafely/rheumatoid-arthritis/2020-05-12",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/rheumatoid-arthritis/2020-05-12/",
+      "downloaded_at": "2021-11-04 16:49:31.038927Z",
+      "sha": "4042d1daebf9ab893093d0eeff6b62ad5927c86e"
+    },
+    "opensafely-dementia.csv": {
+      "id": "opensafely/dementia/2020-04-22",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/dementia/2020-04-22/",
+      "downloaded_at": "2021-11-04 16:49:31.191437Z",
+      "sha": "9d40ff3a5c2428af4651c765f2c418de3a3ad4b4"
+    },
+    "opensafely-depression.csv": {
+      "id": "opensafely/depression/2020-07-09",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/depression/2020-07-09/",
+      "downloaded_at": "2021-11-04 16:53:24.775572Z",
+      "sha": "654835e97c0cee53307db7ebd8becf48d0e3f31b"
+    },
+    "user-eiliskeeble-nhs-111.csv": {
+      "id": "user/eiliskeeble/nhs-111/005f30b0",
+      "url": "https://codelists.opensafely.org/codelist/user/eiliskeeble/nhs-111/005f30b0/",
+      "downloaded_at": "2021-11-04 16:53:25.062219Z",
+      "sha": "3bc5a47b327e19bb425792ff4e73db53ae405394"
+    },
+    "user-eiliskeeble-gp-out-of-hours.csv": {
+      "id": "user/eiliskeeble/gp-out-of-hours/56588a27",
+      "url": "https://codelists.opensafely.org/codelist/user/eiliskeeble/gp-out-of-hours/56588a27/",
+      "downloaded_at": "2021-11-04 16:49:31.721970Z",
+      "sha": "449906e90bc2ef04ffd58f886c76a0e73c257312"
     }
   }
 }
