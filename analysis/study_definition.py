@@ -169,7 +169,12 @@ study = StudyDefinition(
         find_first_match_in_period=True
     ),
 
-    # frailty=
+    # frailty=patients.with_these_decision_support_values(
+    #    between=["died_date_ons - 1 year", "died_date_ons"],
+    #    find_last_match_in_period=True,
+    #    returning="numeric_value",
+    #    return_expectations={"int": {"distribution": "normal", "mean": 1, "stddev": 1}, "incidence": 0.4}
+    # ),
 
     # Hospital activity in year prior to death
 
