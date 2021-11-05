@@ -43,6 +43,13 @@ study = StudyDefinition(
         },
     ),
 
+    # place_of_death=
+
+    # cause_of_death=patients.with_these_codes_on_death_certificate(
+    #    sudden_death_codes,
+    #    returning="underlying_cause_of_death"
+    # ),
+
     # Demographics
 
     sex=patients.sex(
@@ -52,7 +59,7 @@ study = StudyDefinition(
         },
     ),
 
-    age=patients.age_as_of(
+    age_death=patients.age_as_of(
         "died_date_ons",
         return_expectations={
             "rate": "universal",
@@ -70,6 +77,15 @@ study = StudyDefinition(
         },
     ),
 
+    ethnicity_sus=patients.with_ethnicity_from_sus(
+        returning="group_16",
+        use_most_frequent_code=True,
+        return_expectations={
+            "category": {"ratios": {"1": 0.8, "5": 0.1, "3": 0.1}},
+            "incidence": 0.75,
+        },
+    ),
+
     imd=patients.address_as_of(
         "died_date_ons",
         returning="index_of_multiple_deprivation",
@@ -80,8 +96,33 @@ study = StudyDefinition(
         },
     ),
 
-    carehome=patients.care_home_status_as_of(
+    care_home=patients.care_home_status_as_of(
         "died_date_ons"
+    ),
+
+    care_home_type=patients.care_home_status_as_of(
+        "died_date_ons",
+        categorised_as={
+            "PC":
+            """
+            IsPotentialCareHome
+            AND LocationDoesNotRequireNursing='Y'
+            AND LocationRequiresNursing='N'
+            """,
+            "PN":
+            """
+            IsPotentialCareHome
+            AND LocationDoesNotRequireNursing='N'
+            AND LocationRequiresNursing='Y'
+            """,
+            "PS": "IsPotentialCareHome",
+            "PR": "NOT IsPotentialCareHome",
+            "": "DEFAULT",
+        },
+        return_expectations={
+            "rate": "universal",
+            "category": {"ratios": {"PC": 0.05, "PN": 0.05, "PS": 0.05, "PR": 0.84, "": 0.01},},
+            },
     ),
 
     prison=patients.household_as_of(
@@ -89,10 +130,11 @@ study = StudyDefinition(
         returning="is_prison"
     ),
 
-    # household_size=patients.household_as_of(
-    #    "2020-02-01",
-    #    returning="household_size"
-    # ),
+    household_size=patients.household_as_of(
+        "2020-02-01",
+        returning="household_size",
+        return_expectations={"int": {"distribution": "normal", "mean": 2, "stddev": 1}, "incidence": 0.8}
+    ),
 
     # Geography
     msoa=patients.household_as_of(
@@ -127,6 +169,8 @@ study = StudyDefinition(
         find_first_match_in_period=True
     ),
 
+    # frailty=
+
     # Hospital activity in year prior to death
 
     ae_visits_1yr=patients.attended_emergency_care(
@@ -155,19 +199,19 @@ study = StudyDefinition(
         return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
     ),
 
-    #outpatient_appointments_1yr=patients.outpatient_appointment_date(
+    # outpatient_appointments_1yr=patients.outpatient_appointment_date(
     #    returning="number_of_matches_in_period",
     #    between=["died_date_ons - 1 year", "died_date_ons"],
     #    attended=True,
     #    return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
-    #),
+    # ),
 
-    #outpatient_attended_1yr=patients.outpatient_appointment_date(
+    # outpatient_attended_1yr=patients.outpatient_appointment_date(
     #    returning="number_of_matches_in_period",
     #    between=["died_date_ons - 1 year", "died_date_ons"],
     #    attended=True,
     #    return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
-    #),
+    # ),
 
     # Clinically coded activity in year prior to death
 
@@ -185,6 +229,3 @@ study = StudyDefinition(
     # )
 
 )
-
-# How to just keep people who died in period of interest?
-# Reference date for demographics - death date?

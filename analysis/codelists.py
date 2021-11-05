@@ -58,3 +58,5 @@ ltc_codes = combine_codelists(
     physical_ltc_codes,
     mental_ltc_codes
 )
+
+# sudden_death_codes = codelist_from_csv("codelists/user-eiliskeeble-sudden-death.csv", system = "icd10", column = "icd10")

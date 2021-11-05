@@ -18,3 +18,4 @@ opensafely/depression/2020-07-09
 
 user/eiliskeeble/nhs-111/005f30b0
 user/eiliskeeble/gp-out-of-hours/56588a27
+user/eiliskeeble/sudden-death/77803d3e
