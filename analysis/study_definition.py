@@ -234,3 +234,5 @@ study = StudyDefinition(
     # )
 
 )
+
+# opensafely run run_all --force-run-dependencies
