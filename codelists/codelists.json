@@ -105,14 +105,14 @@
     "user-eiliskeeble-gp-out-of-hours.csv": {
       "id": "user/eiliskeeble/gp-out-of-hours/56588a27",
       "url": "https://codelists.opensafely.org/codelist/user/eiliskeeble/gp-out-of-hours/56588a27/",
-      "downloaded_at": "2021-11-12 11:17:33.110517Z",
-      "sha": "0414940f6481834aaa146c7920d1c6b613c9c6ee"
+      "downloaded_at": "2021-12-07 11:51:00.428527Z",
+      "sha": "449906e90bc2ef04ffd58f886c76a0e73c257312"
     },
     "user-eiliskeeble-sudden-death.csv": {
       "id": "user/eiliskeeble/sudden-death/77803d3e",
       "url": "https://codelists.opensafely.org/codelist/user/eiliskeeble/sudden-death/77803d3e/",
-      "downloaded_at": "2021-11-12 11:17:33.605638Z",
-      "sha": "c4780670d774957b18661e1b705d54ea612ecbc3"
+      "downloaded_at": "2021-12-07 11:51:00.873910Z",
+      "sha": "42b06e9a3327212dbcec461edcd41b5de95bc77d"
     }
   }
 }

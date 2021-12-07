@@ -2,13 +2,14 @@ library("tidyverse")
 
 df_input <- read_csv(
   here::here("output", "input.csv"),
-  col_types = cols(patient_id = col_integer(), age_death = col_double())
+  col_types = cols(patient_id = col_integer(), died_date_ons = col_date("%Y-%m-%d"))
 )
 
-plot_age <- ggplot(data=df_input, aes(df_input$age_death)) + 
+plot_dod <- ggplot(data=df_input, aes(df_input$died_date_ons)) + 
   geom_histogram(fill = "#9F67FF") +
-  labs(x = "Age at death", y = "Number of people") +
-  scale_y_continuous(limits = c(0, 80)) +
+  labs(x = "Date of death (ONS)", y = "Number of people") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %y", limits = c(as.Date("2019-03-01"), as.Date("2021-02-28")), expand = c(0,0)) +
+  scale_y_continuous(limits = c(0, 30), expand = c(0,0)) +
   theme_minimal() +
   theme(
     panel.background = element_rect(fill = "#F4F4F4", colour = "#F4F4F4"),
@@ -21,7 +22,7 @@ plot_age <- ggplot(data=df_input, aes(df_input$age_death)) +
     panel.grid.minor = element_blank(),
 
     axis.ticks = element_blank(),
-    axis.text.x = element_text(colour = "#9AA0AA", size = 8, family = "sans"),
+    axis.text.x = element_text(colour = "#9AA0AA", size = 8, family = "sans", angle = 45, hjust=1),
     axis.text.y = element_text(colour = "#9AA0AA", size = 8, family = "sans"),
     axis.title.x = element_text(margin = margin(t = 0.3, r = 0, b = 0, l = 0, unit = "cm"), colour = "#271544", size = 8, face = "bold"),
     axis.title.y = element_text(margin = margin(t = 0, r = 0.3, b = 0, l = 0, unit = "cm"), colour = "#271544", size = 8, face = "bold", angle = 90),
@@ -30,6 +31,6 @@ plot_age <- ggplot(data=df_input, aes(df_input$age_death)) +
   )
 
 ggsave(
-  plot = plot_age,
-  filename ="histogram.png", path = here::here("output"),
+  plot = plot_dod,
+  filename ="dod_histogram.png", path = here::here("output"),
 )

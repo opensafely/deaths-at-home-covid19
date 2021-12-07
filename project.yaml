@@ -14,8 +14,8 @@ actions:
     ## and add '.gz' to the output file path, to produce the output in compressed form to reduce file size.
 
   describe:
-    run: r:latest analysis/01_histogram.R
+    run: r:latest analysis/01_dod_histogram.R
     needs: [generate_study_population]
     outputs:
       moderately_sensitive:
-        cohort: output/histogram.png
+        cohort: output/dod_histogram.png

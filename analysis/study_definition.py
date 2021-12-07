@@ -204,19 +204,18 @@ study = StudyDefinition(
         return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
     ),
 
-    # outpatient_appointments_1yr=patients.outpatient_appointment_date(
+    #outpatient_appointments_1yr=patients.outpatient_appointment_date(
     #    returning="number_of_matches_in_period",
     #    between=["died_date_ons - 1 year", "died_date_ons"],
-    #    attended=True,
     #    return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
-    # ),
+    #),
 
-    # outpatient_attended_1yr=patients.outpatient_appointment_date(
+    #outpatient_attended_1yr=patients.outpatient_appointment_date(
     #    returning="number_of_matches_in_period",
     #    between=["died_date_ons - 1 year", "died_date_ons"],
     #    attended=True,
     #    return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
-    # ),
+    #),
 
     # Clinically coded activity in year prior to death
 
