@@ -1,6 +1,6 @@
-# opensafely-test
+# homes-deaths-covid19
 
-This is the code and configuration for opensafely-test.
+This is the code and configuration for home-deaths-covid19.
 
 You can run this project via [Gitpod](https://gitpod.io) in a web browser by clicking on this badge: [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/eiliskeeble/opensafely-test)
 
