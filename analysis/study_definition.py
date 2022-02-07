@@ -178,39 +178,39 @@ study = StudyDefinition(
 
     # Hospital activity in year prior to death
 
-    ae_visits_1yr=patients.attended_emergency_care(
+    aevis_1yr=patients.attended_emergency_care(
         returning="number_of_matches_in_period",
         between=["died_date_ons - 1 year", "died_date_ons"],
         return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8},
     ),
 
-    admissions_1yr=patients.admitted_to_hospital(
+    adm_1yr=patients.admitted_to_hospital(
         returning="number_of_matches_in_period",
         between=["died_date_ons - 1 year", "died_date_ons"],
         return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8},
     ),
 
-    emergency_admissions_1yr=patients.admitted_to_hospital(
+    emadm_1yr=patients.admitted_to_hospital(
         returning="number_of_matches_in_period",
         between=["died_date_ons - 1 year", "died_date_ons"],
         with_admission_method=['21', '2A', '22', '23', '24', '25', '2D'],
         return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8},
     ),
 
-    elective_admissions_1yr=patients.admitted_to_hospital(
+    eladm_1yr=patients.admitted_to_hospital(
         returning="number_of_matches_in_period",
         between=["died_date_ons - 1 year", "died_date_ons"],
         with_admission_method=['11', '12', '13'],
         return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8},
     ),
 
-    #op_appointments_1yr=patients.outpatient_appointment_date(
+    #opapp_1yr=patients.outpatient_appointment_date(
     #    returning="number_of_matches_in_period",
     #    between=["died_date_ons - 1 year", "died_date_ons"],
     #    return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8},
     #),
 
-    #op_attended_1yr=patients.outpatient_appointment_date(
+    #opatt_1yr=patients.outpatient_appointment_date(
     #    returning="number_of_matches_in_period",
     #    between=["died_date_ons - 1 year", "died_date_ons"],
     #    attended=True,
