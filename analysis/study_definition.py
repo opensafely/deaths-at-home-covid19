@@ -43,12 +43,17 @@ study = StudyDefinition(
         },
     ),
 
-    # place_of_death=
+    #place_of_death=patients.died_from_any_cause(
+    #   returning="place_of_death",
+    #   return_expectations={"category": {"ratios": {"Care home": 23.6, "Elsewhere": 2.2, "Home": 27.4, "Hospice": 4.4, "Hospital": 42.0, "Other communal establishment": 0.4}},
+    #   },
+    #),
 
-    # cause_of_death=patients.with_these_codes_on_death_certificate(
-    #    sudden_death_codes,
-    #    returning="underlying_cause_of_death"
-    # ),
+    cause_of_death=patients.died_from_any_cause(
+        returning="underlying_cause_of_death",
+        return_expectations={"category": {"ratios": {"I6":0.17, "J4":0.1, "F01":0.06, "J1":0.11 , "I2":0.43 , "C3":0.13}},
+        },
+    ),
 
     # Demographics
 
@@ -125,11 +130,6 @@ study = StudyDefinition(
             },
     ),
 
-    prison=patients.household_as_of(
-        "2020-02-01",
-        returning="is_prison"
-    ),
-
     household_size=patients.household_as_of(
         "2020-02-01",
         returning="household_size",
@@ -181,40 +181,40 @@ study = StudyDefinition(
     ae_visits_1yr=patients.attended_emergency_care(
         returning="number_of_matches_in_period",
         between=["died_date_ons - 1 year", "died_date_ons"],
-        return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
+        return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8},
     ),
 
     admissions_1yr=patients.admitted_to_hospital(
         returning="number_of_matches_in_period",
         between=["died_date_ons - 1 year", "died_date_ons"],
-        return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
+        return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8},
     ),
 
     emergency_admissions_1yr=patients.admitted_to_hospital(
         returning="number_of_matches_in_period",
         between=["died_date_ons - 1 year", "died_date_ons"],
         with_admission_method=['21', '2A', '22', '23', '24', '25', '2D'],
-        return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
+        return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8},
     ),
 
     elective_admissions_1yr=patients.admitted_to_hospital(
         returning="number_of_matches_in_period",
         between=["died_date_ons - 1 year", "died_date_ons"],
         with_admission_method=['11', '12', '13'],
-        return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
+        return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8},
     ),
 
-    #outpatient_appointments_1yr=patients.outpatient_appointment_date(
+    #op_appointments_1yr=patients.outpatient_appointment_date(
     #    returning="number_of_matches_in_period",
     #    between=["died_date_ons - 1 year", "died_date_ons"],
-    #    return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
+    #    return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8},
     #),
 
-    #outpatient_attended_1yr=patients.outpatient_appointment_date(
+    #op_attended_1yr=patients.outpatient_appointment_date(
     #    returning="number_of_matches_in_period",
     #    between=["died_date_ons - 1 year", "died_date_ons"],
     #    attended=True,
-    #    return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8}
+    #    return_expectations={"int": {"distribution": "normal", "mean": 5, "stddev": 1}, "incidence": 0.8},
     #),
 
     # Clinically coded activity in year prior to death
@@ -235,3 +235,4 @@ study = StudyDefinition(
 )
 
 # opensafely run run_all --force-run-dependencies
+# opensafely upgrade
