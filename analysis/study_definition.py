@@ -183,27 +183,23 @@ study = StudyDefinition(
     ## Long term conditions
     ltc = patients.with_these_clinical_events(
         ltc_codes,
-        #between = ["dod_ons - 1 year", "dod_ons"],
         returning = "binary_flag",
         find_first_match_in_period = True
     ),
 
     physical_ltc = patients.with_these_clinical_events(
         physical_ltc_codes,
-        #between = ["dod_ons - 1 year", "dod_ons"],
         returning = "binary_flag",
         find_first_match_in_period = True
     ),
 
     mental_ltc = patients.with_these_clinical_events(
         mental_ltc_codes,
-        #between = ["dod_ons - 1 year", "dod_ons"],
         returning = "binary_flag",
         find_first_match_in_period = True
     ),
 
     #frailty = patients.with_these_decision_support_values(
-    #    #between = ["dod_ons - 1 year", "dod_ons"],
     #    returning = "numeric_value",
     #    find_last_match_in_period = True,
     #    return_expectations = {

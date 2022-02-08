@@ -1,11 +1,11 @@
 ################################################################################
 
-########## SERVICE USE ##########
+########## DESCRIBE SERVICE USE ##########
 
 ################################################################################
 
 # Time periods 1 month, 3 months, 1 year
-# Quantify for patients by cohort (date of death) and place of death separately
+# Quantify service use for patients by cohort (date of death) and place of death separately
 
 # Bivariate comparisons
 # Prepandemic - service use variation by place of death
