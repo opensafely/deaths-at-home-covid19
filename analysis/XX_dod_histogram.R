@@ -1,11 +1,21 @@
+########## TEST OPENSAFELY OUTPUT PROCESS ##########
+
+# Make a date of death frequency plot
+
+########## Libraries ##########
+
 library("tidyverse")
+
+########## Import data ##########
 
 df_input <- read_csv(
   here::here("output", "input.csv"),
-  col_types = cols(patient_id = col_integer(), died_date_ons = col_date("%Y-%m-%d"))
+  col_types = cols(patient_id = col_integer(), dod_ons = col_date("%Y-%m-%d"))
 )
 
-plot_dod <- ggplot(data=df_input, aes(df_input$died_date_ons)) + 
+########## Make plot ##########
+
+plot_dod <- ggplot(data=df_input, aes(df_input$dod_ons)) + 
   geom_histogram(fill = "#9F67FF") +
   labs(x = "Date of death (ONS)", y = "Number of people") +
   scale_x_date(date_breaks = "1 month", date_labels = "%b %y", limits = c(as.Date("2019-03-01"), as.Date("2021-02-28")), expand = c(0,0)) +
@@ -29,6 +39,8 @@ plot_dod <- ggplot(data=df_input, aes(df_input$died_date_ons)) +
     plot.title = element_text(margin = margin(t = 0, r = 0, b = 0.3, l = 0, unit = "cm"), colour = "#271544", size = 10, face = "bold", hjust = 0),
     plot.title.position = "plot"
   )
+
+########## Save plot ##########
 
 ggsave(
   plot = plot_dod,

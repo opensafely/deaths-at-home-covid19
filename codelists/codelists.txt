@@ -1,23 +1,22 @@
 opensafely/ethnicity/2020-04-27
 
-opensafely/asthma-diagnosis/2020-04-15
-opensafely/chronic-cardiac-disease/2020-04-08
-opensafely/chronic-liver-disease/2020-06-02
-opensafely/chronic-respiratory-disease/2020-04-10
-opensafely/diabetes/2020-04-15
-opensafely/chronic-kidney-disease/2020-04-14
+opensafely/atrial-fibrillation-or-flutter/2020-07-30
+opensafely/heart-failure/2020-05-05
 opensafely/hypertension/2020-04-28
+opensafely/peripheral-arterial-disease/50e915d7
+opensafely/stroke-updated/2020-06-02
+opensafely/asthma-diagnosis/2020-04-15
+opensafely/chronic-respiratory-disease/2020-04-10
+opensafely/chronic-kidney-disease/2020-04-14
 opensafely/cancer-excluding-lung-and-haematological/2020-04-15
 opensafely/haematological-cancer/2020-04-15
 opensafely/lung-cancer/2020-04-15
-opensafely/inflammatory-bowel-disease/2020-04-07
-opensafely/other-neurological-conditions/2020-06-02
+opensafely/diabetes/2020-04-15
 opensafely/rheumatoid-arthritis/2020-05-12
+opensafely/osteoarthritis/2020-06-04
 opensafely/dementia/2020-04-22
 opensafely/depression/2020-07-09
-
-user/eiliskeeble/nhs-111/005f30b0
-user/eiliskeeble/gp-out-of-hours/56588a27
-user/eiliskeeble/sudden-death/77803d3e
+opensafely/psychosis-schizophrenia-bipolar-affective-disease/2020-07-09
+opensafely/learning-disabilities/2020-07-06
 
 # opensafely codelists update
