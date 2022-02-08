@@ -6,38 +6,16 @@ expectations:
 actions:
 
   generate_study_population:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition
+    run: cohortextractor:latest generate_cohort --study-definition study_definition --output-format feather
     outputs:
       highly_sensitive:
-        cohort: output/input.csv
-    ## note: when running studies for real it is recommended to add the option --output-format='csv.gz' to the run command, 
-    ## and add '.gz' to the output file path, to produce the output in compressed form to reduce file size.
+        cohort: output/input.feather
 
   #generate_report:
-  #  run: cohort-report:v3.0.0 output/input.csv
+  #  run: cohort-report:v3.0.0 output/input.feather
   #  needs: [generate_study_population]
   #  config:
-  #    variable_types:
-  #      dod_ons: date
-  #      pod_ons: categorical
-  #      cod_ons: categorical
-  #      sex: categorical
-  #      age: int
-  #      ethnicity6: categorical 
-  #      ethnicity6_sus: categorical 
-  #      imd: int
-  #      carehome: binary
-  #      carehome_type: categorical
-  #      hhold_size: int
-  #      ltc: binary
-  #      physical_ltc: binary
-  #      mental_ltc: binary
-  #      aevis_1yr: int
-  #      adm_1yr: int
-  #      emadm_1yr: int
-  #      eladm_1yr: int
-  #      gp_1yr: int
-  #  output_path: output/cohort_reports_outputs
+  #    output_path: output/cohort_reports_outputs
   #outputs: 
   #  moderately_sensitive:
   #    reports: output/cohort_reports_outputs/descriptives_input.html

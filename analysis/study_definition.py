@@ -31,9 +31,18 @@ study = StudyDefinition(
 
     ## Study population
     # Everyone who died between March 2019 and February 2021
-    population = patients.died_from_any_cause(
+    # Registered with TPP on date of death - could make this more/less flexible
+    # Not sure if this is doing what I want around registered
+    population = patients.satisfying(
+        "has_died AND has_registered",
+        has_died = patients.died_from_any_cause(
         between = [EARLIEST, LATEST],
         return_expectations = {"incidence": 1.0}
+        ),
+        has_registered = patients.registered_as_of(
+            "dod_ons",
+            return_expectations = {"incidence": 0.98}
+        )
     ),
 
     ## CREATE VARIABLES ##
@@ -55,12 +64,12 @@ study = StudyDefinition(
 
     ## ONS place of death 
     # Distribution from English death locations
-    #pod_ons=patients.died_from_any_cause(
-    #   returning="place_of_death",
-    #   return_expectations={
-    #       "category": {"ratios": {"Care home": 23.6, "Elsewhere": 2.2, "Home": 27.4, "Hospice": 4.4, "Hospital": 42.0, "Other communal establishment": 0.4}}
-    #   }
-    #),
+    pod_ons=patients.died_from_any_cause(
+       returning="place_of_death",
+       return_expectations={
+           "category": {"ratios": {"Care home": 0.236, "Elsewhere": 0.022, "Home": 0.274, "Hospice": 0.044, "Hospital": 0.42, "Other communal establishment": 0.004}}
+       }
+    ),
 
     ## ONS underlying cause of death 
     # Will want to create a categorised version of this later e.g. sudden deaths
@@ -199,14 +208,10 @@ study = StudyDefinition(
         find_first_match_in_period = True
     ),
 
-    #frailty = patients.with_these_decision_support_values(
-    #    returning = "numeric_value",
-    #    find_last_match_in_period = True,
-    #    return_expectations = {
-    #    "int": {"distribution": "normal", "mean": 1, "stddev": 1}, 
-    #    "incidence": 0.4
-    #    }
-    #),
+    frailty = patients.with_these_decision_support_values(
+        algorithm = "electronic_frailty_index",
+        returning = "binary_flag"
+    ),
 
     # EOL register
 
@@ -216,7 +221,7 @@ study = StudyDefinition(
 
     aevis_1yr = patients.attended_emergency_care(
         returning = "number_of_matches_in_period",
-        between = ["dod_ons - 1 year", "dod_ons"],
+        between = ["dod_ons - 365 days", "dod_ons"],
         return_expectations = {
             "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
             "incidence": 0.8
@@ -225,7 +230,7 @@ study = StudyDefinition(
 
     adm_1yr = patients.admitted_to_hospital(
         returning = "number_of_matches_in_period",
-        between = ["dod_ons - 1 year", "dod_ons"],
+        between = ["dod_ons - 365 days", "dod_ons"],
         return_expectations = {
             "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
             "incidence": 0.8
@@ -234,7 +239,7 @@ study = StudyDefinition(
 
     emadm_1yr = patients.admitted_to_hospital(
         returning = "number_of_matches_in_period",
-        between = ["dod_ons - 1 year", "dod_ons"],
+        between = ["dod_ons - 365 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
         return_expectations = {
             "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
@@ -244,7 +249,7 @@ study = StudyDefinition(
 
     eladm_1yr = patients.admitted_to_hospital(
         returning = "number_of_matches_in_period",
-        between = ["dod_ons - 1 year", "dod_ons"],
+        between = ["dod_ons - 365 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
         return_expectations = {
             "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
@@ -252,31 +257,30 @@ study = StudyDefinition(
             }
     ),
 
-    #opapp_1yr = patients.outpatient_appointment_date(
-    #    returning = "number_of_matches_in_period",
-    #    between = ["dod_ons - 1 year", "dod_ons"],
-    #    return_expectations = {
-    #        "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
-    #        "incidence": 0.8
-    #        }
-    #),
+    opapp_1yr = patients.outpatient_appointment_date(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
 
-    #opatt_1yr = patients.outpatient_appointment_date(
-    #    returning = "number_of_matches_in_period",
-    #    between = ["dod_ons - 1 year", "dod_ons"],
-    #    attended = True,
-    #    return_expectations = {
-    #        "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
-    #        "incidence": 0.8
-    #        }
-    #),
+    opatt_1yr = patients.outpatient_appointment_date(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        attended = True,
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
 
     ## GP clinical coded activity in year prior to death
     # Use as a proxy for contact with GP
-
     gp_1yr = patients.with_gp_consultations(
         returning = "number_of_matches_in_period",
-        between = ["dod_ons - 1 year", "dod_ons"],
+        between = ["dod_ons - 365 days", "dod_ons"],
         return_expectations = {
             "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
             "incidence": 0.8
@@ -289,3 +293,4 @@ study = StudyDefinition(
 
 # opensafely run run_all --force-run-dependencies
 # opensafely upgrade
+# opensafely pull
