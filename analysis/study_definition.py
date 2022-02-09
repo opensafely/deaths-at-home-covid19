@@ -43,7 +43,8 @@ study = StudyDefinition(
     #        "dod_ons",
     #        return_expectations = {"incidence": 0.98}
     #    )
-    #),  
+    #),
+   
     population = patients.died_from_any_cause(
         between = [EARLIEST, LATEST],
         return_expectations = {"incidence": 1.0}
