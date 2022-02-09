@@ -33,21 +33,21 @@ study = StudyDefinition(
     # Everyone who died between March 2019 and February 2021
     # Registered with TPP on date of death - could make this more/less flexible
     # Not sure if this is doing what I want around registered
-    #population = patients.satisfying(
-    #    "has_died AND has_registered",
-    #    has_died = patients.died_from_any_cause(
-    #    between = [EARLIEST, LATEST],
-    #    return_expectations = {"incidence": 1.0}
-    #    ),
-    #    has_registered = patients.registered_as_of(
-    #        "dod_ons",
-    #        return_expectations = {"incidence": 0.98}
-    #    )
-    #),  
-    population = patients.died_from_any_cause(
+    population = patients.satisfying(
+        "has_died AND has_registered",
+        has_died = patients.died_from_any_cause(
         between = [EARLIEST, LATEST],
         return_expectations = {"incidence": 1.0}
-    ),
+        ),
+        has_registered = patients.registered_as_of(
+            "dod_ons",
+            return_expectations = {"incidence": 0.98}
+        )
+    ),  
+    #population = patients.died_from_any_cause(
+    #    between = [EARLIEST, LATEST],
+    #    return_expectations = {"incidence": 1.0}
+    #),
 
     ## CREATE VARIABLES ##
 
