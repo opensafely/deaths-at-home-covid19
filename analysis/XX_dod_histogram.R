@@ -8,18 +8,16 @@ library("tidyverse")
 
 ########## Import data ##########
 
-df_input <- read_csv(
-  here::here("output", "input.csv"),
-  col_types = cols(patient_id = col_integer(), dod_ons = col_date("%Y-%m-%d"))
-)
+df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>%
+mutate(dod_ons = as.Date(dod_ons, format = "%Y-%m-%d"))
 
 ########## Make plot ##########
 
-plot_dod <- ggplot(data=df_input, aes(df_input$dod_ons)) + 
+plot_dod <- ggplot(df_input, aes(dod_ons)) + 
   geom_histogram(fill = "#9F67FF") +
   labs(x = "Date of death (ONS)", y = "Number of people") +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b %y", limits = c(as.Date("2019-03-01"), as.Date("2021-02-28")), expand = c(0,0)) +
-  scale_y_continuous(limits = c(0, 30), expand = c(0,0)) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %y", limits = c(as.Date("2019-03-01"), as.Date("2021-02-28")), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 30), expand = c(0, 0)) +
   theme_minimal() +
   theme(
     panel.background = element_rect(fill = "#F4F4F4", colour = "#F4F4F4"),
@@ -42,7 +40,4 @@ plot_dod <- ggplot(data=df_input, aes(df_input$dod_ons)) +
 
 ########## Save plot ##########
 
-ggsave(
-  plot = plot_dod,
-  filename ="dod_histogram.png", path = here::here("output"),
-)
+ggsave(plot = plot_dod, filename ="dod_histogram.png", path = here::here("output"))
