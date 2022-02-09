@@ -6,13 +6,14 @@ expectations:
 actions:
 
   generate_study_population:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition --output-format feather
+    run: cohortextractor:latest generate_cohort --study-definition study_definition 
+    #--output-format feather
     outputs:
       highly_sensitive:
-        cohort: output/input.feather
+        cohort: output/input.csv
 
   #generate_report:
-  #  run: cohort-report:v3.0.0 output/input.feather
+  #  run: cohort-report:v3.0.0 output/input.csv
   #  needs: [generate_study_population]
   #  config:
   #    output_path: output/cohort_reports_outputs
