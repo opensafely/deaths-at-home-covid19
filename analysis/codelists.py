@@ -4,83 +4,95 @@ ethnicity_codes_6 = codelist_from_csv("codelists/opensafely-ethnicity.csv", syst
 
 # Will need to revise these/check they align with QOF
 
-af_codes = codelist_from_csv("codelists/opensafely-atrial-fibrillation-or-flutter.csv", system = "ctv3", column = "CTV3Code")
+afib_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-afib_cod.csv", system = "snomed", column = "code")
 
-hf_codes = codelist_from_csv("codelists/opensafely-heart-failure.csv", system = "ctv3", column = "CTV3ID")
+hf_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-hf_cod.csv", system = "snomed", column = "code")
 
-hypertension_codes = codelist_from_csv("codelists/opensafely-hypertension.csv", system = "ctv3", column = "CTV3ID")
+hyp_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-hyp_cod.csv", system = "snomed", column = "code")
 
-periph_art_codes = codelist_from_csv("codelists/opensafely-peripheral-arterial-disease.csv", system = "ctv3", column = "code")
+pad_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-pad_cod.csv", system = "snomed", column = "code")
 
-stroke_codes = codelist_from_csv("codelists/opensafely-stroke-updated.csv", system = "ctv3", column = "CTV3ID")
+strk_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-strk_cod.csv", system = "snomed", column = "code")
 
-asthma_codes = codelist_from_csv("codelists/opensafely-asthma-diagnosis.csv", system = "ctv3", column = "CTV3ID")
+chd_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-chd_cod.csv", system = "snomed", column = "code")
 
-# QOF COPD available but snomed so can't combine with other codelists
-copd_codes = codelist_from_csv("codelists/opensafely-chronic-respiratory-disease.csv", system = "ctv3", column = "CTV3ID",)
+ast_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-ast_cod.csv", system = "snomed", column = "code")
 
-haem_cancer_codes = codelist_from_csv("codelists/opensafely-haematological-cancer.csv", system = "ctv3", column = "CTV3ID")
+copd_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-copd_cod.csv", system = "snomed", column = "code")
 
-lung_cancer_codes = codelist_from_csv("codelists/opensafely-lung-cancer.csv", system = "ctv3", column = "CTV3ID")
+haemcan_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-c19haemcan_cod.csv", system = "snomed", column = "code")
 
-other_cancer_codes = codelist_from_csv("codelists/opensafely-cancer-excluding-lung-and-haematological.csv", system = "ctv3", column = "CTV3ID")
+can_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-c19can_cod.csv", system = "snomed", column = "code")
 
-chronic_kidney_disease_codes = codelist_from_csv("codelists/opensafely-chronic-kidney-disease.csv", system = "ctv3", column = "CTV3ID")
+ckd_codes1 = codelist_from_csv("nhsd-primary-care-domain-refsets-ckd_cod.csv", system = "snomed", column = "code")
+ckd_codes2 = codelist_from_csv("nhsd-primary-care-domain-refsets-ckd1and2_cod.csv", system = "snomed", column = "code")
 
-diabetes_codes = codelist_from_csv("codelists/opensafely-diabetes.csv", system = "ctv3", column = "CTV3ID")
+dm_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-dm_cod.csv", system = "snomed", column = "code")
 
-arthritis_codes = codelist_from_csv("codelists/opensafely-rheumatoid-arthritis.csv", system = "ctv3", column = "CTV3ID")
+rarth_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-rarth_cod.csv", system = "snomed", column = "code")
 
-osteoarthritis_codes = codelist_from_csv("codelists/opensafely-osteoarthritis.csv", system = "ctv3", column = "CTV3ID")
+dem_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-dem_cod.csv", system = "snomed", column = "code")
 
-dementia_codes = codelist_from_csv("codelists/opensafely-dementia.csv", system = "ctv3", column = "CTV3ID")
+depr_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-depr_cod.csv", system = "snomed", column = "code")
 
-depression_codes = codelist_from_csv("codelists/opensafely-depression.csv", system = "ctv3", column = "CTV3Code")
+mh_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-mh_cod.csv", system = "snomed", column = "code")
 
-psych_codes = codelist_from_csv("codelists/opensafely-psychosis-schizophrenia-bipolar-affective-disease.csv", system = "ctv3", column = "CTV3Code")
+ld_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-ld_cod.csv", system = "snomed", column = "code")
 
-ld_codes = codelist_from_csv("codelists/opensafely-learning-disabilities.csv", system = "ctv3", column = "CTV3Code")
+palcare_codes1 = codelist_from_csv("nhsd-primary-care-domain-refsets-palcare_cod.csv", system = "snomed", column = "code")
+#palcare_codes2 = codelist_from_csv("nhsd-primary-care-domain-refsets-palcareni_cod.csv", system = "snomed", column = "code")
+
+epil_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-epil_cod.csv", system = "snomed", column = "code") 
+
+osteo_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-osteo_cod.csv", system = "snomed", column = "code") 
+
+ndh_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-ndh_cod.csv", system = "snomed", column = "code") 
 
 physical_ltc_codes = combine_codelists(
     # Atrial fibrillation
-    af_codes,
+    afib_codes,
     # Coronary heart disease
+    chd_codes,
     # Heart failure 
     hf_codes,
     # Hypertension
-    hypertension_codes,
+    hyp_codes,
     # Peripheral arterial disease
-    periph_art_codes,
+    pad_codes,
     # Stroke and transient ischaemic attack
-    stroke_codes,
+    strk_codes,
     # Asthma
-    asthma_codes,
+    ast_codes,
     # COPD
     copd_codes,
     # Cancer
-    haem_cancer_codes,
-    lung_cancer_codes,
-    other_cancer_codes,
+    haemcan_codes,
+    can_codes,
     # Chronic kidney disease
-    chronic_kidney_disease_codes,
+    ckd_codes1,
+    ckd_codes2,
     # Diabetes mellitus
-    diabetes_codes,
+    dm_codes,
     # Palliative care
+    palcare_codes1,
+    #palcare_codes2,
     # Epilepsy
+    epil_codes,
     # Osteoporosis
+    osteo_codes,
     # Rheumatoid arthiritis
-    arthritis_codes,
-    osteoarthritis_codes
+    rarth_codes,
     # Non-diabetic hyperglycaemia? 
+    ndh_codes
 )
 
 mental_ltc_codes = combine_codelists(
     # Dementia
-    dementia_codes,
+    dem_codes,
     # Depression
-    depression_codes,
+    depr_codes,
     # Schizophrenia, Bipolar effective disorder, Psychoses
-    psych_codes,
+    mh_codes,
     # Learning disability?
     ld_codes
 )

@@ -217,6 +217,163 @@ study = StudyDefinition(
         returning = "binary_flag"
     ),
 
+    # Atrial fibrillation
+    ltc_afib = patients.with_these_clinical_events(
+        afib_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+    # Coronary heart disease
+    ltc_chd = patients.with_these_clinical_events(
+        chd_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Heart failure 
+    ltc_hf = patients.with_these_clinical_events(
+        hf_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Hypertension
+    ltc_hyp = patients.with_these_clinical_events(
+        hyp_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Peripheral arterial disease
+    ltc_pad = patients.with_these_clinical_events(
+        pad_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Stroke and transient ischaemic attack
+    ltc_strk = patients.with_these_clinical_events(
+        strk_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Asthma
+    ltc_ast = patients.with_these_clinical_events(
+        ast_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # COPD
+    ltc_copd = patients.with_these_clinical_events(
+        copd_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Cancer
+    ltc_haemcan = patients.with_these_clinical_events(
+        haemcan_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    ltc_can = patients.with_these_clinical_events(
+        can_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Chronic kidney disease
+    ltc_ckd1 = patients.with_these_clinical_events(
+        ckd_codes1,
+            returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    ltc_ckd2 = patients.with_these_clinical_events(
+        ckd_codes2,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Diabetes mellitus
+    ltc_dm = patients.with_these_clinical_events(
+        dm_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Palliative care
+    ltc_palcare1 = patients.with_these_clinical_events(
+        palcare_codes1,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    #ltc_palcare2 = patients.with_these_clinical_events(
+    #    palcare_codes2,
+    #    returning = "binary_flag",
+    #    find_first_match_in_period = True
+    #),
+
+    # Epilepsy
+    ltc_epil = patients.with_these_clinical_events(
+        epil_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Osteoporosis
+    ltc_osteo = patients.with_these_clinical_events(
+        osteo_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Rheumatoid arthiritis
+    ltc_rarth = patients.with_these_clinical_events(
+        rarth_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Non-diabetic hyperglycaemia? 
+    ltc_ndh = patients.with_these_clinical_events(
+        ndh_codes
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Dementia
+    ltc_dem = patients.with_these_clinical_events(
+        dem_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Depression
+    ltc_depr = patients.with_these_clinical_events(
+        depr_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Schizophrenia, Bipolar effective disorder, Psychoses
+    ltc_mh = patients.with_these_clinical_events(
+        mh_codes,
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
+    # Learning disability?
+    ltc_ld = patients.with_these_clinical_events(
+        ld_codes 
+        returning = "binary_flag",
+        find_first_match_in_period = True
+    ),
+
     # EOL register
 
     ## SERVICE USE ##
@@ -260,6 +417,8 @@ study = StudyDefinition(
             "incidence": 0.8
             }
     ),
+
+    # Bed days??
 
     opapp_1yr = patients.outpatient_appointment_date(
         returning = "number_of_matches_in_period",
