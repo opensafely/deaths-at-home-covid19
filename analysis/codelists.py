@@ -1,52 +1,52 @@
 from cohortextractor import (codelist_from_csv, combine_codelists)
 
-ethnicity_codes_6 = codelist_from_csv("codelists/opensafely-ethnicity.csv", system = "ctv3", column = "Code", category_column = "Grouping_6",)
+ethnicity_codes_6 = codelist_from_csv("codelists/opensafely-ethnicity.csv", system = "ctv3", column = "Code", category_column = "Grouping_6")
 
 # Will need to revise these/check they align with QOF
 
-afib_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-afib_cod.csv", system = "snomed", column = "code")
+afib_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-afib_cod.csv", system = "snomed", column = "code")
 
-hf_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-hf_cod.csv", system = "snomed", column = "code")
+hf_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-hf_cod.csv", system = "snomed", column = "code")
 
-hyp_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-hyp_cod.csv", system = "snomed", column = "code")
+hyp_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-hyp_cod.csv", system = "snomed", column = "code")
 
-pad_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-pad_cod.csv", system = "snomed", column = "code")
+pad_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-pad_cod.csv", system = "snomed", column = "code")
 
-strk_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-strk_cod.csv", system = "snomed", column = "code")
+strk_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-strk_cod.csv", system = "snomed", column = "code")
 
-chd_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-chd_cod.csv", system = "snomed", column = "code")
+chd_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-chd_cod.csv", system = "snomed", column = "code")
 
-ast_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-ast_cod.csv", system = "snomed", column = "code")
+ast_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-ast_cod.csv", system = "snomed", column = "code")
 
-copd_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-copd_cod.csv", system = "snomed", column = "code")
+copd_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-copd_cod.csv", system = "snomed", column = "code")
 
-haemcan_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-c19haemcan_cod.csv", system = "snomed", column = "code")
+haemcan_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-c19haemcan_cod.csv", system = "snomed", column = "code")
 
-can_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-c19can_cod.csv", system = "snomed", column = "code")
+can_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-c19can_cod.csv", system = "snomed", column = "code")
 
-ckd_codes1 = codelist_from_csv("nhsd-primary-care-domain-refsets-ckd_cod.csv", system = "snomed", column = "code")
-ckd_codes2 = codelist_from_csv("nhsd-primary-care-domain-refsets-ckd1and2_cod.csv", system = "snomed", column = "code")
+ckd_codes1 = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-ckd_cod.csv", system = "snomed", column = "code")
+ckd_codes2 = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-ckd1and2_cod.csv", system = "snomed", column = "code")
 
-dm_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-dm_cod.csv", system = "snomed", column = "code")
+dm_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-dm_cod.csv", system = "snomed", column = "code")
 
-rarth_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-rarth_cod.csv", system = "snomed", column = "code")
+rarth_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-rarth_cod.csv", system = "snomed", column = "code")
 
-dem_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-dem_cod.csv", system = "snomed", column = "code")
+dem_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-dem_cod.csv", system = "snomed", column = "code")
 
-depr_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-depr_cod.csv", system = "snomed", column = "code")
+depr_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-depr_cod.csv", system = "snomed", column = "code")
 
-mh_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-mh_cod.csv", system = "snomed", column = "code")
+mh_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-mh_cod.csv", system = "snomed", column = "code")
 
-ld_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-ld_cod.csv", system = "snomed", column = "code")
+ld_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-ld_cod.csv", system = "snomed", column = "code")
 
-palcare_codes1 = codelist_from_csv("nhsd-primary-care-domain-refsets-palcare_cod.csv", system = "snomed", column = "code")
-#palcare_codes2 = codelist_from_csv("nhsd-primary-care-domain-refsets-palcareni_cod.csv", system = "snomed", column = "code")
+palcare_codes1 = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-palcare_cod.csv", system = "snomed", column = "code")
+#palcare_codes2 = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-palcareni_cod.csv", system = "snomed", column = "code")
 
-epil_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-epil_cod.csv", system = "snomed", column = "code") 
+epil_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-epil_cod.csv", system = "snomed", column = "code") 
 
-osteo_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-osteo_cod.csv", system = "snomed", column = "code") 
+osteo_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-osteo_cod.csv", system = "snomed", column = "code") 
 
-ndh_codes = codelist_from_csv("nhsd-primary-care-domain-refsets-ndh_cod.csv", system = "snomed", column = "code") 
+ndh_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-ndh_cod.csv", system = "snomed", column = "code") 
 
 physical_ltc_codes = combine_codelists(
     # Atrial fibrillation

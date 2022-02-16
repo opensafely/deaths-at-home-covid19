@@ -341,7 +341,7 @@ study = StudyDefinition(
 
     # Non-diabetic hyperglycaemia? 
     ltc_ndh = patients.with_these_clinical_events(
-        ndh_codes
+        ndh_codes,
         returning = "binary_flag",
         find_first_match_in_period = True
     ),
@@ -369,7 +369,7 @@ study = StudyDefinition(
 
     # Learning disability?
     ltc_ld = patients.with_these_clinical_events(
-        ld_codes 
+        ld_codes, 
         returning = "binary_flag",
         find_first_match_in_period = True
     ),
