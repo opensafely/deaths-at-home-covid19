@@ -71,6 +71,7 @@ study = StudyDefinition(
     pod_ons=patients.died_from_any_cause(
        returning="place_of_death",
        return_expectations={
+           "rate": "universal",
            "category": {"ratios": {"Care home": 0.236, "Elsewhere": 0.022, "Home": 0.274, "Hospice": 0.044, "Hospital": 0.42, "Other communal establishment": 0.004}}
        }
     ),

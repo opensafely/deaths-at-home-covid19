@@ -5,11 +5,13 @@
 ########## Libraries ##########
 
 library("tidyverse")
+library("lubridate")
 
 ########## Import data ##########
 
 df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>%
-mutate(dod_ons = as.Date(dod_ons, format = "%Y-%m-%d"))
+mutate(dod_ons = as_date(dod_ons))
+
 
 ########## Make plot ##########
 
