@@ -137,6 +137,12 @@
       "url": "https://codelists.opensafely.org/codelist/nhsd-primary-care-domain-refsets/palcare_cod/20200812/",
       "downloaded_at": "2022-02-15 11:36:26.557473Z",
       "sha": "777b61f976301db98e5da0c5b9ceebe48222558f"
+    },
+    "opensafely-midazolam-end-of-life.csv": {
+      "id": "opensafely/midazolam-end-of-life/4c1b3c89",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/midazolam-end-of-life/4c1b3c89/",
+      "downloaded_at": "2022-02-16 14:09:09.228625Z",
+      "sha": "6478270c4b76768366bcf585622905154fb32d91"
     }
   }
 }

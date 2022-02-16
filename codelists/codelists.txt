@@ -24,5 +24,6 @@ nhsd-primary-care-domain-refsets/ndh_cod/20200812
 
 nhsd-primary-care-domain-refsets/palcare_cod/20200812
 #nhsd-primary-care-domain-refsets/palcareni_cod/20200812
+opensafely/midazolam-end-of-life/4c1b3c89
 
 # opensafely codelists update

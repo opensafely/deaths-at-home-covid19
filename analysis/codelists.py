@@ -1,8 +1,10 @@
 from cohortextractor import (codelist_from_csv, combine_codelists)
 
+## DEMOGRAPHICS ##
+
 ethnicity_codes_6 = codelist_from_csv("codelists/opensafely-ethnicity.csv", system = "ctv3", column = "Code", category_column = "Grouping_6")
 
-# Will need to revise these/check they align with QOF
+## LONG TERM CONDITIONS ##
 
 afib_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-afib_cod.csv", system = "snomed", column = "code")
 
@@ -92,12 +94,15 @@ mental_ltc_codes = combine_codelists(
     # Depression
     depr_codes,
     # Schizophrenia, Bipolar effective disorder, Psychoses
-    mh_codes,
-    # Learning disability?
-    ld_codes
+    mh_codes
 )
 
 ltc_codes = combine_codelists(
     physical_ltc_codes,
-    mental_ltc_codes
+    mental_ltc_codes,
+    ld_codes
 )
+
+## MEDICATION ##
+
+midazolam_codes = codelist_from_csv("codelists/opensafely-midazolam-end-of-life.csv", system = "snomed", column = "dmd_id") 
