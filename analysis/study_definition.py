@@ -451,7 +451,17 @@ study = StudyDefinition(
             }
     ),
 
-    # EOL medication - code list
+    ## EOL medication
+    # Start with midazolam as existing codelist
+    eol_med_1yr = patients.with_these_medications(
+        midazolam_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    )
 
 )
 
