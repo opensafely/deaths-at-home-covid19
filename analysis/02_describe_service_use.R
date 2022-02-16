@@ -13,6 +13,17 @@
 
 ################################################################################
 
+########## Save log ##########
+
+# Send log to an output text file
+logfile <- file("logs/02_describe_service_use_log.txt")
+sink(logfile, append=TRUE)
+sink(logfile, append=TRUE, type="message")
+
+source("analysis/02_describe_service_use.R", echo=TRUE, max.deparse.length=10000)
+
+################################################################################
+
 ########## Libraries ##########
 
 library("tidyverse")
@@ -81,5 +92,13 @@ service_use_ratio_pod <- df_input %>%
     mutate(ratio = cohort_1 / cohort_0)
 
 write_csv(service_use_ratio_pod, here::here("output", "service_use_ratio_pod.csv"))
+
+################################################################################
+
+########## Stop saving log ##########
+
+# send output back to screen
+sink()
+sink(type="message")
 
 ################################################################################

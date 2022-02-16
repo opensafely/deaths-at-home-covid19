@@ -1,0 +1,94 @@
+
+> ################################################################################
+> 
+> ########## DESCRIBE SERVICE USE ##########
+> 
+> ################################################################################
+> 
+> # Time periods 1 month, 3 months, 1 year
+> # Quantify service use for patients by cohort (date of death) and place of death separately
+> 
+> # Bivariate comparisons
+> # Prepandemic - service use variation by place of death
+> # For each place of death - change in service use pre to phases of pandemic
+> 
+> ################################################################################
+> 
+> ########## Libraries ##########
+> 
+> library("tidyverse")
+
+> library("lubridate")
+
+> ################################################################################
+> 
+> ########## Import data ##########
+> 
+> # Convert dod to date variable
+> # Create cohort flag
+> # Death quarter variable starting in March so it is quarters of the cohort period
+> 
+> df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>%
++   mutate(dod_ons = as_date(dod_ons)
++         , cohort = case_when(dod_ons >= as_date("2019-03-01") & dod_ons <= as_date("2020-02-29") ~ 0
++                               , dod_ons >= as_date("2020-03-01") & dod_ons <= as_date("2021-02-28") ~ 1
++                               , TRUE ~ NA_real_)
++         , study_quarter = case_when(month(dod_ons) %in% c(3, 4, 5) & year(dod_ons) == 2019 ~ 1
++                                     , month(dod_ons) %in% c(6, 7, 8) & year(dod_ons) == 2019 ~ 2
++                                     , month(dod_ons) %in% c(9, 10, 11) & year(dod_ons) == 2019 ~ 3
++                                     , (month(dod_ons) == 12 & year(dod_ons) == 2019) | (month(dod_ons) %in% c(1, 2) & year(dod_ons) == 2020) ~ 4
++                                     , month(dod_ons) %in% c(3, 4, 5) & year(dod_ons) == 2020 ~ 5
++                                     , month(dod_ons) %in% c(6, 7, 8) & year(dod_ons) == 2020 ~ 6
++                                     , month(dod_ons) %in% c(9, 10, 11) & year(dod_ons) == 2020 ~ 7
++                                     , (month(dod_ons) == 12 & year(dod_ons) == 2020) | (month(dod_ons) %in% c(1, 2) & year(dod_ons) == 2021) ~ 8))
+
+> ################################################################################
+> 
+> ########## Descriptive stats service use by cohort ##########
+> 
+> # Just mean currently
+> 
+> service_use_mean_cohort <- df_input %>%
++     select(cohort, ends_with("_1yr")) %>%
++     pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
++     group_by(cohort, measure) %>%
++     summarise(mean = mean(value, na.rm = TRUE))
+`summarise()` has grouped output by 'cohort'. You can override using the `.groups` argument.
+
+> write_csv(service_use_mean_cohort, here::here("output", "service_use_mean_cohort.csv"))
+[1mwrote[0m [32m122.00B[0m in [36m 0s[0m, [32m12.18MB/s[0m                                                                                                                                                             [1mwrote[0m [32m1.00TB[0m in [36m 0s[0m, [32m1.86PB/s[0m                                                                                                                                                             
+> ################################################################################
+> 
+> ########## Descriptive stats service use by place of death ##########
+> 
+> service_use_mean_pod <- df_input %>%
++     select(pod_ons, ends_with("_1yr")) %>%
++     pivot_longer(cols = -c(pod_ons), names_to = "measure", values_to = "value") %>%
++     group_by(pod_ons, measure) %>%
++     summarise(mean = mean(value, na.rm = TRUE))
+`summarise()` has grouped output by 'pod_ons'. You can override using the `.groups` argument.
+
+> write_csv(service_use_mean_pod, here::here("output", "service_use_mean_pod.csv"))
+[1mwrote[0m [32m149.00B[0m in [36m 0s[0m, [32m13.59MB/s[0m[1mwrote[0m [32m1.00TB[0m in [36m 0s[0m, [32m596.97TB/s[0m                                                                                                                                                             
+> ################################################################################
+> 
+> ########## Ratios of mean service use ##########
+> 
+> # Think about significance testing
+> 
+> service_use_ratio_pod <- df_input %>%
++     select(cohort, pod_ons, ends_with("_1yr")) %>%
++     pivot_longer(cols = -c(cohort, pod_ons), names_to = "measure", values_to = "value") %>%
++     group_by(cohort, pod_ons, measure) %>%
++     summarise(mean = mean(value, na.rm = TRUE)) %>%
++     pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = mean) %>%
++     mutate(ratio = cohort_1 / cohort_0)
+`summarise()` has grouped output by 'cohort', 'pod_ons'. You can override using the `.groups` argument.
+
+> write_csv(service_use_ratio_pod, here::here("output", "service_use_ratio_pod.csv"))
+[1mwrote[0m [32m294.00B[0m in [36m 0s[0m, [32m26.81MB/s[0m[1mwrote[0m [32m1.00TB[0m in [36m 0s[0m, [32m970.90TB/s[0m                                                                                                                                                             
+> ################################################################################
+`summarise()` has grouped output by 'cohort'. You can override using the `.groups` argument.
+[1mwrote[0m [32m122.00B[0m in [36m 0s[0m, [32m10.03MB/s[0m                                                                                                                                                             [1mwrote[0m [32m1.00TB[0m in [36m 0s[0m, [32m3.19PB/s[0m                                                                                                                                                             `summarise()` has grouped output by 'pod_ons'. You can override using the `.groups` argument.
+[1mwrote[0m [32m149.00B[0m in [36m 0s[0m, [32m13.59MB/s[0m[1mwrote[0m [32m1.00TB[0m in [36m 0s[0m, [32m475.98TB/s[0m                                                                                                                                                             `summarise()` has grouped output by 'cohort', 'pod_ons'. You can override using the `.groups` argument.
+[1mwrote[0m [32m294.00B[0m in [36m 0s[0m, [32m21.26MB/s[0m[1mwrote[0m [32m1.00TB[0m in [36m 0s[0m, [32m690.19TB/s[0m                                                                                                                                                             

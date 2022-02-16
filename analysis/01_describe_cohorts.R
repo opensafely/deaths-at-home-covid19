@@ -11,6 +11,17 @@
 
 ################################################################################
 
+########## Save log ##########
+
+# Send log to an output text file
+logfile <- file("logs/01_describe_cohorts_log.txt")
+sink(logfile, append=TRUE)
+sink(logfile, append=TRUE, type="message")
+
+source("analysis/01_describe_cohorts.R", echo=TRUE, max.deparse.length=10000)
+
+################################################################################
+
 ########## Libraries ##########
 
 library("tidyverse")
@@ -216,5 +227,13 @@ deaths_ratio_pod_sex <- df_input %>%
     mutate(ratio = cohort_1 / cohort_0)
 
 write_csv(deaths_ratio_pod_sex, here::here("output", "deaths_ratio_pod_sex.csv"))
+
+################################################################################
+
+########## Stop saving log ##########
+
+# send output back to screen
+sink()
+sink(type="message")
 
 ################################################################################
