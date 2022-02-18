@@ -46,5 +46,5 @@ actions:
     needs: [generate_study_population]
     outputs:
       moderately_sensitive:
-        service_use_means: output/service_use_mean*.csv
-        service_use_ratios: output/service_use_ratio*.csv
+        service_use_means: output/describe_service_use/service_use_mean*.csv
+        service_use_ratios: output/describe_service_use/service_use_ratio*.csv

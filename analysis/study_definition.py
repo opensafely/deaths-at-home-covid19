@@ -399,7 +399,7 @@ study = StudyDefinition(
             }
     ),
 
-    aevis_1yr = patients.attended_emergency_care(
+    aevis_1y = patients.attended_emergency_care(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         return_expectations = {
@@ -426,7 +426,7 @@ study = StudyDefinition(
             }
     ),
 
-    adm_1yr = patients.admitted_to_hospital(
+    adm_1y = patients.admitted_to_hospital(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         return_expectations = {
@@ -455,7 +455,7 @@ study = StudyDefinition(
             }
     ),
 
-    emadm_1yr = patients.admitted_to_hospital(
+    emadm_1y = patients.admitted_to_hospital(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -485,7 +485,7 @@ study = StudyDefinition(
             }
     ),
 
-    eladm_1yr = patients.admitted_to_hospital(
+    eladm_1y = patients.admitted_to_hospital(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
@@ -515,7 +515,7 @@ study = StudyDefinition(
             }
     ),
 
-    opapp_1yr = patients.outpatient_appointment_date(
+    opapp_1y = patients.outpatient_appointment_date(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         return_expectations = {
@@ -544,7 +544,7 @@ study = StudyDefinition(
             }
     ),
 
-    opatt_1yr = patients.outpatient_appointment_date(
+    opatt_1y = patients.outpatient_appointment_date(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         attended = True,
@@ -575,7 +575,7 @@ study = StudyDefinition(
             }
     ),
 
-    gp_1yr = patients.with_gp_consultations(
+    gp_1y = patients.with_gp_consultations(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         return_expectations = {
@@ -606,7 +606,7 @@ study = StudyDefinition(
             }
     ),
 
-    eol_med_1yr = patients.with_these_medications(
+    eol_med_1y = patients.with_these_medications(
         midazolam_codes,
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],

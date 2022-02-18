@@ -74,7 +74,7 @@ NT_style <- function(){
 
 # Convert dod to date variable
 # Create cohort flag
-# Death quarter variable starting in March so it is quarters of the cohort period
+# Death quarter variable starting in March so it is quarters of the cohort period rather than calendar or fiscal quarters
 
 df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>%
   mutate(dod_ons = as_date(dod_ons)

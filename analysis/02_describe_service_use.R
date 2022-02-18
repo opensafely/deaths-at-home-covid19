@@ -20,11 +20,17 @@ library("lubridate")
 
 ################################################################################
 
+########## Save location ##########
+
+fs::dir_create(here::here("output", "describe_service_use"))
+
+################################################################################
+
 ########## Import data ##########
 
 # Convert dod to date variable
 # Create cohort flag
-# Death quarter variable starting in March so it is quarters of the cohort period
+# Death quarter variable starting in March so it is quarters of the cohort period rather than calendar or fiscal quarters
 
 df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>%
   mutate(dod_ons = as_date(dod_ons)
@@ -47,39 +53,90 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
 # Just mean currently
 
 service_use_mean_cohort <- df_input %>%
-    select(cohort, ends_with("_1yr")) %>%
-    pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
-    group_by(cohort, measure) %>%
-    summarise(mean = mean(value, na.rm = TRUE))
+  select(cohort, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+  pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
+  group_by(cohort, measure) %>%
+  summarise(n = n()
+            , mean = mean(value, na.rm = TRUE)
+            , sd = sd(value, na.rm = TRUE))
 
-write_csv(service_use_mean_cohort, here::here("output", "service_use_mean_cohort.csv"))
+write_csv(service_use_mean_cohort, here::here("output", "describe_service_use", "service_use_mean_cohort.csv"))
 
 ################################################################################
 
-########## Descriptive stats service use by place of death ##########
+########## Descriptive stats service use by quarter ##########
 
-service_use_mean_pod <- df_input %>%
-    select(pod_ons, ends_with("_1yr")) %>%
-    pivot_longer(cols = -c(pod_ons), names_to = "measure", values_to = "value") %>%
-    group_by(pod_ons, measure) %>%
-    summarise(mean = mean(value, na.rm = TRUE))
+# Just mean currently
 
-write_csv(service_use_mean_pod, here::here("output", "service_use_mean_pod.csv"))
+service_use_mean_quarter <- df_input %>%
+  select(study_quarter, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+  pivot_longer(cols = -c(study_quarter), names_to = "measure", values_to = "value") %>%
+  group_by(study_quarter, measure) %>%
+  summarise(n = n()
+            , mean = mean(value, na.rm = TRUE)
+            , sd = sd(value, na.rm = TRUE))
+
+write_csv(service_use_mean_quarter, here::here("output", "describe_service_use", "service_use_mean_quarter.csv"))
+
+################################################################################
+
+########## Descriptive stats service use by cohort and place of death ##########
+
+service_use_mean_cohort_pod <- df_input %>%
+    select(cohort, pod_ons, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+    pivot_longer(cols = -c(cohort, pod_ons), names_to = "measure", values_to = "value") %>%
+    group_by(cohort, pod_ons, measure) %>%
+    summarise(n = n()
+              , mean = mean(value, na.rm = TRUE)
+              , sd = sd(value, na.rm = TRUE))
+
+write_csv(service_use_mean_cohort_pod, here::here("output", "describe_service_use", "service_use_mean_cohort_pod.csv"))
+
+################################################################################
+
+########## Descriptive stats service use by study quarter and place of death ##########
+
+service_use_mean_quarter_pod <- df_input %>%
+  select(study_quarter, pod_ons, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+  pivot_longer(cols = -c(study_quarter, pod_ons), names_to = "measure", values_to = "value") %>%
+  group_by(study_quarter, pod_ons, measure) %>%
+  summarise(n = n()
+            , mean = mean(value, na.rm = TRUE)
+            , sd = sd(value, na.rm = TRUE))
+
+write_csv(service_use_mean_quarter_pod, here::here("output", "describe_service_use", "service_use_mean_quarter_pod.csv"))
 
 ################################################################################
 
 ########## Ratios of mean service use ##########
 
-# Think about significance testing
+# Think about any significance testing
+
+# Ratio for each place of death by cohort
 
 service_use_ratio_pod <- df_input %>%
-    select(cohort, pod_ons, ends_with("_1yr")) %>%
+    select(cohort, pod_ons, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
     pivot_longer(cols = -c(cohort, pod_ons), names_to = "measure", values_to = "value") %>%
     group_by(cohort, pod_ons, measure) %>%
     summarise(mean = mean(value, na.rm = TRUE)) %>%
     pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = mean) %>%
     mutate(ratio = cohort_1 / cohort_0)
 
-write_csv(service_use_ratio_pod, here::here("output", "service_use_ratio_pod.csv"))
+write_csv(service_use_ratio_pod, here::here("output", "describe_service_use", "service_use_ratio_pod.csv"))
+
+# Ratio for each place of death pre-pandemic quarter to pandemic quarter e.g. Mar-May 19 to Mar-May 20
+
+service_use_ratio_pod_quarter <- df_input %>%
+  select(study_quarter, pod_ons, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+  pivot_longer(cols = -c(study_quarter, pod_ons), names_to = "measure", values_to = "value") %>%
+  group_by(study_quarter, pod_ons, measure) %>%
+  summarise(mean = mean(value, na.rm = TRUE)) %>%
+  pivot_wider(names_from = study_quarter, names_prefix = "quarter_", values_from = mean) %>%
+  mutate(ratio_q1 = quarter_5 - quarter_1
+         , ratio_q2 = quarter_6 - quarter_2
+         , ratio_q3 = quarter_7 - quarter_3
+         , ratio_q4 = quarter_8 - quarter_4)
+
+write_csv(service_use_ratio_pod_quarter, here::here("output", "describe_service_use", "service_use_ratio_pod_quarter.csv"))
 
 ################################################################################
