@@ -153,7 +153,7 @@ write_csv(deaths_quarter_pod, here::here("output", "describe_cohorts", "deaths_q
 
 # Plot of number of deaths by place and cohort
 
-plot_pod_cohort <- ggplot(deaths_cohort_pod) + 
+plot_deaths_pod_cohort <- ggplot(deaths_cohort_pod) + 
   geom_bar(aes(x = reorder(pod_ons, deaths), y = deaths, fill = factor(cohort, levels = c("1", "0"))), stat = "identity", position = "dodge", width = 0.6) +
   coord_flip() +
   labs(x = "Place of death", y = "Number of deaths") +
@@ -165,11 +165,11 @@ plot_pod_cohort <- ggplot(deaths_cohort_pod) +
     panel.grid.major.x = element_line(colour = "#9AA0AA", size = 0.3),
     panel.grid.major.y = element_blank())
 
-ggsave(plot = plot_pod_cohort, filename ="pod_cohort.png", path = here::here("output", "describe_cohorts"))
+ggsave(plot = plot_deaths_pod_cohort, filename ="deaths_pod_cohort.png", path = here::here("output", "describe_cohorts"))
 
 # Plot of proportion of deaths by place and cohort
 
-plot_pod_cohort_prop <- ggplot(deaths_cohort_pod) + 
+plot_deaths_pod_cohort_prop <- ggplot(deaths_cohort_pod) + 
   geom_bar(aes(x = reorder(pod_ons, proportion), y = proportion, fill = factor(cohort, levels = c("1", "0"))), stat = "identity", position = "dodge", width = 0.6) +
   coord_flip() +
   labs(x = "Place of death", y = "Proportion of deaths") +
@@ -181,7 +181,7 @@ plot_pod_cohort_prop <- ggplot(deaths_cohort_pod) +
     panel.grid.major.x = element_line(colour = "#9AA0AA", size = 0.3),
     panel.grid.major.y = element_blank())
 
-ggsave(plot = plot_pod_cohort_prop, filename ="pod_cohort_prop.png", path = here::here("output", "describe_cohorts"))
+ggsave(plot = plot_deaths_pod_cohort_prop, filename ="deaths_pod_cohort_prop.png", path = here::here("output", "describe_cohorts"))
 
 ################################################################################
 
@@ -196,6 +196,8 @@ deaths_month_sex <- df_input %>%
   group_by(study_month, sex) %>%
   summarise(deaths = n())
 
+write_csv(deaths_month_sex, here::here("output", "describe_cohorts", "deaths_month_sex.csv"))
+
 # Monthly deaths (Mar 19 - Feb 21) by age group (<75, 75-79, 80-84, 85-89, 90+)  - Table 4, 8c
 
 deaths_month_agegrp <- df_input %>%
@@ -208,12 +210,14 @@ deaths_month_agegrp <- df_input %>%
   group_by(study_month, agegrp) %>%
   summarise(deaths = n())
 
+write_csv(deaths_month_agegrp, here::here("output", "describe_cohorts", "deaths_month_agegrp.csv"))
+
 # Monthly deaths (Jan 20 - Feb 21) by leading (top 10) cause of death - Table 11a
 
 # ONS cause of death groupings
 # Check the categories mutually exclusive particularly around covid-19 addition
 # Check how 4+ character codes appear - with or without "."
-deaths_2020_cod <- df_input %>%
+deaths_month_cod <- df_input %>%
   filter(study_month >= as_date("2020-01-01") & study_month <= as_date("2021-02-01")) %>%
   mutate(cod_ons_3 = str_sub(cod_ons, 1, 3)
          , cod_ons_4 = str_sub(cod_ons, 1, 5)
@@ -293,12 +297,16 @@ deaths_2020_cod <- df_input %>%
   summarise(deaths = n()) %>%
   group_by(study_month) 
 
+write_csv(deaths_month_cod, here::here("output", "describe_cohorts", "deaths_month_cod.csv"))
+
 # Monthly deaths (Jan 20 - Feb 21) by place of death - Table 14a
 
 deaths_month_pod <- df_input %>%
   filter(study_month >= as_date("2020-01-01") & study_month <= as_date("2021-02-01")) %>%
   group_by(study_month, pod_ons) %>%
   summarise(deaths = n())
+
+write_csv(deaths_month_pod, here::here("output", "describe_cohorts", "deaths_month_pod.csv"))
 
 ################################################################################
 
