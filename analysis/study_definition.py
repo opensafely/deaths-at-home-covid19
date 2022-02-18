@@ -379,11 +379,47 @@ study = StudyDefinition(
 
     ## SERVICE USE ##
 
-    ## Hospital activity in year prior to death
+    ## Hospital activity in 1 month, 3 months and 1 year prior to death
+
+    aevis_1m = patients.attended_emergency_care(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    aevis_3m = patients.attended_emergency_care(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
 
     aevis_1yr = patients.attended_emergency_care(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    adm_1m = patients.admitted_to_hospital(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+        adm_3m = patients.admitted_to_hospital(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
         return_expectations = {
             "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
             "incidence": 0.8
@@ -399,10 +435,50 @@ study = StudyDefinition(
             }
     ),
 
+    emadm_1m = patients.admitted_to_hospital(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+        emadm_3m = patients.admitted_to_hospital(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
     emadm_1yr = patients.admitted_to_hospital(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    eladm_1m = patients.admitted_to_hospital(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        with_admission_method = ['11', '12', '13'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+        eladm_3m = patients.admitted_to_hospital(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        with_admission_method = ['11', '12', '13'],
         return_expectations = {
             "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
             "incidence": 0.8
@@ -421,9 +497,47 @@ study = StudyDefinition(
 
     # Bed days??
 
+    opapp_1m = patients.outpatient_appointment_date(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+        opapp_3m = patients.outpatient_appointment_date(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
     opapp_1yr = patients.outpatient_appointment_date(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    opatt_1m = patients.outpatient_appointment_date(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        attended = True,
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+        opatt_3m = patients.outpatient_appointment_date(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        attended = True,
         return_expectations = {
             "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
             "incidence": 0.8
@@ -442,6 +556,25 @@ study = StudyDefinition(
 
     ## GP clinical coded activity in year prior to death
     # Use as a proxy for contact with GP
+    
+    gp_1m = patients.with_gp_consultations(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    gp_3m = patients.with_gp_consultations(
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
     gp_1yr = patients.with_gp_consultations(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
@@ -453,6 +586,26 @@ study = StudyDefinition(
 
     ## EOL medication
     # Start with midazolam as existing codelist
+    eol_med_1m = patients.with_these_medications(
+        midazolam_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    eol_med_3m = patients.with_these_medications(
+        midazolam_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
     eol_med_1yr = patients.with_these_medications(
         midazolam_codes,
         returning = "number_of_matches_in_period",
