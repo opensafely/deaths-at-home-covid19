@@ -11,21 +11,56 @@
 
 ################################################################################
 
-########## Save log ##########
-
-# Send log to an output text file
-logfile <- file("logs/01_describe_cohorts_log.txt")
-sink(logfile, append=TRUE)
-sink(logfile, append=TRUE, type="message")
-
-source("analysis/01_describe_cohorts.R", echo=TRUE, max.deparse.length=10000)
-
-################################################################################
-
 ########## Libraries ##########
 
 library("tidyverse")
 library("lubridate")
+
+################################################################################
+
+########## NT chart style ##########
+
+NT_style <- function(){
+  
+  font <- "TT Arial"
+  family <- "sans"
+  
+  theme_minimal() %+replace%
+    theme(
+      # Background elements
+      panel.background = element_rect(fill = "#F4F4F4", colour = "#F4F4F4"),
+      panel.border = element_blank(),
+      plot.background = element_rect(fill = "#F4F4F4", colour = "#F4F4F4"),
+      plot.margin = margin(t = 0.5, r = 0.5, b = 0.5, l = 0.5, unit ="cm"),
+      # Grid elements
+      axis.ticks = element_blank(),      
+      panel.grid.major.x = element_blank(),
+      panel.grid.major.y = element_line(colour = "#9AA0AA", size = 0.3),
+      panel.grid.minor = element_blank(),
+      panel.spacing = unit(0.5, "cm"),
+      # Text elements
+      axis.text.x = element_text(colour = "#9AA0AA", size = 8, family = "sans", vjust = 0),
+      axis.text.y = element_text(colour = "#9AA0AA", size = 8, family = "sans"),
+      axis.title.x = element_text(margin = margin(t = 0.3, r = 0, b = 0, l = 0, unit ="cm"), colour = "#271544", size = 8, face = "bold"),
+      axis.title.y = element_text(margin = margin(t = 0, r = 0.3, b = 0, l = 0, unit ="cm"), colour = "#271544", size = 8, face = "bold", angle = 90),
+      legend.text = element_text(colour = "#271544", size = 8, face = "bold", family = "sans"),
+      legend.title = element_blank(),
+      plot.caption = element_text(margin = margin(t = 0.3, r = 0, b = 0, l = 0, unit ="cm"), colour = "#271544", size = 8, hjust = 1, vjust = 1),
+      plot.title = element_text(margin = margin(t = 0, r = 0, b = 0.3, l = 0, unit ="cm"), colour = "#271544", size = 10, face = "bold", hjust = 0),
+      plot.title.position = "plot",
+      strip.text = element_text(margin = margin(t = 0, r = 0, b = 0.3, l = 0, unit ="cm"), colour = "#271544", size = 8, face = "bold"),
+      # Legend elements
+      legend.background = element_blank(),
+      legend.box.background = element_blank(),
+      legend.box.margin = margin(t = 0, r = 0, b = 0, l = 0, unit ="cm"),
+      legend.key = element_blank(),
+      legend.key.size = unit(0.4, "cm"),
+      legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit ="cm"),
+      legend.position = "bottom",
+      legend.spacing.x = unit(0.1, "cm"),
+      legend.spacing.y = unit(0.1, "cm")
+      )
+}
 
 ################################################################################
 
@@ -72,31 +107,16 @@ write_csv(deaths_quarter, here::here("output", "deaths_quarter.csv"))
 
 ########## Plot basic death counts ##########
 
-# Deaths by month
+# Deaths by quarter
 
-plot_dod_month <- ggplot(df_input, aes(x = floor_date(dod_ons, unit = "month"))) + 
-  geom_bar(fill = "#9F67FF") +
-  labs(x = "Month", y = "Number of deaths") +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b %y", expand = c(0, 0)) +
+plot_deaths_quarter <- ggplot(deaths_quarter) + 
+  geom_bar(aes(x = study_quarter, y = deaths), stat = "identity", fill = "#9F67FF") +
+  labs(x = "Study quarter", y = "Number of deaths") +
+  scale_x_continuous(breaks = seq(1, 8, 1)) +
   scale_y_continuous(limits = c(0, NA), expand = c(0, 0)) +
-  theme_minimal() +
-  theme(
-    axis.ticks = element_blank(),
-    axis.text.x = element_text(colour = "#9AA0AA", size = 8, family = "sans", angle = 45, hjust=1),
-    axis.text.y = element_text(colour = "#9AA0AA", size = 8, family = "sans"),
-    axis.title.x = element_text(margin = margin(t = 0.3, r = 0, b = 0, l = 0, unit = "cm"), colour = "#271544", size = 8, face = "bold"),
-    axis.title.y = element_text(margin = margin(t = 0, r = 0.3, b = 0, l = 0, unit = "cm"), colour = "#271544", size = 8, face = "bold", angle = 90),
-    panel.background = element_rect(fill = "#F4F4F4", colour = "#F4F4F4"),
-    panel.border = element_blank(),
-    panel.grid.major.x = element_blank(),
-    panel.grid.major.y = element_line(colour = "#9AA0AA"),
-    panel.grid.minor = element_blank(),
-    plot.background = element_rect(fill = "#F4F4F4", colour = "#F4F4F4"),
-    plot.margin = margin(t = 0.5, r = 0.5, b = 0.5, l = 0.5, unit = "cm"),
-    plot.title = element_text(margin = margin(t = 0, r = 0, b = 0.3, l = 0, unit = "cm"), colour = "#271544", size = 10, face = "bold", hjust = 0),
-    plot.title.position = "plot")
+  NT_style()
 
-ggsave(plot = plot_dod_month, filename ="dod_month.png", path = here::here("output"))
+ggsave(plot = plot_deaths_quarter, filename ="deaths_quarter.png", path = here::here("output"))
 
 ################################################################################
 
@@ -132,32 +152,11 @@ plot_pod_cohort <- ggplot(deaths_cohort_pod) +
   labs(x = "Place of death", y = "Number of deaths") +
   scale_y_continuous(limits = c(0, NA), expand = c(0, 0)) +
   scale_fill_manual(values = c("0" = "#00C27A", "1" = "#9F67FF"), labels = c("0" = "Pre-pandemic", "1" = "Pandemic")) +
-  theme_minimal() +
+  NT_style() +
   theme(
-    axis.ticks = element_blank(),
-    axis.text.x = element_text(colour = "#9AA0AA", size = 8, family = "sans", angle = 45, hjust=1),
     axis.text.y = element_text(colour = "#9AA0AA", size = 8, family = "sans", hjust = 1),
-    axis.title.x = element_text(margin = margin(t = 0.3, r = 0, b = 0, l = 0, unit = "cm"), colour = "#271544", size = 8, face = "bold"),
-    axis.title.y = element_text(margin = margin(t = 0, r = 0.3, b = 0, l = 0, unit = "cm"), colour = "#271544", size = 8, face = "bold", angle = 90),
-    legend.background = element_blank(),
-    legend.box.background = element_blank(),
-    legend.box.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "cm"),
-    legend.key = element_blank(),
-    legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "cm"),
-    legend.key.size = unit(0.4, "cm"),
-    legend.position = "bottom",
-    legend.spacing.x = unit(0.1, "cm"),
-    legend.spacing.y = unit(0.1, "cm"),
-    legend.title = element_blank(),
-    panel.background = element_rect(fill = "#F4F4F4", colour = "#F4F4F4"),
-    panel.border = element_blank(),
     panel.grid.major.x = element_line(colour = "#9AA0AA", size = 0.3),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank(),
-    plot.background = element_rect(fill = "#F4F4F4", colour = "#F4F4F4"),
-    plot.margin = margin(t = 0.5, r = 0.5, b = 0.5, l = 0.5, unit = "cm"),
-    plot.title = element_text(margin = margin(t = 0, r = 0, b = 0.3, l = 0, unit = "cm"), colour = "#271544", size = 10, face = "bold", hjust = 0),
-    plot.title.position = "plot")
+    panel.grid.major.y = element_blank())
 
 ggsave(plot = plot_pod_cohort, filename ="pod_cohort.png", path = here::here("output"))
     
@@ -169,32 +168,11 @@ plot_pod_cohort_prop <- ggplot(deaths_cohort_pod) +
   labs(x = "Place of death", y = "Proportion of deaths") +
   scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
   scale_fill_manual(values = c("0" = "#00C27A", "1" = "#9F67FF"), labels = c("0" = "Pre-pandemic", "1" = "Pandemic")) +
-  theme_minimal() +
+  NT_style() +
   theme(
-    axis.ticks = element_blank(),
-    axis.text.x = element_text(colour = "#9AA0AA", size = 8, family = "sans", angle = 45, hjust=1),
     axis.text.y = element_text(colour = "#9AA0AA", size = 8, family = "sans", hjust = 1),
-    axis.title.x = element_text(margin = margin(t = 0.3, r = 0, b = 0, l = 0, unit = "cm"), colour = "#271544", size = 8, face = "bold"),
-    axis.title.y = element_text(margin = margin(t = 0, r = 0.3, b = 0, l = 0, unit = "cm"), colour = "#271544", size = 8, face = "bold", angle = 90),
-    legend.background = element_blank(),
-    legend.box.background = element_blank(),
-    legend.box.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "cm"),
-    legend.key = element_blank(),
-    legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "cm"),
-    legend.key.size = unit(0.4, "cm"),
-    legend.position = "bottom",
-    legend.spacing.x = unit(0.1, "cm"),
-    legend.spacing.y = unit(0.1, "cm"),
-    legend.title = element_blank(),
-    panel.background = element_rect(fill = "#F4F4F4", colour = "#F4F4F4"),
-    panel.border = element_blank(),
     panel.grid.major.x = element_line(colour = "#9AA0AA", size = 0.3),
-    panel.grid.major.y = element_blank(),
-    panel.grid.minor = element_blank(),
-    plot.background = element_rect(fill = "#F4F4F4", colour = "#F4F4F4"),
-    plot.margin = margin(t = 0.5, r = 0.5, b = 0.5, l = 0.5, unit = "cm"),
-    plot.title = element_text(margin = margin(t = 0, r = 0, b = 0.3, l = 0, unit = "cm"), colour = "#271544", size = 10, face = "bold", hjust = 0),
-    plot.title.position = "plot")
+    panel.grid.major.y = element_blank())
 
 ggsave(plot = plot_pod_cohort_prop, filename ="pod_cohort_prop.png", path = here::here("output"))
 
@@ -227,13 +205,5 @@ deaths_ratio_pod_sex <- df_input %>%
     mutate(ratio = cohort_1 / cohort_0)
 
 write_csv(deaths_ratio_pod_sex, here::here("output", "deaths_ratio_pod_sex.csv"))
-
-################################################################################
-
-########## Stop saving log ##########
-
-# send output back to screen
-sink()
-sink(type="message")
 
 ################################################################################
