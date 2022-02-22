@@ -1,0 +1,141 @@
+period,cause,rank_in,number_of_deaths
+2020-01-01,Dementia and Alzheimer's disease,1,7407
+2020-01-01,Ischaemic heart diseases,2,5443
+2020-01-01,Chronic lower respiratory diseases,3,3833
+2020-01-01,Influenza and Pneumonia,4,3255
+2020-01-01,Cerebrovascular diseases,5,2867
+2020-01-01,"Malignant neoplasm of trachea, bronchus and lung",6,2561
+2020-01-01,"Symptoms, signs and ill-defined conditions",7,1515
+2020-01-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",8,1311
+2020-01-01,"Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,1093
+2020-01-01,Malignant neoplasm of prostate,10,956
+2020-02-01,Dementia and Alzheimer's disease,1,5322
+2020-02-01,Ischaemic heart diseases,2,4129
+2020-02-01,Chronic lower respiratory diseases,3,2622
+2020-02-01,Cerebrovascular diseases,4,2232
+2020-02-01,"Malignant neoplasm of trachea, bronchus and lung",5,2106
+2020-02-01,Influenza and Pneumonia,6,2034
+2020-02-01,"Symptoms, signs and ill-defined conditions",7,1168
+2020-02-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",8,1148
+2020-02-01,"Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,938
+2020-02-01,Malignant neoplasm of breast,10,777
+2020-03-01,Dementia and Alzheimer's disease,1,5859
+2020-03-01,Ischaemic heart diseases,2,4427
+2020-03-01,Chronic lower respiratory diseases,3,2808
+2020-03-01,Cerebrovascular diseases,4,2489
+2020-03-01,Influenza and Pneumonia,5,2315
+2020-03-01,"Malignant neoplasm of trachea, bronchus and lung",6,2210
+2020-03-01,COVID-19,7,1568
+2020-03-01,"Symptoms, signs and ill-defined conditions",8,1347
+2020-03-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",9,1182
+2020-03-01,"Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",10,991
+2020-04-01,COVID-19,1,28013
+2020-04-01,Dementia and Alzheimer's disease,2,10431
+2020-04-01,Ischaemic heart diseases,3,5234
+2020-04-01,Chronic lower respiratory diseases,4,3163
+2020-04-01,Cerebrovascular diseases,5,3048
+2020-04-01,"Malignant neoplasm of trachea, bronchus and lung",6,2465
+2020-04-01,"Symptoms, signs and ill-defined conditions",7,2354
+2020-04-01,Influenza and Pneumonia,8,2248
+2020-04-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",9,1358
+2020-04-01,"Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",10,1070
+2020-05-01,COVID-19,1,11403
+2020-05-01,Dementia and Alzheimer's disease,2,5596
+2020-05-01,Ischaemic heart diseases,3,4031
+2020-05-01,Cerebrovascular diseases,4,2120
+2020-05-01,"Malignant neoplasm of trachea, bronchus and lung",5,1994
+2020-05-01,Chronic lower respiratory diseases,6,1828
+2020-05-01,"Symptoms, signs and ill-defined conditions",7,1414
+2020-05-01,Influenza and Pneumonia,8,1141
+2020-05-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",9,1035
+2020-05-01,"Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",10,826
+2020-06-01,Dementia and Alzheimer's disease,1,4136
+2020-06-01,Ischaemic heart diseases,2,4027
+2020-06-01,COVID-19,3,3442
+2020-06-01,"Malignant neoplasm of trachea, bronchus and lung",4,2115
+2020-06-01,Cerebrovascular diseases,5,2013
+2020-06-01,Chronic lower respiratory diseases,6,1682
+2020-06-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",7,1157
+2020-06-01,"Symptoms, signs and ill-defined conditions",8,1136
+2020-06-01,Influenza and Pneumonia,9,1074
+2020-06-01,"Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",10,833
+2020-07-01,Dementia and Alzheimer's disease,1,4034
+2020-07-01,Ischaemic heart diseases,2,3868
+2020-07-01,"Malignant neoplasm of trachea, bronchus and lung",3,2253
+2020-07-01,Cerebrovascular diseases,4,2045
+2020-07-01,Chronic lower respiratory diseases,5,1625
+2020-07-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",6,1256
+2020-07-01,"Symptoms, signs and ill-defined conditions",7,1040
+2020-07-01,COVID-19,8,976
+2020-07-01,Influenza and pneumonia,9,944
+2020-07-01,"Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",10,901
+2020-08-01,Dementia and Alzheimer's disease,1,3777
+2020-08-01,Ischaemic heart diseases,2,3618
+2020-08-01,"Malignant neoplasm of trachea, bronchus and lung",3,2049
+2020-08-01,Cerebrovascular diseases,4,1911
+2020-08-01,Chronic lower respiratory diseases,5,1517
+2020-08-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",6,1112
+2020-08-01,"Symptoms, signs and ill-defined conditions",7,951
+2020-08-01,Influenza and Pneumonia,8,913
+2020-08-01,"Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,853
+2020-08-01,Malignant neoplasm of prostate,10,757
+2020-09-01,Dementia and Alzheimer disease,1,4449
+2020-09-01,Ischaemic heart diseases,2,4104
+2020-09-01,"Malignant neoplasm of trachea, bronchus and lung",3,2324
+2020-09-01,Cerebrovascular diseases,4,2120
+2020-09-01,Chronic lower respiratory diseases,5,1829
+2020-09-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",6,1285
+2020-09-01,Influenza and pneumonia,7,1132
+2020-09-01,"Symptoms, signs and ill-defined conditions",8,1106
+2020-09-01,"Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,902
+2020-09-01,Malignant neoplasm of prostate,10,861
+2020-10-01,Dementia and Alzheimer's disease,1,4871
+2020-10-01,Ischaemic heart diseases,2,4282
+2020-10-01,COVID-19,3,2972
+2020-10-01,"Malignant neoplasm of trachea, bronchus and lung",4,2285
+2020-10-01,Cerebrovascular diseases,5,2210
+2020-10-01,Chronic lower respiratory diseases,6,1911
+2020-10-01,Influenza and pneumonia,7,1262
+2020-10-01,"Symptoms, signs and ill-defined conditions",8,1165
+2020-10-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",9,1164
+2020-10-01,"Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",10,892
+2020-11-01,COVID-19,1,8686
+2020-11-01,Dementia and Alzheimer's disease,2,4772
+2020-11-01,Ischaemic heart diseases,3,4129
+2020-11-01,"Malignant neoplasm of trachea, bronchus and lung",4,2180
+2020-11-01,Cerebrovascular diseases,5,2164
+2020-11-01,Chronic lower respiratory diseases,6,1809
+2020-11-01,"Symptoms, signs and ill-defined conditions",7,1130
+2020-11-01,Influenza and Pneumonia,8,1118
+2020-11-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",9,1100
+2020-11-01,"Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",10,884
+2020-12-01,COVID-19,1,10973
+2020-12-01,Dementia and Alzheimer's disease,2,5281
+2020-12-01,Ischaemic heart diseases,3,4365
+2020-12-01,Cerebrovascular diseases,4,2341
+2020-12-01,"Malignant neoplasm of trachea, bronchus and lung",5,2281
+2020-12-01,Chronic lower respiratory diseases,6,1790
+2020-12-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",7,1239
+2020-12-01,"Symptoms, signs and ill-defined conditions",8,1207
+2020-12-01,Influenza and pneumonia,9,1190
+2020-12-01,Malignant neoplasm of prostate,10,901
+2021-01-01,COVID-19,1,25716
+2021-01-01,Dementia and Alzheimer disease,2,5655
+2021-01-01,Ischaemic heart diseases,3,4833
+2021-01-01,Cerebrovascular diseases,4,2516
+2021-01-01,"Malignant neoplasm of trachea, bronchus and lung",5,2274
+2021-01-01,Chronic lower respiratory diseases,6,2025
+2021-01-01,"Symptoms, signs and ill-defined conditions",7,1329
+2021-01-01,Influenza and Pneumonia,8,1291
+2021-01-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",9,1175
+2021-01-01,"Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",10,894
+2021-02-01,COVID-19,1,16682
+2021-02-01,Dementia and Alzheimer's disease,2,4841
+2021-02-01,Ischaemic heart diseases,3,4196
+2021-02-01,Cerebrovascular diseases,4,2258
+2021-02-01,"Malignant neoplasm of trachea, bronchus and lung",5,1920
+2021-02-01,Chronic lower respiratory diseases,6,1771
+2021-02-01,"Symptoms, signs and ill-defined conditions",7,1177
+2021-02-01,Influenza and Pneumonia,8,1118
+2021-02-01,"Malignant neoplasm of colon, sigmoid, rectum and anus",9,1117
+2021-02-01,"Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",10,839

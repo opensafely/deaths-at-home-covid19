@@ -205,6 +205,7 @@ deaths_month_agegrp <- df_input %>%
   mutate(agegrp = case_when(age >= 0 & age <= 74 ~ "<75"
                             , age >= 75 & age <= 79 ~ "75-79"
                             , age >= 80 & age <= 84 ~ "80-84"
+                            , age >= 85 & age <= 89 ~ "85-89"
                             , age >= 90 ~ "90+"
                             , TRUE ~ NA_character_)) %>%
   group_by(study_month, agegrp) %>%
