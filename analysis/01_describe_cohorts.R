@@ -185,7 +185,7 @@ ggsave(plot = plot_deaths_pod_cohort_prop, filename ="deaths_pod_cohort_prop.png
 
 ################################################################################
 
-########## Create tables to compare to published ONS deaths ##########
+########## Create tables and compare to published ONS deaths ##########
 
 # https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fbirthsdeathsandmarriages%2fdeaths%2fdatasets%2fmonthlymortalityanalysisenglandandwales%2fdecember2021/monthlymortalityanalysisdec.xlsx
 
@@ -194,7 +194,10 @@ ggsave(plot = plot_deaths_pod_cohort_prop, filename ="deaths_pod_cohort_prop.png
 deaths_month_sex <- df_input %>%
   filter(study_month >= as_date("2019-03-01") & study_month <= as_date("2021-02-01")) %>%
   group_by(study_month, sex) %>%
-  summarise(deaths = n())
+  summarise(deaths = n()) %>%
+  left_join(read_csv(here::here("docs", "ons_comparison_data", "table1_sex_onsmortality.csv"))
+            , by = c("study_month" = "period", "sex")) %>%
+  mutate(proportion = deaths / ons_deaths)
 
 write_csv(deaths_month_sex, here::here("output", "describe_cohorts", "deaths_month_sex.csv"))
 
@@ -209,7 +212,10 @@ deaths_month_agegrp <- df_input %>%
                             , age >= 90 ~ "90+"
                             , TRUE ~ NA_character_)) %>%
   group_by(study_month, agegrp) %>%
-  summarise(deaths = n())
+  summarise(deaths = n()) %>%
+  left_join(read_csv(here::here("docs", "ons_comparison_data", "table4_8c_agegrp_onsmortality.csv"))
+            , by = c("study_month" = "period", "agegrp")) %>%
+  mutate(proportion = deaths / ons_deaths)
 
 write_csv(deaths_month_agegrp, here::here("output", "describe_cohorts", "deaths_month_agegrp.csv"))
 
@@ -296,7 +302,9 @@ deaths_month_cod <- df_input %>%
                                    , TRUE ~ NA_character_)) %>%
   group_by(study_month, cod_ons_grp) %>%
   summarise(deaths = n()) %>%
-  group_by(study_month) 
+  group_by(study_month) %>%
+  arrange(study_month, desc(deaths)) %>%
+  mutate(rank_in = row_number()) 
 
 write_csv(deaths_month_cod, here::here("output", "describe_cohorts", "deaths_month_cod.csv"))
 
@@ -305,7 +313,10 @@ write_csv(deaths_month_cod, here::here("output", "describe_cohorts", "deaths_mon
 deaths_month_pod <- df_input %>%
   filter(study_month >= as_date("2020-01-01") & study_month <= as_date("2021-02-01")) %>%
   group_by(study_month, pod_ons) %>%
-  summarise(deaths = n())
+  summarise(deaths = n()) %>%
+  left_join(read_csv(here::here("docs", "ons_comparison_data", "table14a_pod_onsmortality.csv"))
+            , by = c("study_month" = "period", "pod_ons" = "place_of_death")) %>%
+  mutate(proportion = deaths / ons_deaths)
 
 write_csv(deaths_month_pod, here::here("output", "describe_cohorts", "deaths_month_pod.csv"))
 

@@ -68,7 +68,7 @@ table1 <- table1_data %>%
   mutate(period = as_date(paste0("1 ", period), format = "%d %B %Y")) %>%
   filter(period >= as_date("2019-03-01") & period <= as_date("2021-02-01")) %>%
   select(period, males_number_of_deaths, females_number_of_deaths) %>%
-  pivot_longer(cols = -c(period), names_to = "sex", values_to = "deaths") %>%
+  pivot_longer(cols = -c(period), names_to = "sex", values_to = "ons_deaths") %>%
   mutate(sex = toupper(str_sub(sex, 1, 1)))
 
 write_csv(table1, here::here("docs", "ons_comparison_data", "table1_sex_onsmortality.csv"))
@@ -101,7 +101,7 @@ table4 <- table4_data %>%
   mutate(period = as_date(paste0("1 ", period), format = "%d %B %Y")) %>%
   filter(period >= as_date("2019-03-01") & period <= as_date("2021-02-01")) %>%
   select(period, people_0_to_74_years_number_of_deaths) %>%
-  rename(deaths = people_0_to_74_years_number_of_deaths) %>%
+  rename(ons_deaths = people_0_to_74_years_number_of_deaths) %>%
   mutate(agegrp = "<75")
 
 table8c_data <- readxl::read_xlsx(filename, sheet = "Table 8c", col_names = FALSE, skip = 5, n_max = 252)
@@ -128,8 +128,8 @@ table8c <- table8c_data %>%
   mutate(period = as_date(paste0("1 ", period), format = "%d %B %Y")) %>%
   filter(period >= as_date("2019-03-01") & period <= as_date("2021-02-01")) %>%
   select(period, ends_with("_deaths")) %>%
-  pivot_longer(cols = -c(period), names_to = "agegrp", values_to = "deaths") %>%
-  mutate(agegrp = case_when(str_sub(agegrp, 8, -18) != "90_and_over" ~ str_replace(str_sub(agegrp, 8, -18), "_", "-")
+  pivot_longer(cols = -c(period), names_to = "agegrp", values_to = "ons_deaths") %>%
+  mutate(agegrp = case_when(str_sub(agegrp, 8, -18) != "90_and_over" ~ str_replace_all(str_sub(agegrp, 8, -18), "_", "-")
                             , str_sub(agegrp, 8, -18) == "90_and_over" ~ "90+"))
 
 table4_8c <- table4 %>%
@@ -163,9 +163,9 @@ table14a <- table14a_data %>%
   mutate(period = as_date(paste0("1 ", month_of_occurrence), format = "%d %B %Y")) %>%
   filter(period >= as_date("2019-03-01") & period <= as_date("2021-02-01")) %>%
   select(period, starts_with("x2020_2021_")) %>%
-  pivot_longer(cols = -c(period), names_to = "place_of_death", values_to = "deaths") %>%
+  pivot_longer(cols = -c(period), names_to = "place_of_death", values_to = "ons_deaths") %>%
   mutate(place_of_death = paste0(toupper(str_sub(place_of_death, 12, 12)), 
-                                 str_replace(str_replace(str_sub(place_of_death, 13), "[:digit:]", ""), "_", " ")))
+                                 str_replace_all(str_replace_all(str_sub(place_of_death, 13), "[:digit:]", ""), "_", " ")))
 
 write_csv(table14a, here::here("docs", "ons_comparison_data", "table14a_pod_onsmortality.csv"))
 

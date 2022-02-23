@@ -1,85 +1,85 @@
-period,place_of_death,deaths
+period,place_of_death,ons_deaths
 2020-01-01,Home,11424
 2020-01-01,Hospital,22106
 2020-01-01,Hospice,2529
 2020-01-01,Care home,10851
-2020-01-01,Other communal_establishment,197
+2020-01-01,Other communal establishment,197
 2020-01-01,Elsewhere,969
 2020-02-01,Home,10473
 2020-02-01,Hospital,18680
 2020-02-01,Hospice,2291
 2020-02-01,Care home,9530
-2020-02-01,Other communal_establishment,172
+2020-02-01,Other communal establishment,172
 2020-02-01,Elsewhere,871
 2020-03-01,Home,12928
 2020-03-01,Hospital,23207
 2020-03-01,Hospice,2343
 2020-03-01,Care home,11852
-2020-03-01,Other communal_establishment,166
+2020-03-01,Other communal establishment,166
 2020-03-01,Elsewhere,1028
 2020-04-01,Home,17103
 2020-04-01,Hospital,31025
 2020-04-01,Hospice,2229
 2020-04-01,Care home,26582
-2020-04-01,Other communal_establishment,427
+2020-04-01,Other communal establishment,427
 2020-04-01,Elsewhere,1222
 2020-05-01,Home,13536
 2020-05-01,Hospital,18113
 2020-05-01,Hospice,2059
 2020-05-01,Care home,13976
-2020-05-01,Other communal_establishment,192
+2020-05-01,Other communal establishment,192
 2020-05-01,Elsewhere,1146
 2020-06-01,Home,12386
 2020-06-01,Hospital,14520
 2020-06-01,Hospice,1993
 2020-06-01,Care home,8008
-2020-06-01,Other communal_establishment,94
+2020-06-01,Other communal establishment,94
 2020-06-01,Elsewhere,974
 2020-07-01,Home,12178
 2020-07-01,Hospital,13807
 2020-07-01,Hospice,2093
 2020-07-01,Care home,7598
-2020-07-01,Other communal_establishment,128
+2020-07-01,Other communal establishment,128
 2020-07-01,Elsewhere,1045
 2020-08-01,Home,12163
 2020-08-01,Hospital,14783
 2020-08-01,Hospice,2010
 2020-08-01,Care home,7875
-2020-08-01,Other communal_establishment,121
+2020-08-01,Other communal establishment,121
 2020-08-01,Elsewhere,1045
 2020-09-01,Home,11747
 2020-09-01,Hospital,15357
 2020-09-01,Hospice,2008
 2020-09-01,Care home,7831
-2020-09-01,Other communal_establishment,109
+2020-09-01,Other communal establishment,109
 2020-09-01,Elsewhere,914
 2020-10-01,Home,13421
 2020-10-01,Hospital,18704
 2020-10-01,Hospice,1991
 2020-10-01,Care home,9197
-2020-10-01,Other communal_establishment,140
+2020-10-01,Other communal establishment,140
 2020-10-01,Elsewhere,980
 2020-11-01,Home,13580
 2020-11-01,Hospital,22414
 2020-11-01,Hospice,1879
 2020-11-01,Care home,9769
-2020-11-01,Other communal_establishment,126
+2020-11-01,Other communal establishment,126
 2020-11-01,Elsewhere,988
 2020-12-01,Home,15075
 2020-12-01,Hospital,25684
 2020-12-01,Hospice,1954
 2020-12-01,Care home,10848
-2020-12-01,Other communal_establishment,173
+2020-12-01,Other communal establishment,173
 2020-12-01,Elsewhere,1064
 2021-01-01,Home,17177
 2021-01-01,Hospital,37001
 2021-01-01,Hospice,2192
 2021-01-01,Care home,15499
-2021-01-01,Other communal_establishment,216
+2021-01-01,Other communal establishment,216
 2021-01-01,Elsewhere,1139
 2021-02-01,Home,13483
 2021-02-01,Hospital,23197
 2021-02-01,Hospice,1852
 2021-02-01,Care home,9822
-2021-02-01,Other communal_establishment,169
+2021-02-01,Other communal establishment,169
 2021-02-01,Elsewhere,876
