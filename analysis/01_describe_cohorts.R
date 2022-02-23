@@ -322,7 +322,7 @@ write_csv(deaths_month_pod, here::here("output", "describe_cohorts", "deaths_mon
 
 ################################################################################
 
-########## Ratios of deaths by place of death for characteristics ##########
+########## Ratios of deaths by characteristics ##########
 
 # Ratio - pod
 
@@ -334,6 +334,49 @@ deaths_ratio_pod <- df_input %>%
 
 write_csv(deaths_ratio_pod, here::here("output", "describe_cohorts", "deaths_ratio_pod.csv"))
 
+#  Ratio - sex
+
+deaths_ratio_sex <- df_input %>%
+  group_by(cohort, sex) %>%
+  summarise(deaths = n()) %>%
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = deaths) %>%
+  mutate(ratio = cohort_1 / cohort_0)
+
+write_csv(deaths_ratio_sex, here::here("output", "describe_cohorts", "deaths_ratio_sex.csv"))
+
+#  Ratio - age group
+
+deaths_ratio_agegrp <- df_input %>%
+  mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "<10"
+                            , age >= 10 & age <= 19 ~ "10-19"
+                            , age >= 20 & age <= 29 ~ "20-29"
+                            , age >= 30 & age <= 39 ~ "30-39"
+                            , age >= 40 & age <= 49 ~ "40-49"
+                            , age >= 50 & age <= 59 ~ "50-59"
+                            , age >= 60 & age <= 69 ~ "60-69"
+                            , age >= 70 & age <= 79 ~ "70-79"
+                            , age >= 80 & age <= 89 ~ "80-89"
+                            , age >= 90 ~ "90+"
+                            , TRUE ~ NA_character_)) %>%
+  group_by(cohort, agegrp) %>%
+  summarise(deaths = n()) %>%
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = deaths) %>%
+  mutate(ratio = cohort_1 / cohort_0)
+
+write_csv(deaths_ratio_agegrp, here::here("output", "describe_cohorts", "deaths_ratio_agegrp.csv"))
+
+#  Ratio - ethnicity
+
+deaths_ratio_ethnicity <- df_input %>%
+  group_by(cohort, ethnicity6) %>%
+  summarise(deaths = n()) %>%
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = deaths) %>%
+  mutate(ratio = cohort_1 / cohort_0)
+
+write_csv(deaths_ratio_ethnicity, here::here("output", "describe_cohorts", "deaths_ratio_ethnicity.csv"))
+
+########## Ratios of deaths by place of death for characteristics ##########
+
 #  Ratio - pod * sex
 
 deaths_ratio_pod_sex <- df_input %>%
@@ -343,5 +386,30 @@ deaths_ratio_pod_sex <- df_input %>%
   mutate(ratio = cohort_1 / cohort_0)
 
 write_csv(deaths_ratio_pod_sex, here::here("output", "describe_cohorts", "deaths_ratio_pod_sex.csv"))
+
+#  Ratio - pod * age group
+
+deaths_ratio_pod_agegrp <- df_input %>%
+  mutate(agegrp = case_when(age >= 0 & age <= 69 ~ "<70"
+                            , age >= 70 & age <= 79 ~ "70-79"
+                            , age >= 80 & age <= 89 ~ "80-89"
+                            , age >= 90 ~ "90+"
+                            , TRUE ~ NA_character_)) %>%
+  group_by(cohort, pod_ons, agegrp) %>%
+  summarise(deaths = n()) %>%
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = deaths) %>%
+  mutate(ratio = cohort_1 / cohort_0)
+
+write_csv(deaths_ratio_pod_agegrp, here::here("output", "describe_cohorts", "deaths_ratio_pod_agegrp.csv"))
+
+#  Ratio - pod * ethnicity
+
+deaths_ratio_pod_ethnicity <- df_input %>%
+  group_by(cohort, pod_ons, ethnicity6) %>%
+  summarise(deaths = n()) %>%
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = deaths) %>%
+  mutate(ratio = cohort_1 / cohort_0)
+
+write_csv(deaths_ratio_pod_ethnicity, here::here("output", "describe_cohorts", "deaths_ratio_pod_ethnicity.csv"))
 
 ################################################################################

@@ -39,7 +39,7 @@ actions:
         deaths_quarter_pod: output/describe_cohorts/deaths_quarter_pod.csv
         deaths_pod_figures: output/describe_cohorts/deaths_pod_cohort*.png
         deaths_month_ons: output/describe_cohorts/deaths_month*.csv
-        deaths_ratio: output/describe_cohorts/deaths_ratio_pod*.csv
+        deaths_ratio: output/describe_cohorts/deaths_ratio*.csv
 
   describe_service_use:
     run: r:latest analysis/02_describe_service_use.R
