@@ -189,6 +189,9 @@ ggsave(plot = plot_deaths_pod_cohort_prop, filename ="deaths_pod_cohort_prop.png
 
 # https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fbirthsdeathsandmarriages%2fdeaths%2fdatasets%2fmonthlymortalityanalysisenglandandwales%2fdecember2021/monthlymortalityanalysisdec.xlsx
 
+# Compare registered pop to ons pop? - Will need to change study death to all people
+# Regional deaths
+
 # Monthly (Mar 19 - Feb 21) deaths by sex - Table 1
 
 deaths_month_sex <- df_input %>%
@@ -374,6 +377,8 @@ deaths_ratio_ethnicity <- df_input %>%
   mutate(ratio = cohort_1 / cohort_0)
 
 write_csv(deaths_ratio_ethnicity, here::here("output", "describe_cohorts", "deaths_ratio_ethnicity.csv"))
+
+################################################################################
 
 ########## Ratios of deaths by place of death for characteristics ##########
 
