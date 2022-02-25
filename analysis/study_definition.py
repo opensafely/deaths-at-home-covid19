@@ -106,23 +106,37 @@ study = StudyDefinition(
     ),
 
     ## Ethnicity -  6 categories coded in primary care
-    ethnicity6 = patients.with_these_clinical_events(
+    ethnicity_gp = patients.with_these_clinical_events(
         ethnicity_codes_6,
         returning = "category",
         find_last_match_in_period = True,
         return_expectations = {
-            "category": {"ratios": {"1": 0.8, "5": 0.1, "3": 0.1}},
+            "category": {"ratios": {"1": 0.2, "2": 0.2, "3": 0.2, "4": 0.2, "5": 0.2}},
             "incidence": 0.75
         }
     ),
 
     ## Ethnicity -  6 categories coded in SUS
-    ethnicity6_sus = patients.with_ethnicity_from_sus(
+    ethnicity_sus = patients.with_ethnicity_from_sus(
         returning = "group_6",
         use_most_frequent_code = True,
         return_expectations = {
-            "category": {"ratios": {"1": 0.8, "5": 0.1, "3": 0.1}},
+            "category": {"ratios": {"1": 0.2, "2": 0.2, "3": 0.2, "4": 0.2, "5": 0.2}},
             "incidence": 0.75
+        }
+    ),
+
+    ethnicity = patients.categorised_as(
+        {"0": "DEFAULT",
+        "1": "ethnicity_gp = '1' OR (NOT ethnicity_gp AND ethnicity_sus = '1')",
+        "2": "ethnicity_gp = '2' OR (NOT ethnicity_gp AND ethnicity_sus = '2')",
+        "3": "ethnicity_gp = '3' OR (NOT ethnicity_gp AND ethnicity_sus = '3')",
+        "4": "ethnicity_gp = '4' OR (NOT ethnicity_gp AND ethnicity_sus = '4')",
+        "5": "ethnicity_gp = '5' OR (NOT ethnicity_gp AND ethnicity_sus = '5')"
+        },
+        return_expectations = {
+            "category": {"ratios": {"0": 0.05, "1": 0.19, "2": 0.19, "3": 0.19, "4": 0.19, "5": 0.19}},
+            "incidence": 0.4
         }
     ),
 

@@ -371,7 +371,7 @@ write_csv(deaths_ratio_agegrp, here::here("output", "describe_cohorts", "deaths_
 #  Ratio - ethnicity
 
 deaths_ratio_ethnicity <- df_input %>%
-  group_by(cohort, ethnicity6) %>%
+  group_by(cohort, ethnicity) %>%
   summarise(deaths = n()) %>%
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = deaths) %>%
   mutate(ratio = cohort_1 / cohort_0)
@@ -410,7 +410,7 @@ write_csv(deaths_ratio_pod_agegrp, here::here("output", "describe_cohorts", "dea
 #  Ratio - pod * ethnicity
 
 deaths_ratio_pod_ethnicity <- df_input %>%
-  group_by(cohort, pod_ons, ethnicity6) %>%
+  group_by(cohort, pod_ons, ethnicity) %>%
   summarise(deaths = n()) %>%
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = deaths) %>%
   mutate(ratio = cohort_1 / cohort_0)
