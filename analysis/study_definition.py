@@ -352,8 +352,8 @@ study = StudyDefinition(
 
     #ltc_palcare2 = patients.with_these_clinical_events(
     #    palcare_codes2,
-    #    returning = "binary_flag",
-    #    find_first_match_in_period = True
+    #    between = ["dod_ons - 1825 days", "dod_ons"],
+    #    returning = "binary_flag"
     #),
 
     # Epilepsy
