@@ -194,123 +194,127 @@ study = StudyDefinition(
 
     ## Health ##
 
+    ## Frailty
+    frailty = patients.with_these_decision_support_values(
+        algorithm = "electronic_frailty_index",
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
+    ),
+
     ## Long term conditions
+    # Check over the five years prior to death
+
     ltc = patients.with_these_clinical_events(
         ltc_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     physical_ltc = patients.with_these_clinical_events(
         physical_ltc_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     mental_ltc = patients.with_these_clinical_events(
         mental_ltc_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
-    ),
-
-    frailty = patients.with_these_decision_support_values(
-        algorithm = "electronic_frailty_index",
+        between = ["dod_ons - 1825 days", "dod_ons"],
         returning = "binary_flag"
     ),
 
     # Atrial fibrillation
     ltc_afib = patients.with_these_clinical_events(
         afib_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
     # Coronary heart disease
     ltc_chd = patients.with_these_clinical_events(
         chd_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Heart failure 
     ltc_hf = patients.with_these_clinical_events(
         hf_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Hypertension
     ltc_hyp = patients.with_these_clinical_events(
         hyp_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Peripheral arterial disease
     ltc_pad = patients.with_these_clinical_events(
         pad_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Stroke and transient ischaemic attack
     ltc_strk = patients.with_these_clinical_events(
         strk_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Asthma
     ltc_ast = patients.with_these_clinical_events(
         ast_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # COPD
     ltc_copd = patients.with_these_clinical_events(
         copd_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Cancer
     ltc_haemcan = patients.with_these_clinical_events(
         haemcan_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     ltc_can = patients.with_these_clinical_events(
         can_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Chronic kidney disease
     ltc_ckd1 = patients.with_these_clinical_events(
         ckd_codes1,
-            returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     ltc_ckd2 = patients.with_these_clinical_events(
         ckd_codes2,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Diabetes mellitus
     ltc_dm = patients.with_these_clinical_events(
         dm_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Palliative care
     ltc_palcare1 = patients.with_these_clinical_events(
         palcare_codes1,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     #ltc_palcare2 = patients.with_these_clinical_events(
@@ -322,57 +326,57 @@ study = StudyDefinition(
     # Epilepsy
     ltc_epil = patients.with_these_clinical_events(
         epil_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Osteoporosis
     ltc_osteo = patients.with_these_clinical_events(
         osteo_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Rheumatoid arthiritis
     ltc_rarth = patients.with_these_clinical_events(
         rarth_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Non-diabetic hyperglycaemia? 
     ltc_ndh = patients.with_these_clinical_events(
         ndh_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Dementia
     ltc_dem = patients.with_these_clinical_events(
         dem_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Depression
     ltc_depr = patients.with_these_clinical_events(
         depr_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Schizophrenia, Bipolar effective disorder, Psychoses
     ltc_mh = patients.with_these_clinical_events(
         mh_codes,
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # Learning disability?
     ltc_ld = patients.with_these_clinical_events(
-        ld_codes, 
-        returning = "binary_flag",
-        find_first_match_in_period = True
+        ld_codes,
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
     ),
 
     # EOL register
@@ -417,7 +421,7 @@ study = StudyDefinition(
             }
     ),
 
-        adm_3m = patients.admitted_to_hospital(
+    adm_3m = patients.admitted_to_hospital(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         return_expectations = {
@@ -445,7 +449,7 @@ study = StudyDefinition(
             }
     ),
 
-        emadm_3m = patients.admitted_to_hospital(
+    emadm_3m = patients.admitted_to_hospital(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -475,7 +479,7 @@ study = StudyDefinition(
             }
     ),
 
-        eladm_3m = patients.admitted_to_hospital(
+    eladm_3m = patients.admitted_to_hospital(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
@@ -506,7 +510,7 @@ study = StudyDefinition(
             }
     ),
 
-        opapp_3m = patients.outpatient_appointment_date(
+    opapp_3m = patients.outpatient_appointment_date(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         return_expectations = {
@@ -534,7 +538,7 @@ study = StudyDefinition(
             }
     ),
 
-        opatt_3m = patients.outpatient_appointment_date(
+    opatt_3m = patients.outpatient_appointment_date(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         attended = True,
