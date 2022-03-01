@@ -50,7 +50,7 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
 
 ########## Descriptive stats service use by cohort ##########
 
-# Just mean currently
+# Mean, standard deviation and number of people with at least 1 instance of each activity type
 
 service_use_mean_cohort <- df_input %>%
   select(cohort, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
@@ -58,7 +58,8 @@ service_use_mean_cohort <- df_input %>%
   group_by(cohort, measure) %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE))
+            , sd = sd(value, na.rm = TRUE)
+            , n_greaterthan1 = sum(value >= 1, na.rm = TRUE))
 
 write_csv(service_use_mean_cohort, here::here("output", "describe_service_use", "service_use_mean_cohort.csv"))
 
@@ -66,15 +67,14 @@ write_csv(service_use_mean_cohort, here::here("output", "describe_service_use", 
 
 ########## Descriptive stats service use by quarter ##########
 
-# Just mean currently
-
 service_use_mean_quarter <- df_input %>%
   select(study_quarter, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
   pivot_longer(cols = -c(study_quarter), names_to = "measure", values_to = "value") %>%
   group_by(study_quarter, measure) %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE))
+            , sd = sd(value, na.rm = TRUE)
+            , n_greaterthan1 = sum(value >= 1, na.rm = TRUE))
 
 write_csv(service_use_mean_quarter, here::here("output", "describe_service_use", "service_use_mean_quarter.csv"))
 
@@ -88,7 +88,8 @@ service_use_mean_cohort_pod <- df_input %>%
     group_by(cohort, pod_ons, measure) %>%
     summarise(n = n()
               , mean = mean(value, na.rm = TRUE)
-              , sd = sd(value, na.rm = TRUE))
+              , sd = sd(value, na.rm = TRUE)
+              , n_greaterthan1 = sum(value >= 1, na.rm = TRUE))
 
 write_csv(service_use_mean_cohort_pod, here::here("output", "describe_service_use", "service_use_mean_cohort_pod.csv"))
 
@@ -102,7 +103,8 @@ service_use_mean_quarter_pod <- df_input %>%
   group_by(study_quarter, pod_ons, measure) %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE))
+            , sd = sd(value, na.rm = TRUE)
+            , n_greaterthan1 = sum(value >= 1, na.rm = TRUE))
 
 write_csv(service_use_mean_quarter_pod, here::here("output", "describe_service_use", "service_use_mean_quarter_pod.csv"))
 
