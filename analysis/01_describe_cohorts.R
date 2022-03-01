@@ -384,6 +384,43 @@ deaths_ratio_ethnicity <- df_input %>%
 
 write_csv(deaths_ratio_ethnicity, here::here("output", "describe_cohorts", "deaths_ratio_ethnicity.csv"))
 
+#  Ratio - long term conditions
+
+deaths_ratio_ltc <- df_input %>%
+  mutate(ltc_count = df_input %>% select(starts_with("ltc_")) %>% rowSums()
+         , ltc_grp = case_when(ltc_count < 5 ~ as.character(ltc_count)
+                               , ltc_count >= 5 ~ "5+"
+                               , TRUE ~ NA_character_)) %>%
+  group_by(cohort, ltc_grp) %>%
+  summarise(deaths = n()) %>%
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = deaths) %>%
+  mutate(ratio = cohort_1 / cohort_0)
+
+write_csv(deaths_ratio_ltc, here::here("output", "describe_cohorts", "deaths_ratio_ltc.csv"))
+
+#  Ratio - palliative care
+
+deaths_ratio_palcare <- df_input %>%
+  group_by(cohort, ltc_palcare1) %>%
+  summarise(deaths = n()) %>%
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = deaths) %>%
+  mutate(ratio = cohort_1 / cohort_0)
+
+write_csv(deaths_ratio_palcare, here::here("output", "describe_cohorts", "deaths_ratio_palcare.csv"))
+
+#  Ratio - cancer deaths
+
+deaths_ratio_cod_cancer <- df_input %>%
+  mutate(cod_ons_3 = str_sub(cod_ons, 1, 3)
+         , cod_cancer = case_when(cod_ons_3 >= "C00" & cod_ons_3 <= "C97" ~ 1
+                                  , TRUE ~ 0)) %>%
+  group_by(cohort, cod_cancer) %>%
+  summarise(deaths = n()) %>%
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = deaths) %>%
+  mutate(ratio = cohort_1 / cohort_0)
+
+write_csv(deaths_ratio_cod_cancer, here::here("output", "describe_cohorts", "deaths_ratio_cod_cancer.csv"))
+
 ################################################################################
 
 ########## Ratios of deaths by place of death for characteristics ##########
