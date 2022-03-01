@@ -20,13 +20,6 @@ actions:
       moderately_sensitive:
         reports: output/cohort_reports_outputs/descriptives_input.html
 
-  #describe:
-  #  run: r:latest analysis/XX_dod_histogram.R
-  #  needs: [generate_study_population]
-  #  outputs:
-  #    moderately_sensitive:
-  #      cohort: output/dod_histogram.png
-
   describe_cohorts:
     run: r:latest analysis/01_describe_cohorts.R
     needs: [generate_study_population]
