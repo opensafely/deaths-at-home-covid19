@@ -238,7 +238,9 @@ deaths_month_cod <- df_input %>%
                                    , cod_ons_3 %in% c("A39", "A87") | (cod_ons_3 >= "G00" & cod_ons_3 <= "G03") ~ "Meningitis and meningococcal infection"
                                    , cod_ons_3 >= "A40" & cod_ons_3 <= "A41" ~ "Septicaemia"
                                    , cod_ons_3 >= "B20" & cod_ons_3 <= "B24" ~ "Human immunodeficiency virus [HIV] disease"
-                                   , cod_ons_3 >= "C00" & cod_ons_3 <= "C97" ~ "Malignant neoplasms"
+                                   , cod_ons_3 >= "C00" & cod_ons_3 <= "C14"  | cod_ons_3 >= "C26" & cod_ons_3 <= "C31" | cod_ons_3 >= "C35" & cod_ons_3 <= "C39"
+                                      | cod_ons_3 >= "C45" & cod_ons_3 <= "C49" | cod_ons_3 >= "C57" & cod_ons_3 <= "C60" | cod_ons_3 >= "C68" & cod_ons_3 <= "C70"
+                                      | cod_ons_3 >= "C72" & cod_ons_3 <= "C80" | cod_ons_3 %in% c("C17", "C42", "C51", "C52", "C62", "C63", "C65", "C66", "C97") ~ "Malignant neoplasms"
                                    , cod_ons_3 == "C15" ~ "Malignant neoplasm of oesophagus"
                                    , cod_ons_3 == "C16" ~ "Malignant neoplasm of stomach"
                                    , cod_ons_3 >= "C18" & cod_ons_3 <= "C21" ~ "Malignant neoplasm of colon, sigmoid, rectum and anus"
@@ -307,7 +309,11 @@ deaths_month_cod <- df_input %>%
   summarise(deaths = n()) %>%
   group_by(study_month) %>%
   arrange(study_month, desc(deaths)) %>%
-  mutate(rank_in = row_number()) 
+  mutate(rank_in = row_number()
+         , cod_ons_grp = tolower(cod_ons_grp))  %>%
+  left_join(read_csv(here::here("docs", "ons_comparison_data", "table11a_cod_onsmortality.csv"))
+            , by = c("study_month" = "period", "cod_ons_grp" = "cause")) %>%
+  mutate(proportion = deaths / number_of_deaths)
 
 write_csv(deaths_month_cod, here::here("output", "describe_cohorts", "deaths_month_cod.csv"))
 

@@ -310,8 +310,15 @@ for(i in seq_along(urls2)){
   
 }
 
+# Join all months together
+# Remove trailing white space from cause
+# Align cause names to ICD10 cause of death lookup - lowercase to avoid any issues
 table11a <- bind_rows(table11a_january_2020, table11a_february_2020, table11a_march_2020, table11a_april_2020, table11a_may_2020, table11a_june_2020 ,table11a_july_2020, table11a_august_2020, table11a_september_2020, table11a_october_2020, table11a_november_2020
-                      , table11a_december_2020, table11a_january_2021, table11a_february_2021)
+                      , table11a_december_2020, table11a_january_2021, table11a_february_2021) %>%
+  mutate(cause = trimws(cause, "right")
+         , cause = case_when(cause == "Dementia and Alzheimer's disease" ~ "Dementia and Alzheimer disease"
+                             , TRUE ~ cause)
+         , cause = tolower(cause))
 
 write_csv(table11a, here::here("docs", "ons_comparison_data", "table11a_cod_onsmortality.csv"))
 
