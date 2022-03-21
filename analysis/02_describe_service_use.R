@@ -59,7 +59,9 @@ service_use_mean_cohort <- df_input %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
-            , n_greaterthan1 = sum(value >= 1, na.rm = TRUE))
+            , n_greaterthan1 = sum(value >= 1, na.rm = TRUE)) %>%
+  mutate(n = plyr::round_any(n, 5)
+         , n_greaterthan1 = plyr::round_any(n_greaterthan1, 5))
 
 write_csv(service_use_mean_cohort, here::here("output", "describe_service_use", "service_use_mean_cohort.csv"))
 
@@ -74,7 +76,9 @@ service_use_mean_quarter <- df_input %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
-            , n_greaterthan1 = sum(value >= 1, na.rm = TRUE))
+            , n_greaterthan1 = sum(value >= 1, na.rm = TRUE)) %>%
+  mutate(n = plyr::round_any(n, 5)
+         , n_greaterthan1 = plyr::round_any(n_greaterthan1, 5))
 
 write_csv(service_use_mean_quarter, here::here("output", "describe_service_use", "service_use_mean_quarter.csv"))
 
@@ -89,7 +93,9 @@ service_use_mean_cohort_pod <- df_input %>%
     summarise(n = n()
               , mean = mean(value, na.rm = TRUE)
               , sd = sd(value, na.rm = TRUE)
-              , n_greaterthan1 = sum(value >= 1, na.rm = TRUE))
+              , n_greaterthan1 = sum(value >= 1, na.rm = TRUE)) %>%
+  mutate(n = plyr::round_any(n, 5)
+         , n_greaterthan1 = plyr::round_any(n_greaterthan1, 5))
 
 write_csv(service_use_mean_cohort_pod, here::here("output", "describe_service_use", "service_use_mean_cohort_pod.csv"))
 
@@ -104,7 +110,9 @@ service_use_mean_quarter_pod <- df_input %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
-            , n_greaterthan1 = sum(value >= 1, na.rm = TRUE))
+            , n_greaterthan1 = sum(value >= 1, na.rm = TRUE)) %>%
+  mutate(n = plyr::round_any(n, 5)
+         , n_greaterthan1 = plyr::round_any(n_greaterthan1, 5))
 
 write_csv(service_use_mean_quarter_pod, here::here("output", "describe_service_use", "service_use_mean_quarter_pod.csv"))
 
