@@ -158,7 +158,7 @@ plot_deaths_pod_cohort <- ggplot(deaths_cohort_pod) +
   coord_flip() +
   labs(x = "Place of death", y = "Number of deaths") +
   scale_y_continuous(limits = c(0, NA), expand = c(0, 0)) +
-  scale_fill_manual(values = c("0" = "#00C27A", "1" = "#9F67FF"), labels = c("0" = "Pre-pandemic", "1" = "Pandemic")) +
+  scale_fill_manual(values = c("0" = "#00C27A", "1" = "#9F67FF"), labels = c("0" = "Pre-pandemic", "1" = "Pandemic"), breaks = c("0", "1")) +
   NT_style() +
   theme(
     axis.text.y = element_text(colour = "#9AA0AA", size = 8, family = "sans", hjust = 1),
@@ -174,7 +174,7 @@ plot_deaths_pod_cohort_prop <- ggplot(deaths_cohort_pod) +
   coord_flip() +
   labs(x = "Place of death", y = "Proportion of deaths") +
   scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
-  scale_fill_manual(values = c("0" = "#00C27A", "1" = "#9F67FF"), labels = c("0" = "Pre-pandemic", "1" = "Pandemic")) +
+  scale_fill_manual(values = c("0" = "#00C27A", "1" = "#9F67FF"), labels = c("0" = "Pre-pandemic", "1" = "Pandemic"), breaks = c("0", "1")) +
   NT_style() +
   theme(
     axis.text.y = element_text(colour = "#9AA0AA", size = 8, family = "sans", hjust = 1),
