@@ -204,6 +204,7 @@ deaths_month_sex <- df_input %>%
   filter(study_month >= as_date("2019-03-01") & study_month <= as_date("2021-02-01")) %>%
   group_by(study_month, sex) %>%
   summarise(deaths = n()) %>%
+  mutate(deaths = plyr::round_any(deaths, 5)) %>%
   left_join(read_csv(here::here("docs", "ons_comparison_data", "table1_sex_onsmortality.csv"))
             , by = c("study_month" = "period", "sex")) %>%
   mutate(proportion = deaths / ons_deaths)
@@ -222,6 +223,7 @@ deaths_month_agegrp <- df_input %>%
                             , TRUE ~ NA_character_)) %>%
   group_by(study_month, agegrp) %>%
   summarise(deaths = n()) %>%
+  mutate(deaths = plyr::round_any(deaths, 5)) %>%
   left_join(read_csv(here::here("docs", "ons_comparison_data", "table4_8c_agegrp_onsmortality.csv"))
             , by = c("study_month" = "period", "agegrp")) %>%
   mutate(proportion = deaths / ons_deaths)
@@ -314,6 +316,7 @@ deaths_month_cod <- df_input %>%
                                    , TRUE ~ NA_character_)) %>%
   group_by(study_month, cod_ons_grp) %>%
   summarise(deaths = n()) %>%
+  mutate(deaths = plyr::round_any(deaths, 5)) %>%
   group_by(study_month) %>%
   arrange(study_month, desc(deaths)) %>%
   mutate(rank_in = row_number()
@@ -330,6 +333,7 @@ deaths_month_pod <- df_input %>%
   filter(study_month >= as_date("2020-01-01") & study_month <= as_date("2021-02-01")) %>%
   group_by(study_month, pod_ons) %>%
   summarise(deaths = n()) %>%
+  mutate(deaths = plyr::round_any(deaths, 5)) %>%
   left_join(read_csv(here::here("docs", "ons_comparison_data", "table14a_pod_onsmortality.csv"))
             , by = c("study_month" = "period", "pod_ons" = "place_of_death")) %>%
   mutate(proportion = deaths / ons_deaths)
