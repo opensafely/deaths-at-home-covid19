@@ -532,7 +532,179 @@ study = StudyDefinition(
             }
     ),
 
-    # Bed days??
+    beddays_1m = patients.admitted_to_hospital(
+        returning = "total_bed_days_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    beddays_3m = patients.admitted_to_hospital(
+        returning = "total_bed_days_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    beddays_1y = patients.admitted_to_hospital(
+        returning = "total_bed_days_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    beddays_emadm_1m = patients.admitted_to_hospital(
+        returning = "total_bed_days_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    beddays_emadm_3m = patients.admitted_to_hospital(
+        returning = "total_bed_days_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    beddays_emadm_1y = patients.admitted_to_hospital(
+        returning = "total_bed_days_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    beddays_eladm_1m = patients.admitted_to_hospital(
+        returning = "total_bed_days_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        with_admission_method = ['11', '12', '13'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    beddays_eladm_3m = patients.admitted_to_hospital(
+        returning = "total_bed_days_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        with_admission_method = ['11', '12', '13'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    beddays_eladm_1y = patients.admitted_to_hospital(
+        returning = "total_bed_days_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        with_admission_method = ['11', '12', '13'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    crit_beddays_1m = patients.admitted_to_hospital(
+        returning = "total_critical_care_days_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    crit_beddays_3m = patients.admitted_to_hospital(
+        returning = "total_critical_care_days_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    crit_beddays_1y = patients.admitted_to_hospital(
+        returning = "total_critical_care_days_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    crit_beddays_emadm_1m = patients.admitted_to_hospital(
+        returning = "total_critical_care_days_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    crit_beddays_emadm_3m = patients.admitted_to_hospital(
+        returning = "total_critical_care_days_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    crit_beddays_emadm_1y = patients.admitted_to_hospital(
+        returning = "total_critical_care_days_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    crit_beddays_eladm_1m = patients.admitted_to_hospital(
+        returning = "total_critical_care_days_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        with_admission_method = ['11', '12', '13'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    crit_beddays_eladm_3m = patients.admitted_to_hospital(
+        returning = "total_critical_care_days_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        with_admission_method = ['11', '12', '13'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    crit_beddays_eladm_1y = patients.admitted_to_hospital(
+        returning = "total_critical_care_days_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        with_admission_method = ['11', '12', '13'],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
 
     opapp_1m = patients.outpatient_appointment_date(
         returning = "number_of_matches_in_period",
