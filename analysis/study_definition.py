@@ -763,6 +763,21 @@ study = StudyDefinition(
             }
     ),
 
+    ## Flag for people with complete gp history
+    # Some measures of activity drawn from GP record will be affected if people change practices/switch to TPP
+
+    gp_hist_1m = patients.with_complete_gp_consultation_history_between(
+       "dod_ons - 30 days", "dod_ons", return_expectations={"incidence": 0.9}
+    ),
+
+    gp_hist_3m = patients.with_complete_gp_consultation_history_between(
+       "dod_ons - 90 days", "dod_ons", return_expectations={"incidence": 0.9}
+    ),
+
+    gp_hist_1y = patients.with_complete_gp_consultation_history_between(
+       "dod_ons - 365 days", "dod_ons", return_expectations={"incidence": 0.9}
+    ),
+
     ## GP clinical coded activity in year prior to death
     # Use as a proxy for contact with GP
     
