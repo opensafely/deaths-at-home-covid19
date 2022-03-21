@@ -114,6 +114,18 @@ write_csv(service_use_mean_quarter_pod, here::here("output", "describe_service_u
 
 # Think about any significance testing
 
+# Ratio by cohort
+
+service_use_ratio <- df_input %>%
+  select(cohort, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+  pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
+  group_by(cohort, measure) %>%
+  summarise(mean = mean(value, na.rm = TRUE)) %>%
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = mean) %>%
+  mutate(ratio = cohort_1 / cohort_0)
+
+write_csv(service_use_ratio, here::here("output", "describe_service_use", "service_use_ratio.csv"))
+
 # Ratio for each place of death by cohort
 
 service_use_ratio_pod <- df_input %>%
