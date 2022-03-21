@@ -18,7 +18,8 @@ actions:
       output_path: output/cohort_reports_outputs
     outputs: 
       moderately_sensitive:
-        reports: output/cohort_reports_outputs/descriptives_input.html
+        report: output/cohort_reports_outputs/descriptives_input.html
+        report_charts: output/cohort_reports_outputs/*.png
 
   describe_cohorts:
     run: r:latest analysis/01_describe_cohorts.R
