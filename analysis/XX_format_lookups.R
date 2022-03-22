@@ -41,7 +41,7 @@ write_csv(msoa_lad_rgn, here::here("docs", "lookups", "msoa_lad_rgn_2020.csv"))
 
 ################################################################################
 
-########## LAD > IMD decile ##########
+########## LAD > IMD quintile ##########
 
 # Re-average IMD average rank to align to 2020 local authorities
 
@@ -56,17 +56,12 @@ lad_imd <- readxl::read_xlsx(filename2, sheet = "IMD") %>%
                              , TRUE ~ local_authority_district_code_2019)) %>%
   group_by(lad20cd) %>%
   summarise(imd_average_rank = mean(imd_average_rank, na.rm = TRUE)) %>%
-  mutate(imd19_decile = case_when(imd_average_rank < quantile(imd_average_rank, 0.1) ~ 10
-                                  , imd_average_rank >= quantile(imd_average_rank, 0.1) & imd_average_rank < quantile(imd_average_rank, 0.2) ~ 9
-                                  , imd_average_rank >= quantile(imd_average_rank, 0.2) & imd_average_rank < quantile(imd_average_rank, 0.3) ~ 8
-                                  , imd_average_rank >= quantile(imd_average_rank, 0.3) & imd_average_rank < quantile(imd_average_rank, 0.4) ~ 7
-                                  , imd_average_rank >= quantile(imd_average_rank, 0.4) & imd_average_rank < quantile(imd_average_rank, 0.5) ~ 6
-                                  , imd_average_rank >= quantile(imd_average_rank, 0.5) & imd_average_rank < quantile(imd_average_rank, 0.6) ~ 5
-                                  , imd_average_rank >= quantile(imd_average_rank, 0.6) & imd_average_rank < quantile(imd_average_rank, 0.7) ~ 4
-                                  , imd_average_rank >= quantile(imd_average_rank, 0.7) & imd_average_rank < quantile(imd_average_rank, 0.8) ~ 3
-                                  , imd_average_rank >= quantile(imd_average_rank, 0.8) & imd_average_rank < quantile(imd_average_rank, 0.9) ~ 2
+  mutate(imd19_quintile = case_when(imd_average_rank < quantile(imd_average_rank, 0.2) ~ 5
+                                  , imd_average_rank >= quantile(imd_average_rank, 0.2) & imd_average_rank < quantile(imd_average_rank, 0.4) ~ 4
+                                  , imd_average_rank >= quantile(imd_average_rank, 0.4) & imd_average_rank < quantile(imd_average_rank, 0.6) ~ 3
+                                  , imd_average_rank >= quantile(imd_average_rank, 0.6) & imd_average_rank < quantile(imd_average_rank, 0.8) ~ 2
                                   , TRUE ~ 1)) %>%
-  select(lad20cd, imd19_decile)
+  select(lad20cd, imd19_quintile)
 
 write_csv(lad_imd, here::here("docs", "lookups", "lad_imd_2019.csv"))
 
