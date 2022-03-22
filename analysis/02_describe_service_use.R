@@ -31,6 +31,7 @@ fs::dir_create(here::here("output", "describe_service_use"))
 # Convert dod to date variable
 # Create cohort flag
 # Death quarter variable starting in March so it is quarters of the cohort period rather than calendar or fiscal quarters
+# Join on region and LA imd quintile
 
 df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>%
   mutate(dod_ons = as_date(dod_ons)
@@ -45,7 +46,11 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
                                     , month(dod_ons) %in% c(6, 7, 8) & year(dod_ons) == 2020 ~ 6
                                     , month(dod_ons) %in% c(9, 10, 11) & year(dod_ons) == 2020 ~ 7
                                     , (month(dod_ons) == 12 & year(dod_ons) == 2020) | (month(dod_ons) %in% c(1, 2) & year(dod_ons) == 2021) ~ 8)
-        , study_month = floor_date(dod_ons, unit = "month"))
+        , study_month = floor_date(dod_ons, unit = "month")) %>%
+  left_join(read_csv(here::here("docs", "lookups", "msoa_lad_rgn_2020.csv"))
+            , by = c("msoa" = "msoa11cd")) %>%
+  left_join(read_csv(here::here("docs", "lookups", "lad_imd_2019.csv"))
+            , by = "lad20cd")
 
 ################################################################################
 
