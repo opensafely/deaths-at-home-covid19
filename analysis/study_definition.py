@@ -227,6 +227,13 @@ study = StudyDefinition(
 
     ## Health ##
 
+    ## COVID-19 positive
+    covid_pos = patients.with_test_result_in_sgss(
+        pathogen = "SARS-CoV-2",
+        test_result = "positive",
+        returning = "binary_flag"
+    ),
+
     ## Frailty
     frailty = patients.with_these_decision_support_values(
         algorithm = "electronic_frailty_index",
