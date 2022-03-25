@@ -46,7 +46,9 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
                                     , month(dod_ons) %in% c(6, 7, 8) & year(dod_ons) == 2020 ~ 6
                                     , month(dod_ons) %in% c(9, 10, 11) & year(dod_ons) == 2020 ~ 7
                                     , (month(dod_ons) == 12 & year(dod_ons) == 2020) | (month(dod_ons) %in% c(1, 2) & year(dod_ons) == 2021) ~ 8)
-        , study_month = floor_date(dod_ons, unit = "month")) %>%
+        , study_month = floor_date(dod_ons, unit = "month")
+        , cod_ons_3 = str_sub(cod_ons, 1, 3)
+        , cod_ons_4 = str_sub(cod_ons, 1, 5)) %>%
   left_join(read_csv(here::here("docs", "lookups", "msoa_lad_rgn_2020.csv"))
             , by = c("msoa" = "msoa11cd")) %>%
   left_join(read_csv(here::here("docs", "lookups", "lad_imd_2019.csv"))
