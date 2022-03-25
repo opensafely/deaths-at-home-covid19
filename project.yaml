@@ -11,6 +11,19 @@ actions:
       highly_sensitive:
         cohort: output/input.feather
 
+  generate_study_population_measures:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_practice_measures --output-format feather --index-date-range "2019-03-01 to 2021-02-01 by month" --output-dir=output/practice_measures
+    outputs:
+      highly_sensitive:
+        cohort: output/practice_measures/input_*.feather
+
+  generate_practice_measures:
+      run: cohortextractor:latest generate_measures --study-definition study_definition_practice_measures --output-dir=output/practice_measures
+      needs: [generate_study_population_measures]
+      outputs:
+        moderately_sensitive:
+          measure_csv: output/practice_measures/measure_*.csv
+
   generate_report:
     run: cohort-report:v3.0.0 output/input.feather
     needs: [generate_study_population]
