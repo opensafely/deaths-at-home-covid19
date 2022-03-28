@@ -12,13 +12,13 @@ actions:
         cohort: output/input.feather
 
   generate_study_population_measures:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition_practice_measures --output-format feather --index-date-range "2019-03-01 to 2021-02-01 by month" --output-dir=output/practice_measures
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_practice_measures --output-format feather --index-date-range "2019-03-01 to 2021-02-01 by month" --skip-existing --output-dir=output/practice_measures
     outputs:
       highly_sensitive:
         cohort: output/practice_measures/input_*.feather
 
   generate_practice_measures:
-      run: cohortextractor:latest generate_measures --study-definition study_definition_practice_measures --output-dir=output/practice_measures
+      run: cohortextractor:latest generate_measures --study-definition study_definition_practice_measures --skip-existing --output-dir=output/practice_measures
       needs: [generate_study_population_measures]
       outputs:
         moderately_sensitive:
@@ -55,3 +55,10 @@ actions:
       moderately_sensitive:
         service_use_means: output/describe_service_use/service_use_mean*.csv
         service_use_ratios: output/describe_service_use/service_use_ratio*.csv
+
+  practice_measures_charts:
+    run: r:latest analysis/03_practice_measures_charts.R
+    needs: [generate_study_population_measures, generate_practice_measures]
+    outputs:
+      moderately_sensitive:
+        deciles_charts: output/practice_measures/charts/deciles_*.png
