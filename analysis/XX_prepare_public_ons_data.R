@@ -310,10 +310,32 @@ for(i in seq_along(urls2)){
   
 }
 
+# March 2019 to December 2019
+# Deaths by date of occurrence rather than registration
+
+download.file("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/adhocs/12060deathsbyleadingcausesgroupingsymonthofoccurrenceengland2015to2019/deathsbyleadingcauses20152019.xlsx"
+              , destfile = "docs/data_downloads_temp/deathsbyleadingcauses20152019.xlsx", mode = "wb")
+
+leadingcause19_data <- readxl::read_xlsx("docs/data_downloads_temp/deathsbyleadingcauses20152019.xlsx", sheet = "2019", col_names = TRUE, skip = 2, n_max = 68) %>%
+  clean_names() %>% 
+  pivot_longer(cols = -c(cause_of_death), names_to = "month", values_to = "number_of_deaths") %>% 
+  mutate(period = as_date(paste0("01-", month, "-2019"), format = "%d-%B-%Y")) %>%
+  rename(cause = cause_of_death) %>% 
+  group_by(period) %>%
+  arrange(desc(number_of_deaths)) %>%
+  mutate(rank_in = row_number()) %>%
+  select(period, cause, rank_in, number_of_deaths)
+  
+
+
+
+
+
+
 # Join all months together
 # Remove trailing white space from cause
 # Align cause names to ICD10 cause of death lookup - lowercase to avoid any issues
-table11a <- bind_rows(table11a_january_2020, table11a_february_2020, table11a_march_2020, table11a_april_2020, table11a_may_2020, table11a_june_2020 ,table11a_july_2020, table11a_august_2020, table11a_september_2020, table11a_october_2020, table11a_november_2020
+table11a <- bind_rows(leadingcause19_data, table11a_january_2020, table11a_february_2020, table11a_march_2020, table11a_april_2020, table11a_may_2020, table11a_june_2020 ,table11a_july_2020, table11a_august_2020, table11a_september_2020, table11a_october_2020, table11a_november_2020
                       , table11a_december_2020, table11a_january_2021, table11a_february_2021) %>%
   mutate(cause = trimws(cause, "right")
          , cause = case_when(cause == "Dementia and Alzheimer's disease" ~ "Dementia and Alzheimer disease"
