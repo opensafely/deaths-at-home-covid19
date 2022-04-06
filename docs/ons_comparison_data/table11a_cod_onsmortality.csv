@@ -1,4 +1,820 @@
-period,cause,rank_in,number_of_deaths
+period,cause,rank_in,ons_deaths
+2019-01-01,dementia and alzheimer disease,1,6087
+2019-11-01,dementia and alzheimer disease,1,5840
+2019-02-01,dementia and alzheimer disease,1,5671
+2019-10-01,dementia and alzheimer disease,1,5581
+2019-03-01,dementia and alzheimer disease,1,5407
+2019-12-01,dementia and alzheimer disease,1,5275
+2019-04-01,dementia and alzheimer disease,1,5095
+2019-01-01,ischaemic heart diseases,2,4928
+2019-05-01,dementia and alzheimer disease,1,4678
+2019-09-01,dementia and alzheimer disease,1,4599
+2019-07-01,dementia and alzheimer disease,1,4392
+2019-08-01,dementia and alzheimer disease,1,4383
+2019-04-01,ischaemic heart diseases,2,4314
+2019-03-01,ischaemic heart diseases,2,4310
+2019-02-01,ischaemic heart diseases,2,4298
+2019-06-01,dementia and alzheimer disease,1,4295
+2019-05-01,ischaemic heart diseases,2,4153
+2019-11-01,ischaemic heart diseases,2,4099
+2019-10-01,ischaemic heart diseases,2,4061
+2019-06-01,ischaemic heart diseases,2,3909
+2019-07-01,ischaemic heart diseases,2,3890
+2019-08-01,ischaemic heart diseases,2,3752
+2019-09-01,ischaemic heart diseases,2,3700
+2019-01-01,chronic lower respiratory diseases,3,3574
+2019-12-01,ischaemic heart diseases,2,3112
+2019-01-01,influenza and pneumonia,4,3039
+2019-02-01,chronic lower respiratory diseases,3,2899
+2019-02-01,influenza and pneumonia,4,2831
+2019-01-01,cerebrovascular diseases,5,2677
+2019-03-01,chronic lower respiratory diseases,3,2542
+2019-04-01,chronic lower respiratory diseases,3,2509
+2019-03-01,cerebrovascular diseases,4,2476
+2019-11-01,chronic lower respiratory diseases,3,2434
+2019-01-01,"malignant neoplasm of trachea, bronchus and lung",6,2399
+2019-10-01,cerebrovascular diseases,3,2339
+2019-04-01,cerebrovascular diseases,4,2335
+2019-11-01,cerebrovascular diseases,4,2329
+2019-02-01,cerebrovascular diseases,5,2322
+2019-07-01,"malignant neoplasm of trachea, bronchus and lung",3,2313
+2019-12-01,chronic lower respiratory diseases,3,2310
+2019-11-01,"malignant neoplasm of trachea, bronchus and lung",5,2310
+2019-08-01,"malignant neoplasm of trachea, bronchus and lung",3,2296
+2019-10-01,"malignant neoplasm of trachea, bronchus and lung",4,2291
+2019-04-01,"malignant neoplasm of trachea, bronchus and lung",5,2268
+2019-03-01,"malignant neoplasm of trachea, bronchus and lung",5,2246
+2019-05-01,"malignant neoplasm of trachea, bronchus and lung",3,2240
+2019-05-01,cerebrovascular diseases,4,2239
+2019-05-01,chronic lower respiratory diseases,5,2228
+2019-09-01,"malignant neoplasm of trachea, bronchus and lung",3,2173
+2019-02-01,"malignant neoplasm of trachea, bronchus and lung",6,2166
+2019-06-01,"malignant neoplasm of trachea, bronchus and lung",3,2165
+2019-03-01,influenza and pneumonia,6,2156
+2019-10-01,chronic lower respiratory diseases,5,2139
+2019-12-01,influenza and pneumonia,4,2128
+2019-07-01,cerebrovascular diseases,4,2073
+2019-08-01,cerebrovascular diseases,4,2069
+2019-06-01,cerebrovascular diseases,4,2059
+2019-12-01,cerebrovascular diseases,5,2047
+2019-09-01,cerebrovascular diseases,4,2031
+2019-11-01,influenza and pneumonia,6,2027
+2019-04-01,influenza and pneumonia,6,1937
+2019-06-01,chronic lower respiratory diseases,5,1897
+2019-12-01,"malignant neoplasm of trachea, bronchus and lung",6,1889
+2019-07-01,chronic lower respiratory diseases,5,1872
+2019-08-01,chronic lower respiratory diseases,5,1843
+2019-10-01,influenza and pneumonia,6,1803
+2019-05-01,influenza and pneumonia,6,1802
+2019-09-01,chronic lower respiratory diseases,5,1737
+2019-06-01,influenza and pneumonia,6,1539
+2019-07-01,influenza and pneumonia,6,1453
+2019-09-01,influenza and pneumonia,6,1444
+2019-08-01,influenza and pneumonia,6,1324
+2019-01-01,"malignant neoplasm of colon, sigmoid, rectum and anus",7,1235
+2019-03-01,"malignant neoplasm of colon, sigmoid, rectum and anus",7,1223
+2019-11-01,"malignant neoplasm of colon, sigmoid, rectum and anus",7,1211
+2019-10-01,"malignant neoplasm of colon, sigmoid, rectum and anus",7,1205
+2019-08-01,"malignant neoplasm of colon, sigmoid, rectum and anus",7,1192
+2019-05-01,"malignant neoplasm of colon, sigmoid, rectum and anus",7,1183
+2019-07-01,"malignant neoplasm of colon, sigmoid, rectum and anus",7,1163
+2019-09-01,"malignant neoplasm of colon, sigmoid, rectum and anus",7,1159
+2019-06-01,"malignant neoplasm of colon, sigmoid, rectum and anus",7,1154
+2019-01-01,"symptoms, signs and ill-defined conditions",8,1150
+2019-04-01,"malignant neoplasm of colon, sigmoid, rectum and anus",7,1123
+2019-02-01,"malignant neoplasm of colon, sigmoid, rectum and anus",7,1116
+2019-02-01,"symptoms, signs and ill-defined conditions",8,1091
+2019-11-01,"symptoms, signs and ill-defined conditions",8,1055
+2019-01-01,"malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,1044
+2019-03-01,"symptoms, signs and ill-defined conditions",8,1044
+2019-05-01,"symptoms, signs and ill-defined conditions",8,1041
+2019-10-01,"symptoms, signs and ill-defined conditions",8,1027
+2019-12-01,"malignant neoplasm of colon, sigmoid, rectum and anus",7,990
+2019-04-01,"malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",8,981
+2019-04-01,"symptoms, signs and ill-defined conditions",9,973
+2019-05-01,"malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,969
+2019-08-01,"symptoms, signs and ill-defined conditions",8,961
+2019-12-01,"symptoms, signs and ill-defined conditions",8,960
+2019-06-01,"symptoms, signs and ill-defined conditions",8,941
+2019-07-01,"symptoms, signs and ill-defined conditions",8,929
+2019-01-01,malignant neoplasm of prostate,10,928
+2019-02-01,"malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,927
+2019-11-01,"malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,925
+2019-07-01,"malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,914
+2019-09-01,"malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",8,914
+2019-11-01,malignant neoplasm of prostate,10,889
+2019-09-01,"symptoms, signs and ill-defined conditions",9,887
+2019-08-01,"malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,881
+2019-03-01,"malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,879
+2019-10-01,"malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,877
+2019-10-01,malignant neoplasm of prostate,10,867
+2019-06-01,"malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,867
+2019-01-01,malignant neoplasm of breast,11,845
+2019-08-01,malignant neoplasm of prostate,10,842
+2019-03-01,malignant neoplasm of prostate,10,841
+2019-12-01,"malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue",9,840
+2019-07-01,malignant neoplasm of prostate,10,829
+2019-08-01,malignant neoplasm of breast,11,826
+2019-02-01,malignant neoplasm of prostate,10,826
+2019-09-01,malignant neoplasm of prostate,10,824
+2019-06-01,malignant neoplasm of prostate,10,811
+2019-05-01,malignant neoplasm of prostate,10,810
+2019-07-01,malignant neoplasm of breast,11,799
+2019-11-01,malignant neoplasm of breast,11,797
+2019-03-01,malignant neoplasm of breast,11,795
+2019-04-01,malignant neoplasm of prostate,10,794
+2019-10-01,malignant neoplasm of breast,11,786
+2019-09-01,malignant neoplasm of breast,11,778
+2019-04-01,malignant neoplasm of breast,11,770
+2019-06-01,malignant neoplasm of breast,11,759
+2019-05-01,malignant neoplasm of breast,11,757
+2019-12-01,malignant neoplasm of prostate,10,754
+2019-02-01,malignant neoplasm of breast,11,738
+2019-01-01,cirrhosis and other diseases of liver,12,737
+2019-01-01,malignant neoplasm of pancreas,13,720
+2019-01-01,diseases of the urinary system,14,710
+2019-10-01,malignant neoplasm of pancreas,12,709
+2019-01-01,heart failure and complications and ill-defined heart disease,15,701
+2019-03-01,malignant neoplasm of pancreas,12,691
+2019-12-01,malignant neoplasm of breast,11,690
+2019-04-01,malignant neoplasm of pancreas,12,686
+2019-03-01,heart failure and complications and ill-defined heart disease,13,682
+2019-11-01,malignant neoplasm of pancreas,12,680
+2019-05-01,heart failure and complications and ill-defined heart disease,12,669
+2019-08-01,malignant neoplasm of pancreas,12,667
+2019-06-01,malignant neoplasm of pancreas,12,665
+2019-03-01,cirrhosis and other diseases of liver,14,664
+2019-09-01,malignant neoplasm of pancreas,12,664
+2019-02-01,diseases of the urinary system,12,663
+2019-07-01,malignant neoplasm of pancreas,12,661
+2019-04-01,cirrhosis and other diseases of liver,13,660
+2019-03-01,diseases of the urinary system,15,660
+2019-11-01,cardiac arrhythmias,13,658
+2019-11-01,diseases of the urinary system,14,654
+2019-04-01,heart failure and complications and ill-defined heart disease,14,654
+2019-02-01,heart failure and complications and ill-defined heart disease,13,653
+2019-04-01,diseases of the urinary system,15,651
+2019-10-01,heart failure and complications and ill-defined heart disease,13,644
+2019-05-01,diseases of the urinary system,13,640
+2019-11-01,heart failure and complications and ill-defined heart disease,15,627
+2019-02-01,cirrhosis and other diseases of liver,14,626
+2019-05-01,malignant neoplasm of pancreas,14,625
+2019-07-01,diseases of the urinary system,13,620
+2019-02-01,cardiac arrhythmias,15,610
+2019-07-01,cirrhosis and other diseases of liver,14,609
+2019-03-01,cardiac arrhythmias,16,608
+2019-01-01,hypertensive diseases,16,608
+2019-01-01,cardiac arrhythmias,17,606
+2019-07-01,heart failure and complications and ill-defined heart disease,15,599
+2019-08-01,cirrhosis and other diseases of liver,13,598
+2019-09-01,cirrhosis and other diseases of liver,13,598
+2019-09-01,diseases of the urinary system,14,596
+2019-01-01,pulmonary oedema and other interstitial pulmonary diseases,18,596
+2019-10-01,diseases of the urinary system,14,592
+2019-11-01,cirrhosis and other diseases of liver,16,590
+2019-10-01,malignant neoplasm of oesophagus,15,589
+2019-10-01,cardiac arrhythmias,16,588
+2019-10-01,hypertensive diseases,17,588
+2019-07-01,malignant neoplasm of oesophagus,16,588
+2019-02-01,malignant neoplasm of pancreas,16,585
+2019-10-01,cirrhosis and other diseases of liver,18,582
+2019-12-01,malignant neoplasm of pancreas,12,582
+2019-05-01,malignant neoplasm of oesophagus,15,580
+2019-03-01,hypertensive diseases,17,579
+2019-11-01,hypertensive diseases,17,579
+2019-01-01,diabetes,19,575
+2019-05-01,cirrhosis and other diseases of liver,16,572
+2019-04-01,cardiac arrhythmias,16,571
+2019-06-01,cardiac arrhythmias,13,570
+2019-06-01,malignant neoplasm of oesophagus,14,570
+2019-06-01,cirrhosis and other diseases of liver,15,569
+2019-12-01,diseases of the urinary system,13,563
+2019-02-01,hypertensive diseases,17,559
+2019-08-01,diseases of the urinary system,14,558
+2019-03-01,malignant neoplasm of oesophagus,18,556
+2019-09-01,malignant neoplasm of oesophagus,15,555
+2019-05-01,hypertensive diseases,17,554
+2019-10-01,parkinson disease,19,549
+2019-08-01,heart failure and complications and ill-defined heart disease,15,545
+2019-01-01,accidental falls,20,543
+2019-06-01,diseases of the urinary system,16,543
+2019-06-01,heart failure and complications and ill-defined heart disease,17,540
+2019-02-01,malignant neoplasm of oesophagus,18,534
+2019-08-01,malignant neoplasm of oesophagus,16,534
+2019-08-01,cardiac arrhythmias,17,532
+2019-09-01,heart failure and complications and ill-defined heart disease,16,532
+2019-01-01,parkinson disease,21,532
+2019-04-01,pulmonary oedema and other interstitial pulmonary diseases,17,532
+2019-04-01,hypertensive diseases,18,531
+2019-11-01,parkinson disease,18,526
+2019-07-01,cardiac arrhythmias,17,525
+2019-11-01,malignant neoplasm of oesophagus,19,523
+2019-11-01,pulmonary oedema and other interstitial pulmonary diseases,20,523
+2019-12-01,heart failure and complications and ill-defined heart disease,14,520
+2019-01-01,malignant neoplasm of oesophagus,22,520
+2019-02-01,pulmonary oedema and other interstitial pulmonary diseases,19,518
+2019-05-01,cardiac arrhythmias,18,517
+2019-08-01,hypertensive diseases,18,516
+2019-04-01,malignant neoplasm of oesophagus,19,516
+2019-11-01,diabetes,21,510
+2019-10-01,diabetes,20,509
+2019-03-01,diabetes,19,506
+2019-12-01,pulmonary oedema and other interstitial pulmonary diseases,15,501
+2019-03-01,pulmonary oedema and other interstitial pulmonary diseases,20,496
+2019-05-01,diabetes,19,490
+2019-10-01,pulmonary oedema and other interstitial pulmonary diseases,21,490
+2019-08-01,diabetes,19,488
+2019-04-01,nonrheumatic valve disorders and endocarditis,20,487
+2019-12-01,parkinson disease,16,487
+2019-08-01,parkinson disease,20,483
+2019-01-01,nonrheumatic valve disorders and endocarditis,23,482
+2019-03-01,accidental falls,21,481
+2019-06-01,hypertensive diseases,18,481
+2019-01-01,acute respiratory infections other than influenza and pneumonia,24,480
+2019-02-01,parkinson disease,20,480
+2019-03-01,parkinson disease,22,480
+2019-09-01,cardiac arrhythmias,17,475
+2019-12-01,cirrhosis and other diseases of liver,17,475
+2019-04-01,diabetes,21,474
+2019-12-01,malignant neoplasm of oesophagus,18,470
+2019-09-01,parkinson disease,18,470
+2019-02-01,diabetes,21,467
+2019-07-01,diabetes,18,466
+2019-05-01,pulmonary oedema and other interstitial pulmonary diseases,20,465
+2019-09-01,hypertensive diseases,19,464
+2019-12-01,cardiac arrhythmias,19,463
+2019-04-01,accidental falls,22,459
+2019-11-01,nonrheumatic valve disorders and endocarditis,22,456
+2019-10-01,malignant neoplasm of liver and intrahepatic bile ducts,22,455
+2019-04-01,parkinson disease,23,454
+2019-06-01,pulmonary oedema and other interstitial pulmonary diseases,19,453
+2019-09-01,diabetes,20,450
+2019-12-01,diabetes,20,450
+2019-12-01,hypertensive diseases,21,450
+2019-07-01,hypertensive diseases,19,448
+2019-05-01,parkinson disease,21,447
+2019-07-01,parkinson disease,20,447
+2019-10-01,nonrheumatic valve disorders and endocarditis,23,439
+2019-09-01,malignant neoplasm of bladder,21,438
+2019-02-01,nonrheumatic valve disorders and endocarditis,22,437
+2019-01-01,suicide and injury/poisoning of undetermined intent,25,436
+2019-02-01,accidental falls,23,434
+2019-06-01,diabetes,20,433
+2019-06-01,parkinson disease,21,429
+2019-03-01,nonrheumatic valve disorders and endocarditis,23,424
+2019-01-01,malignant neoplasm of liver and intrahepatic bile ducts,26,421
+2019-05-01,malignant neoplasm of liver and intrahepatic bile ducts,22,421
+2019-07-01,pulmonary oedema and other interstitial pulmonary diseases,21,421
+2019-02-01,acute respiratory infections other than influenza and pneumonia,24,419
+2019-05-01,accidental falls,23,418
+2019-05-01,malignant neoplasm of bladder,24,418
+2019-01-01,aortic aneurysm and dissection,27,415
+2019-03-01,suicide and injury/poisoning of undetermined intent,24,415
+2019-03-01,malignant neoplasm of liver and intrahepatic bile ducts,25,412
+2019-05-01,nonrheumatic valve disorders and endocarditis,25,412
+2019-06-01,nonrheumatic valve disorders and endocarditis,22,411
+2019-01-01,malignant neoplasm of bladder,28,410
+2019-11-01,aortic aneurysm and dissection,23,408
+2019-09-01,nonrheumatic valve disorders and endocarditis,22,408
+2019-09-01,pulmonary oedema and other interstitial pulmonary diseases,23,408
+2019-03-01,malignant neoplasm of bladder,26,406
+2019-07-01,malignant neoplasm of liver and intrahepatic bile ducts,22,405
+2019-02-01,malignant neoplasm of liver and intrahepatic bile ducts,25,404
+2019-11-01,malignant neoplasm of liver and intrahepatic bile ducts,24,404
+2019-08-01,malignant neoplasm of bladder,21,401
+2019-07-01,nonrheumatic valve disorders and endocarditis,23,401
+2019-09-01,malignant neoplasm of liver and intrahepatic bile ducts,24,397
+2019-08-01,pulmonary oedema and other interstitial pulmonary diseases,22,397
+2019-10-01,malignant neoplasm of bladder,24,396
+2019-03-01,aortic aneurysm and dissection,27,395
+2019-04-01,malignant neoplasm of liver and intrahepatic bile ducts,24,392
+2019-11-01,acute respiratory infections other than influenza and pneumonia,25,388
+2019-12-01,acute respiratory infections other than influenza and pneumonia,22,384
+2019-06-01,malignant neoplasm of liver and intrahepatic bile ducts,23,382
+2019-10-01,aortic aneurysm and dissection,25,381
+2019-08-01,malignant neoplasm of liver and intrahepatic bile ducts,23,380
+2019-04-01,aortic aneurysm and dissection,25,372
+2019-04-01,suicide and injury/poisoning of undetermined intent,26,372
+2019-06-01,accidental falls,24,370
+2019-02-01,malignant neoplasm of bladder,26,367
+2019-05-01,aortic aneurysm and dissection,26,363
+2019-12-01,nonrheumatic valve disorders and endocarditis,23,363
+2019-11-01,malignant neoplasm of bladder,26,361
+2019-02-01,suicide and injury/poisoning of undetermined intent,27,358
+2019-03-01,acute respiratory infections other than influenza and pneumonia,28,357
+2019-07-01,malignant neoplasm of bladder,24,357
+2019-12-01,malignant neoplasm of liver and intrahepatic bile ducts,24,356
+2019-06-01,malignant neoplasm of bladder,25,355
+2019-01-01,diseases of musculoskeletal system and connective tissue,29,353
+2019-09-01,aortic aneurysm and dissection,25,350
+2019-07-01,aortic aneurysm and dissection,25,344
+2019-01-01,malignant neoplasm of brain,30,344
+2019-04-01,malignant neoplasm of bladder,27,343
+2019-05-01,suicide and injury/poisoning of undetermined intent,27,342
+2019-07-01,malignant neoplasm of brain,26,339
+2019-10-01,malignant neoplasm of brain,26,337
+2019-07-01,accidental falls,27,336
+2019-02-01,aortic aneurysm and dissection,28,336
+2019-01-01,accidental poisoning,31,334
+2019-04-01,acute respiratory infections other than influenza and pneumonia,28,334
+2019-08-01,accidental falls,24,332
+2019-08-01,nonrheumatic valve disorders and endocarditis,25,330
+2019-10-01,acute respiratory infections other than influenza and pneumonia,27,328
+2019-08-01,malignant neoplasm of brain,26,326
+2019-11-01,malignant neoplasm of brain,27,326
+2019-01-01,malignant neoplasm of stomach,32,325
+2019-08-01,aortic aneurysm and dissection,27,324
+2019-03-01,diseases of musculoskeletal system and connective tissue,29,312
+2019-08-01,malignant neoplasm of ovary,28,312
+2019-11-01,"appendicitis, hernia and intestinal obstruction",28,310
+2019-02-01,diseases of musculoskeletal system and connective tissue,29,309
+2019-01-01,"in situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour",33,307
+2019-03-01,malignant neoplasm of brain,30,305
+2019-11-01,diseases of musculoskeletal system and connective tissue,29,304
+2019-01-01,"malignant neoplasm of kidney, except renal pelvis",34,304
+2019-11-01,"malignant neoplasm of kidney, except renal pelvis",30,304
+2019-06-01,suicide and injury/poisoning of undetermined intent,26,304
+2019-06-01,aortic aneurysm and dissection,27,303
+2019-09-01,"malignant neoplasm of kidney, except renal pelvis",26,302
+2019-04-01,diseases of musculoskeletal system and connective tissue,29,301
+2019-05-01,acute respiratory infections other than influenza and pneumonia,28,298
+2019-01-01,malignant neoplasm of ovary,35,296
+2019-12-01,malignant neoplasm of bladder,25,293
+2019-06-01,malignant neoplasm of brain,28,293
+2019-07-01,"malignant neoplasm of kidney, except renal pelvis",28,293
+2019-08-01,"malignant neoplasm of kidney, except renal pelvis",29,292
+2019-12-01,malignant neoplasm of brain,26,291
+2019-05-01,malignant neoplasm of stomach,29,291
+2019-01-01,pulmonary heart disease and diseases of pulmonary circulation,36,291
+2019-09-01,malignant neoplasm of brain,27,290
+2019-05-01,"malignant neoplasm of kidney, except renal pelvis",30,289
+2019-04-01,malignant neoplasm of brain,30,287
+2019-06-01,"malignant neoplasm of kidney, except renal pelvis",29,287
+2019-04-01,"malignant neoplasm of kidney, except renal pelvis",31,286
+2019-05-01,diseases of musculoskeletal system and connective tissue,31,285
+2019-10-01,diseases of musculoskeletal system and connective tissue,28,285
+2019-04-01,malignant neoplasm of stomach,32,285
+2019-11-01,"in situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour",31,282
+2019-03-01,"malignant neoplasm of kidney, except renal pelvis",31,282
+2019-09-01,malignant neoplasm of ovary,28,281
+2019-03-01,"in situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour",32,279
+2019-05-01,malignant neoplasm of brain,32,279
+2019-07-01,"appendicitis, hernia and intestinal obstruction",29,277
+2019-01-01,"appendicitis, hernia and intestinal obstruction",37,275
+2019-08-01,"appendicitis, hernia and intestinal obstruction",30,275
+2019-02-01,malignant neoplasm of brain,30,275
+2019-10-01,"malignant neoplasm of kidney, except renal pelvis",29,275
+2019-10-01,malignant neoplasm of stomach,30,275
+2019-11-01,malignant neoplasm of stomach,32,274
+2019-02-01,"in situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour",31,273
+2019-07-01,malignant neoplasm of stomach,30,273
+2019-08-01,malignant neoplasm of stomach,31,273
+2019-02-01,"malignant neoplasm of kidney, except renal pelvis",32,272
+2019-04-01,malignant neoplasm of ovary,33,271
+2019-11-01,malignant neoplasm of ovary,33,271
+2019-03-01,"appendicitis, hernia and intestinal obstruction",33,269
+2019-09-01,"appendicitis, hernia and intestinal obstruction",29,269
+2019-09-01,"in situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour",30,269
+2019-02-01,malignant neoplasm of stomach,33,267
+2019-02-01,"appendicitis, hernia and intestinal obstruction",34,265
+2019-10-01,"in situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour",31,265
+2019-03-01,malignant neoplasm of ovary,34,265
+2019-08-01,diseases of musculoskeletal system and connective tissue,32,264
+2019-07-01,malignant neoplasm of ovary,31,261
+2019-02-01,malignant neoplasm of ovary,35,260
+2019-06-01,malignant neoplasm of ovary,30,260
+2019-04-01,"appendicitis, hernia and intestinal obstruction",34,257
+2019-05-01,"appendicitis, hernia and intestinal obstruction",33,257
+2019-03-01,malignant neoplasm of stomach,35,257
+2019-12-01,aortic aneurysm and dissection,27,256
+2019-06-01,diseases of musculoskeletal system and connective tissue,31,255
+2019-09-01,malignant neoplasm of stomach,31,255
+2019-06-01,acute respiratory infections other than influenza and pneumonia,32,253
+2019-04-01,"in situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour",35,253
+2019-05-01,"in situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour",34,253
+2019-06-01,malignant neoplasm of stomach,33,253
+2019-05-01,malignant neoplasm of ovary,35,252
+2019-07-01,diseases of musculoskeletal system and connective tissue,32,251
+2019-07-01,acute respiratory infections other than influenza and pneumonia,33,250
+2019-08-01,"in situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour",33,249
+2019-07-01,"in situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour",34,248
+2019-09-01,malignant neoplasm of uterus,32,248
+2019-03-01,melanoma and other malignant neoplasms of skin,36,248
+2019-02-01,pulmonary heart disease and diseases of pulmonary circulation,36,248
+2019-10-01,"appendicitis, hernia and intestinal obstruction",32,247
+2019-10-01,malignant neoplasm of ovary,33,246
+2019-04-01,malignant neoplasm of uterus,36,246
+2019-11-01,pulmonary heart disease and diseases of pulmonary circulation,34,246
+2019-09-01,accidental falls,33,243
+2019-05-01,malignant neoplasm of uterus,36,243
+2019-03-01,accidental poisoning,37,242
+2019-12-01,"in situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour",28,241
+2019-07-01,suicide and injury/poisoning of undetermined intent,35,241
+2019-02-01,accidental poisoning,37,234
+2019-12-01,diseases of musculoskeletal system and connective tissue,29,234
+2019-12-01,"malignant neoplasm of kidney, except renal pelvis",30,233
+2019-08-01,melanoma and other malignant neoplasms of skin,34,233
+2019-01-01,melanoma and other malignant neoplasms of skin,38,232
+2019-10-01,melanoma and other malignant neoplasms of skin,34,232
+2019-01-01,malignant neoplasm of uterus,39,231
+2019-09-01,acute respiratory infections other than influenza and pneumonia,34,229
+2019-08-01,acute respiratory infections other than influenza and pneumonia,35,228
+2019-04-01,melanoma and other malignant neoplasms of skin,37,227
+2019-09-01,diseases of musculoskeletal system and connective tissue,35,226
+2019-12-01,malignant neoplasm of ovary,31,226
+2019-09-01,melanoma and other malignant neoplasms of skin,36,226
+2019-10-01,pulmonary heart disease and diseases of pulmonary circulation,35,226
+2019-01-01,septicaemia,40,225
+2019-04-01,accidental poisoning,38,224
+2019-07-01,malignant neoplasm of uterus,36,224
+2019-11-01,accidental falls,35,223
+2019-06-01,"appendicitis, hernia and intestinal obstruction",34,222
+2019-11-01,melanoma and other malignant neoplasms of skin,36,222
+2019-03-01,pulmonary heart disease and diseases of pulmonary circulation,38,222
+2019-12-01,malignant neoplasm of stomach,32,221
+2019-06-01,"in situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour",35,220
+2019-11-01,malignant neoplasm of uterus,37,220
+2019-06-01,melanoma and other malignant neoplasms of skin,36,220
+2019-04-01,pulmonary heart disease and diseases of pulmonary circulation,39,220
+2019-02-01,malignant neoplasm of uterus,38,218
+2019-10-01,malignant neoplasm of uterus,36,217
+2019-05-01,pulmonary heart disease and diseases of pulmonary circulation,37,216
+2019-08-01,pulmonary heart disease and diseases of pulmonary circulation,36,216
+2019-07-01,systemic atrophies primarily affecting the central nervous system,37,215
+2019-07-01,melanoma and other malignant neoplasms of skin,38,214
+2019-09-01,pulmonary heart disease and diseases of pulmonary circulation,37,213
+2019-07-01,pulmonary heart disease and diseases of pulmonary circulation,39,212
+2019-12-01,"appendicitis, hernia and intestinal obstruction",33,211
+2019-03-01,malignant neoplasm of uterus,39,211
+2019-02-01,septicaemia,39,208
+2019-11-01,systemic atrophies primarily affecting the central nervous system,38,208
+2019-08-01,malignant neoplasm of uterus,37,203
+2019-05-01,melanoma and other malignant neoplasms of skin,38,202
+2019-04-01,septicaemia,40,202
+2019-06-01,pulmonary heart disease and diseases of pulmonary circulation,37,198
+2019-01-01,systemic atrophies primarily affecting the central nervous system,41,194
+2019-09-01,septicaemia,38,193
+2019-10-01,accidental falls,37,192
+2019-06-01,malignant neoplasm of uterus,38,192
+2019-05-01,accidental poisoning,39,189
+2019-06-01,accidental poisoning,39,189
+2019-12-01,melanoma and other malignant neoplasms of skin,34,184
+2019-10-01,septicaemia,38,184
+2019-10-01,systemic atrophies primarily affecting the central nervous system,39,184
+2019-02-01,systemic atrophies primarily affecting the central nervous system,40,181
+2019-04-01,systemic atrophies primarily affecting the central nervous system,41,178
+2019-05-01,septicaemia,40,176
+2019-12-01,malignant neoplasm of uterus,35,174
+2019-08-01,systemic atrophies primarily affecting the central nervous system,38,174
+2019-03-01,septicaemia,40,173
+2019-02-01,melanoma and other malignant neoplasms of skin,41,172
+2019-11-01,septicaemia,39,172
+2019-08-01,septicaemia,39,169
+2019-12-01,systemic atrophies primarily affecting the central nervous system,36,168
+2019-12-01,pulmonary heart disease and diseases of pulmonary circulation,37,165
+2019-06-01,systemic atrophies primarily affecting the central nervous system,40,163
+2019-05-01,systemic atrophies primarily affecting the central nervous system,41,160
+2019-09-01,systemic atrophies primarily affecting the central nervous system,39,160
+2019-06-01,septicaemia,41,157
+2019-07-01,septicaemia,40,155
+2019-03-01,systemic atrophies primarily affecting the central nervous system,41,153
+2019-01-01,"congenital malformations, deformations and chromosomal abnormalities",42,142
+2019-01-01,cardiomyopathy,43,138
+2019-02-01,cardiomyopathy,42,135
+2019-08-01,suicide and injury/poisoning of undetermined intent,40,132
+2019-07-01,accidental poisoning,41,131
+2019-03-01,cardiomyopathy,42,130
+2019-10-01,cardiomyopathy,40,128
+2019-05-01,cardiomyopathy,42,127
+2019-06-01,cardiomyopathy,42,125
+2019-12-01,septicaemia,38,122
+2019-04-01,cardiomyopathy,42,114
+2019-02-01,"congenital malformations, deformations and chromosomal abnormalities",43,111
+2019-08-01,cardiomyopathy,41,110
+2019-03-01,"congenital malformations, deformations and chromosomal abnormalities",43,106
+2019-12-01,"congenital malformations, deformations and chromosomal abnormalities",39,103
+2019-01-01,intestinal infectious diseases,44,101
+2019-07-01,cardiomyopathy,42,99
+2019-04-01,"congenital malformations, deformations and chromosomal abnormalities",43,99
+2019-05-01,"congenital malformations, deformations and chromosomal abnormalities",43,98
+2019-01-01,land transport accidents,45,98
+2019-12-01,accidental falls,40,97
+2019-10-01,"congenital malformations, deformations and chromosomal abnormalities",41,97
+2019-11-01,"congenital malformations, deformations and chromosomal abnormalities",40,97
+2019-07-01,"congenital malformations, deformations and chromosomal abnormalities",43,94
+2019-09-01,"congenital malformations, deformations and chromosomal abnormalities",40,93
+2019-02-01,intestinal infectious diseases,44,90
+2019-08-01,"congenital malformations, deformations and chromosomal abnormalities",42,89
+2019-03-01,intestinal infectious diseases,44,89
+2019-11-01,cardiomyopathy,41,88
+2019-06-01,intestinal infectious diseases,43,85
+2019-11-01,intestinal infectious diseases,42,84
+2019-09-01,cardiomyopathy,41,82
+2019-10-01,intestinal infectious diseases,42,81
+2019-11-01,malignant neoplasm of gallbladder and other parts of biliary tract,43,81
+2019-09-01,suicide and injury/poisoning of undetermined intent,42,80
+2019-04-01,intestinal infectious diseases,44,79
+2019-08-01,malignant neoplasm of gallbladder and other parts of biliary tract,43,79
+2019-10-01,malignant neoplasm of gallbladder and other parts of biliary tract,43,78
+2019-05-01,intestinal infectious diseases,44,77
+2019-06-01,malignant neoplasm of gallbladder and other parts of biliary tract,44,77
+2019-04-01,malignant neoplasm of gallbladder and other parts of biliary tract,45,76
+2019-12-01,malignant neoplasm of gallbladder and other parts of biliary tract,41,75
+2019-06-01,"congenital malformations, deformations and chromosomal abnormalities",45,74
+2019-01-01,mental and behavioural disorders due to psychoactive substance use,46,74
+2019-08-01,intestinal infectious diseases,44,73
+2019-07-01,malignant neoplasm of gallbladder and other parts of biliary tract,44,72
+2019-12-01,cardiomyopathy,42,71
+2019-07-01,intestinal infectious diseases,45,71
+2019-01-01,malignant neoplasm of gallbladder and other parts of biliary tract,47,71
+2019-05-01,malignant neoplasm of gallbladder and other parts of biliary tract,45,70
+2019-03-01,malignant neoplasm of larynx,45,69
+2019-04-01,epilepsy and status epilepticus,46,67
+2019-09-01,intestinal infectious diseases,43,67
+2019-01-01,chronic rheumatic heart diseases,48,66
+2019-09-01,malignant neoplasm of gallbladder and other parts of biliary tract,44,66
+2019-12-01,intestinal infectious diseases,43,65
+2019-03-01,epilepsy and status epilepticus,46,64
+2019-04-01,land transport accidents,47,64
+2019-03-01,malignant neoplasm of gallbladder and other parts of biliary tract,47,64
+2019-08-01,accidental poisoning,45,62
+2019-03-01,mental and behavioural disorders due to psychoactive substance use,48,62
+2019-02-01,epilepsy and status epilepticus,45,61
+2019-01-01,malignant neoplasm of larynx,49,61
+2019-04-01,chronic rheumatic heart diseases,48,60
+2019-10-01,malignant neoplasm of larynx,44,60
+2019-06-01,epilepsy and status epilepticus,46,59
+2019-05-01,chronic rheumatic heart diseases,46,58
+2019-07-01,epilepsy and status epilepticus,46,57
+2019-09-01,malignant neoplasm of larynx,45,57
+2019-05-01,epilepsy and status epilepticus,47,56
+2019-02-01,malignant neoplasm of gallbladder and other parts of biliary tract,46,56
+2019-11-01,malignant neoplasm of larynx,44,56
+2019-06-01,chronic rheumatic heart diseases,47,55
+2019-12-01,chronic rheumatic heart diseases,44,55
+2019-01-01,epilepsy and status epilepticus,50,55
+2019-08-01,epilepsy and status epilepticus,46,55
+2019-03-01,chronic rheumatic heart diseases,49,54
+2019-07-01,chronic rheumatic heart diseases,47,52
+2019-02-01,land transport accidents,47,52
+2019-08-01,malignant neoplasm of larynx,47,52
+2019-09-01,chronic rheumatic heart diseases,46,51
+2019-10-01,chronic rheumatic heart diseases,45,50
+2019-11-01,chronic rheumatic heart diseases,45,50
+2019-03-01,accidental threats to breathing,50,49
+2019-01-01,"disorders of fluid, electrolyte and acid-base balance",51,49
+2019-02-01,chronic rheumatic heart diseases,48,48
+2019-07-01,malignant neoplasm of larynx,48,48
+2019-08-01,chronic rheumatic heart diseases,48,47
+2019-02-01,malignant neoplasm of larynx,49,47
+2019-02-01,mental and behavioural disorders due to psychoactive substance use,50,47
+2019-05-01,mental and behavioural disorders due to psychoactive substance use,48,47
+2019-06-01,mental and behavioural disorders due to psychoactive substance use,48,46
+2019-07-01,mental and behavioural disorders due to psychoactive substance use,49,46
+2019-01-01,accidental threats to breathing,52,45
+2019-10-01,epilepsy and status epilepticus,46,45
+2019-05-01,land transport accidents,49,45
+2019-05-01,malignant neoplasm of larynx,50,44
+2019-03-01,land transport accidents,51,43
+2019-04-01,malignant neoplasm of larynx,49,43
+2019-08-01,mental and behavioural disorders due to psychoactive substance use,49,43
+2019-02-01,"disorders of fluid, electrolyte and acid-base balance",51,42
+2019-04-01,mental and behavioural disorders due to psychoactive substance use,50,42
+2019-09-01,epilepsy and status epilepticus,47,41
+2019-06-01,malignant neoplasm of larynx,49,40
+2019-09-01,mental and behavioural disorders due to psychoactive substance use,48,40
+2019-11-01,epilepsy and status epilepticus,46,38
+2019-02-01,homicide and probable suicide,52,37
+2019-02-01,accidental threats to breathing,53,36
+2019-04-01,malignant neoplasm of bone and articular cartilage,51,36
+2019-04-01,accidental threats to breathing,52,34
+2019-06-01,accidental threats to breathing,50,34
+2019-06-01,"disorders of fluid, electrolyte and acid-base balance",51,34
+2019-03-01,homicide and probable suicide,52,34
+2019-01-01,malignant neoplasm of bone and articular cartilage,53,34
+2019-01-01,homicide and probable suicide,54,33
+2019-12-01,epilepsy and status epilepticus,45,32
+2019-12-01,malignant neoplasm of larynx,46,32
+2019-04-01,cerebral palsy and other paralytic syndromes,53,31
+2019-03-01,"disorders of fluid, electrolyte and acid-base balance",53,31
+2019-06-01,land transport accidents,52,31
+2019-06-01,malignant neoplasm of bone and articular cartilage,53,31
+2019-08-01,malignant neoplasm of bone and articular cartilage,50,31
+2019-09-01,malignant neoplasm of bone and articular cartilage,49,31
+2019-04-01,tuberculosis,54,31
+2019-02-01,cerebral palsy and other paralytic syndromes,54,30
+2019-12-01,mental and behavioural disorders due to psychoactive substance use,47,30
+2019-05-01,"disorders of fluid, electrolyte and acid-base balance",51,29
+2019-05-01,homicide and probable suicide,52,29
+2019-07-01,malignant neoplasm of bone and articular cartilage,50,29
+2019-07-01,accidental threats to breathing,51,28
+2019-07-01,"disorders of fluid, electrolyte and acid-base balance",52,28
+2019-11-01,malignant neoplasm of bone and articular cartilage,47,28
+2019-11-01,cerebral palsy and other paralytic syndromes,48,27
+2019-06-01,homicide and probable suicide,54,27
+2019-03-01,malignant neoplasm of bone and articular cartilage,54,27
+2019-10-01,malignant neoplasm of bone and articular cartilage,47,27
+2019-03-01,cerebral palsy and other paralytic syndromes,55,26
+2019-04-01,"disorders of fluid, electrolyte and acid-base balance",55,26
+2019-08-01,"disorders of fluid, electrolyte and acid-base balance",51,26
+2019-08-01,homicide and probable suicide,52,25
+2019-10-01,mental and behavioural disorders due to psychoactive substance use,48,25
+2019-05-01,accidental threats to breathing,53,24
+2019-05-01,cerebral palsy and other paralytic syndromes,54,24
+2019-10-01,cerebral palsy and other paralytic syndromes,49,24
+2019-12-01,cerebral palsy and other paralytic syndromes,48,24
+2019-03-01,meningitis and meningococcal infection,56,24
+2019-01-01,cerebral palsy and other paralytic syndromes,55,23
+2019-07-01,cerebral palsy and other paralytic syndromes,53,23
+2019-09-01,cerebral palsy and other paralytic syndromes,50,23
+2019-09-01,"disorders of fluid, electrolyte and acid-base balance",51,23
+2019-10-01,"disorders of fluid, electrolyte and acid-base balance",50,23
+2019-07-01,homicide and probable suicide,54,23
+2019-07-01,land transport accidents,55,23
+2019-09-01,accidental poisoning,52,22
+2019-08-01,cerebral palsy and other paralytic syndromes,53,22
+2019-05-01,malignant neoplasm of bone and articular cartilage,55,22
+2019-11-01,mental and behavioural disorders due to psychoactive substance use,49,22
+2019-01-01,tuberculosis,56,22
+2019-08-01,accidental threats to breathing,54,21
+2019-04-01,homicide and probable suicide,56,21
+2019-09-01,homicide and probable suicide,53,21
+2019-08-01,land transport accidents,55,21
+2019-02-01,malignant neoplasm of bone and articular cartilage,55,20
+2019-01-01,meningitis and meningococcal infection,57,20
+2019-02-01,tuberculosis,56,20
+2019-06-01,cerebral palsy and other paralytic syndromes,55,19
+2019-12-01,malignant neoplasm of bone and articular cartilage,49,19
+2019-04-01,meningitis and meningococcal infection,57,19
+2019-01-01,accidental drowning and submersion,58,18
+2019-09-01,certain conditions originating in the perinatal period,54,17
+2019-01-01,"malnutrition, nutritional anaemias and other nutritional deficiencies",59,17
+2019-08-01,vaccine-preventable diseases,56,17
+2019-12-01,vaccine-preventable diseases,50,17
+2019-11-01,meningitis and meningococcal infection,50,16
+2019-09-01,accidental threats to breathing,55,15
+2019-11-01,"disorders of fluid, electrolyte and acid-base balance",51,15
+2019-08-01,hiv,57,15
+2019-02-01,"malnutrition, nutritional anaemias and other nutritional deficiencies",57,15
+2019-05-01,"malnutrition, nutritional anaemias and other nutritional deficiencies",56,15
+2019-12-01,"malnutrition, nutritional anaemias and other nutritional deficiencies",51,15
+2019-03-01,tuberculosis,57,15
+2019-11-01,tuberculosis,52,15
+2019-06-01,meningitis and meningococcal infection,56,14
+2019-06-01,vaccine-preventable diseases,57,14
+2019-05-01,certain conditions originating in the perinatal period,57,13
+2019-10-01,hiv,51,13
+2019-10-01,homicide and probable suicide,52,13
+2019-09-01,land transport accidents,56,13
+2019-02-01,meningitis and meningococcal infection,58,13
+2019-06-01,tuberculosis,58,13
+2019-02-01,vaccine-preventable diseases,59,13
+2019-10-01,vaccine-preventable diseases,53,13
+2019-12-01,"disorders of fluid, electrolyte and acid-base balance",52,12
+2019-01-01,hiv,60,12
+2019-03-01,"malnutrition, nutritional anaemias and other nutritional deficiencies",58,12
+2019-04-01,vaccine-preventable diseases,58,12
+2019-07-01,vaccine-preventable diseases,56,12
+2019-10-01,accidental poisoning,54,11
+2019-11-01,accidental threats to breathing,53,11
+2019-02-01,cardiac arrest,60,11
+2019-02-01,certain conditions originating in the perinatal period,61,11
+2019-07-01,certain conditions originating in the perinatal period,57,11
+2019-10-01,certain conditions originating in the perinatal period,55,11
+2019-11-01,certain conditions originating in the perinatal period,54,11
+2019-05-01,hiv,58,11
+2019-06-01,hiv,59,11
+2019-11-01,homicide and probable suicide,55,11
+2019-05-01,meningitis and meningococcal infection,59,11
+2019-09-01,meningitis and meningococcal infection,57,11
+2019-05-01,tuberculosis,60,11
+2019-07-01,tuberculosis,58,11
+2019-09-01,tuberculosis,58,11
+2019-03-01,accidental drowning and submersion,59,10
+2019-10-01,accidental threats to breathing,56,10
+2019-03-01,hiv,60,10
+2019-04-01,hiv,59,10
+2019-10-01,suicide and injury/poisoning of undetermined intent,57,10
+2019-10-01,tuberculosis,58,10
+2019-03-01,vaccine-preventable diseases,61,10
+2019-09-01,vaccine-preventable diseases,59,10
+2019-02-01,atherosclerosis,62,9
+2019-06-01,atherosclerosis,60,9
+2019-01-01,certain conditions originating in the perinatal period,61,9
+2019-04-01,certain conditions originating in the perinatal period,60,9
+2019-02-01,hiv,63,9
+2019-11-01,hiv,56,9
+2019-07-01,meningitis and meningococcal infection,59,9
+2019-12-01,tuberculosis,53,9
+2019-11-01,vaccine-preventable diseases,57,9
+2019-02-01,accidental drowning and submersion,64,8
+2019-05-01,accidental drowning and submersion,61,8
+2019-07-01,accidental drowning and submersion,60,8
+2019-07-01,"malnutrition, nutritional anaemias and other nutritional deficiencies",61,8
+2019-08-01,tuberculosis,58,8
+2019-05-01,vaccine-preventable diseases,62,8
+2019-03-01,atherosclerosis,62,7
+2019-04-01,atherosclerosis,61,7
+2019-03-01,certain conditions originating in the perinatal period,63,7
+2019-06-01,certain conditions originating in the perinatal period,61,7
+2019-08-01,certain conditions originating in the perinatal period,59,7
+2019-09-01,hiv,60,7
+2019-10-01,land transport accidents,59,7
+2019-09-01,"malnutrition, nutritional anaemias and other nutritional deficiencies",61,7
+2019-08-01,meningitis and meningococcal infection,60,7
+2019-06-01,accidental drowning and submersion,62,6
+2019-12-01,accidental threats to breathing,54,6
+2019-05-01,cardiac arrest,63,6
+2019-09-01,cardiac arrest,62,6
+2019-12-01,certain conditions originating in the perinatal period,55,6
+2019-04-01,"malnutrition, nutritional anaemias and other nutritional deficiencies",62,6
+2019-08-01,"malnutrition, nutritional anaemias and other nutritional deficiencies",61,6
+2019-10-01,"malnutrition, nutritional anaemias and other nutritional deficiencies",60,6
+2019-10-01,meningitis and meningococcal infection,61,6
+2019-01-01,atherosclerosis,62,5
+2019-10-01,atherosclerosis,62,5
+2019-01-01,cardiac arrest,63,5
+2019-06-01,cardiac arrest,63,5
+2019-08-01,cardiac arrest,62,5
+2019-12-01,cardiac arrest,56,5
+2019-07-01,hiv,62,5
+2019-12-01,homicide and probable suicide,57,5
+2019-06-01,"malnutrition, nutritional anaemias and other nutritional deficiencies",64,5
+2019-12-01,meningitis and meningococcal infection,58,5
+2019-08-01,accidental drowning and submersion,63,4
+2019-12-01,accidental poisoning,59,4
+2019-05-01,atherosclerosis,64,4
+2019-07-01,atherosclerosis,63,4
+2019-07-01,respiratory failure,64,4
+2019-08-01,vector-borne diseases and rabies,64,4
+2019-04-01,accidental drowning and submersion,63,3
+2019-11-01,accidental poisoning,58,3
+2019-08-01,atherosclerosis,65,3
+2019-12-01,atherosclerosis,60,3
+2019-04-01,cardiac arrest,64,3
+2019-10-01,cardiac arrest,63,3
+2019-11-01,"malnutrition, nutritional anaemias and other nutritional deficiencies",59,3
+2019-01-01,"pregnancy, childbirth and puerperium",64,3
+2019-04-01,respiratory failure,65,3
+2019-11-01,respiratory failure,60,3
+2019-11-01,suicide and injury/poisoning of undetermined intent,61,3
+2019-10-01,accidental drowning and submersion,64,2
+2019-11-01,atherosclerosis,62,2
+2019-02-01,"pregnancy, childbirth and puerperium",65,2
+2019-03-01,"pregnancy, childbirth and puerperium",64,2
+2019-07-01,"pregnancy, childbirth and puerperium",65,2
+2019-05-01,respiratory failure,65,2
+2019-06-01,respiratory failure,65,2
+2019-12-01,suicide and injury/poisoning of undetermined intent,61,2
+2019-01-01,vaccine-preventable diseases,65,2
+2019-10-01,vector-borne diseases and rabies,65,2
+2019-09-01,accidental drowning and submersion,63,1
+2019-11-01,accidental drowning and submersion,63,1
+2019-09-01,atherosclerosis,64,1
+2019-03-01,cardiac arrest,65,1
+2019-07-01,cardiac arrest,66,1
+2019-11-01,land transport accidents,64,1
+2019-12-01,land transport accidents,62,1
+2019-06-01,"pregnancy, childbirth and puerperium",66,1
+2019-10-01,"pregnancy, childbirth and puerperium",66,1
+2019-01-01,respiratory failure,66,1
+2019-02-01,respiratory failure,66,1
+2019-09-01,respiratory failure,65,1
+2019-10-01,respiratory failure,67,1
+2019-12-01,respiratory failure,63,1
+2019-01-01,vector-borne diseases and rabies,67,1
+2019-03-01,vector-borne diseases and rabies,66,1
+2019-05-01,vector-borne diseases and rabies,66,1
+2019-06-01,vector-borne diseases and rabies,67,1
+2019-07-01,vector-borne diseases and rabies,67,1
+2019-12-01,vector-borne diseases and rabies,64,1
+2019-12-01,accidental drowning and submersion,65,0
+2019-11-01,cardiac arrest,65,0
+2019-12-01,hiv,66,0
+2019-01-01,non-intentional firearm discharge,68,0
+2019-02-01,non-intentional firearm discharge,67,0
+2019-03-01,non-intentional firearm discharge,67,0
+2019-04-01,non-intentional firearm discharge,66,0
+2019-05-01,non-intentional firearm discharge,67,0
+2019-06-01,non-intentional firearm discharge,68,0
+2019-07-01,non-intentional firearm discharge,68,0
+2019-08-01,non-intentional firearm discharge,66,0
+2019-09-01,non-intentional firearm discharge,66,0
+2019-10-01,non-intentional firearm discharge,68,0
+2019-11-01,non-intentional firearm discharge,66,0
+2019-12-01,non-intentional firearm discharge,67,0
+2019-04-01,"pregnancy, childbirth and puerperium",67,0
+2019-05-01,"pregnancy, childbirth and puerperium",68,0
+2019-08-01,"pregnancy, childbirth and puerperium",67,0
+2019-09-01,"pregnancy, childbirth and puerperium",67,0
+2019-11-01,"pregnancy, childbirth and puerperium",67,0
+2019-12-01,"pregnancy, childbirth and puerperium",68,0
+2019-03-01,respiratory failure,68,0
+2019-08-01,respiratory failure,68,0
+2019-02-01,vector-borne diseases and rabies,68,0
+2019-04-01,vector-borne diseases and rabies,68,0
+2019-09-01,vector-borne diseases and rabies,68,0
+2019-11-01,vector-borne diseases and rabies,68,0
 2020-01-01,dementia and alzheimer disease,1,7407
 2020-01-01,ischaemic heart diseases,2,5443
 2020-01-01,chronic lower respiratory diseases,3,3833

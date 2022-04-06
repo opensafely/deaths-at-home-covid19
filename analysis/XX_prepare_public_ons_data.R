@@ -310,17 +310,78 @@ for(i in seq_along(urls2)){
   
 }
 
+# March 2019 to December 2019 file
+# Deaths by date of occurrence rather than registration
+
+download.file("https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/adhocs/12060deathsbyleadingcausesgroupingsymonthofoccurrenceengland2015to2019/deathsbyleadingcauses20152019.xlsx"
+              , destfile = "docs/data_downloads_temp/deathsbyleadingcauses20152019.xlsx", mode = "wb")
+
+leadingcause19_data <- readxl::read_xlsx("docs/data_downloads_temp/deathsbyleadingcauses20152019.xlsx", sheet = "2019", col_names = TRUE, skip = 2, n_max = 68) %>%
+  clean_names() %>% 
+  pivot_longer(cols = -c(cause_of_death), names_to = "month", values_to = "number_of_deaths") %>% 
+  mutate(period = as_date(paste0("01-", month, "-2019"), format = "%d-%B-%Y")) %>%
+  rename(cause = cause_of_death) %>% 
+  group_by(period) %>%
+  arrange(desc(number_of_deaths)) %>%
+  mutate(rank_in = row_number()) %>%
+  select(period, cause, rank_in, number_of_deaths)
+
 # Join all months together
 # Remove trailing white space from cause
 # Align cause names to ICD10 cause of death lookup - lowercase to avoid any issues
-table11a <- bind_rows(table11a_january_2020, table11a_february_2020, table11a_march_2020, table11a_april_2020, table11a_may_2020, table11a_june_2020 ,table11a_july_2020, table11a_august_2020, table11a_september_2020, table11a_october_2020, table11a_november_2020
+table11a <- bind_rows(leadingcause19_data, table11a_january_2020, table11a_february_2020, table11a_march_2020, table11a_april_2020, table11a_may_2020, table11a_june_2020 ,table11a_july_2020, table11a_august_2020, table11a_september_2020, table11a_october_2020, table11a_november_2020
                       , table11a_december_2020, table11a_january_2021, table11a_february_2021) %>%
   mutate(cause = trimws(cause, "right")
          , cause = case_when(cause == "Dementia and Alzheimer's disease" ~ "Dementia and Alzheimer disease"
                              , TRUE ~ cause)
-         , cause = tolower(cause))
+         , cause = tolower(cause)) %>% 
+  rename(ons_deaths = number_of_deaths)
 
 write_csv(table11a, here::here("docs", "ons_comparison_data", "table11a_cod_onsmortality.csv"))
+
+#######################################
+
+## Deaths by region and month
+
+#2019
+download.file("https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fbirthsdeathsandmarriages%2fdeaths%2fdatasets%2fmonthlyfiguresondeathsregisteredbyareaofusualresidence%2f2019/annual2019publishedoutputrefresh.xls"
+              , destfile = "docs/data_downloads_temp/annual2019publishedoutputrefresh.xls", mode = "wb")
+
+#2020
+download.file("https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fbirthsdeathsandmarriages%2fdeaths%2fdatasets%2fmonthlyfiguresondeathsregisteredbyareaofusualresidence%2f2020/annual2020publishedoutputrefresh.xls"
+              , destfile = "docs/data_downloads_temp/annual2020publishedoutputrefresh.xls", mode = "wb")
+
+#2021
+download.file("https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fbirthsdeathsandmarriages%2fdeaths%2fdatasets%2fmonthlyfiguresondeathsregisteredbyareaofusualresidence%2f2021/deathsregisteredmonthlyusualareaofresidenceenglandandwales.xlsx"
+              , destfile = "docs/data_downloads_temp/deathsregisteredmonthlyusualareaofresidenceenglandandwales2021.xlsx", mode = "wb")
+
+temp <- readxl::read_xls("docs/data_downloads_temp/annual2019publishedoutputrefresh.xls", sheet = "Figures for 2019")
+
+
+region <- readxl::read_xls("docs/data_downloads_temp/annual2019publishedoutputrefresh.xls", sheet = "Figures for 2019", col_names = TRUE, skip = 3, n_max = 440) %>% 
+  clean_names() %>% 
+  filter(str_detect(area_of_usual_residence, "^E12")) %>%
+  pivot_longer(cols = -c(area_of_usual_residence, x2), names_to = "month", values_to = "ons_deaths") %>%
+  mutate(period = as_date(paste0("01_", month), format = "%d_%b_%y")) %>%
+  rename(region = area_of_usual_residence) %>%
+  select(period, region, ons_deaths) %>%
+  bind_rows(readxl::read_xls("docs/data_downloads_temp/annual2020publishedoutputrefresh.xls", sheet = "Figures for 2020", col_names = TRUE, skip = 3, n_max = 433) %>% 
+              clean_names() %>% 
+              filter(str_detect(area_of_usual_residence, "^E12")) %>%
+              pivot_longer(cols = -c(area_of_usual_residence, x2), names_to = "month", values_to = "ons_deaths") %>%
+              mutate(period = as_date(paste0("01_", month), format = "%d_%b_%y")) %>%
+              rename(region = area_of_usual_residence) %>%
+              select(period, region, ons_deaths)) %>% 
+  bind_rows(readxl::read_xlsx("docs/data_downloads_temp/deathsregisteredmonthlyusualareaofresidenceenglandandwales2021.xlsx", sheet = "Figures for 2021", col_names = TRUE, skip = 4, n_max = 378) %>% 
+              clean_names() %>% 
+              filter(str_detect(area_of_usual_residence, "^E12")) %>%
+              pivot_longer(cols = -c(area_of_usual_residence, x2), names_to = "month", values_to = "ons_deaths") %>%
+              mutate(period = as_date(paste0("01_", month), format = "%d_%b_%y")) %>%
+              rename(region = area_of_usual_residence) %>%
+              select(period, region, ons_deaths)) %>%
+  filter(period >= as_date("2019-03-01") & period <= as_date("2021-02-01"))
+
+write_csv(region, here::here("docs", "ons_comparison_data", "region_onsmortality.csv"))
 
 ################################################################################
 
