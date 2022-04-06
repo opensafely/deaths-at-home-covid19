@@ -203,27 +203,41 @@ ggsave(plot = plot_deaths_pod_cohort_prop, filename ="deaths_pod_cohort_prop.png
 
 ########## Create tables and compare to published ONS deaths ##########
 
-# https://www.ons.gov.uk/file?uri=%2fpeoplepopulationandcommunity%2fbirthsdeathsandmarriages%2fdeaths%2fdatasets%2fmonthlymortalityanalysisenglandandwales%2fdecember2021/monthlymortalityanalysisdec.xlsx
+# Quarterly (Mar 19 - Feb 21) deaths by region 
 
-# Compare registered pop to ons pop? - Will need to change study death to all people
-# Regional deaths
+deaths_quarter_region <- df_input %>%
+  filter(study_month >= as_date("2019-03-01") & study_month <= as_date("2021-02-01")) %>%
+  group_by(study_month, rgn20cd, study_quarter) %>%
+  summarise(deaths = n()) %>%
+  left_join(read_csv(here::here("docs", "ons_comparison_data", "region_onsmortality.csv"))
+            , by = c("study_month" = "period", "rgn20cd" = "region")) %>%
+  group_by(study_quarter, rgn20cd) %>%
+  summarise(deaths = sum(deaths, na.rm = TRUE)
+            , ons_deaths = sum(ons_deaths, na.rm = TRUE)) %>%
+  mutate(deaths = plyr::round_any(deaths, 5)) %>%
+  mutate(proportion = deaths / ons_deaths)
+
+write_csv(deaths_quarter_region, here::here("output", "describe_cohorts", "deaths_quarter_region.csv"))
 
 # Monthly (Mar 19 - Feb 21) deaths by sex - Table 1
 
-deaths_month_sex <- df_input %>%
+deaths_quarter_sex <- df_input %>%
   filter(study_month >= as_date("2019-03-01") & study_month <= as_date("2021-02-01")) %>%
-  group_by(study_month, sex) %>%
+  group_by(study_month, sex, study_quarter) %>%
   summarise(deaths = n()) %>%
-  mutate(deaths = plyr::round_any(deaths, 5)) %>%
   left_join(read_csv(here::here("docs", "ons_comparison_data", "table1_sex_onsmortality.csv"))
             , by = c("study_month" = "period", "sex")) %>%
+  group_by(study_quarter, sex) %>%
+  summarise(deaths = sum(deaths, na.rm = TRUE)
+            , ons_deaths = sum(ons_deaths, na.rm = TRUE)) %>%
+  mutate(deaths = plyr::round_any(deaths, 5)) %>%
   mutate(proportion = deaths / ons_deaths)
 
-write_csv(deaths_month_sex, here::here("output", "describe_cohorts", "deaths_month_sex.csv"))
+write_csv(deaths_quarter_sex, here::here("output", "describe_cohorts", "deaths_quarter_sex.csv"))
 
 # Monthly deaths (Mar 19 - Feb 21) by age group (<75, 75-79, 80-84, 85-89, 90+)  - Table 4, 8c
 
-deaths_month_agegrp <- df_input %>%
+deaths_quarter_agegrp <- df_input %>%
   filter(study_month >= as_date("2019-03-01") & study_month <= as_date("2021-02-01")) %>%
   mutate(agegrp = case_when(age >= 0 & age <= 74 ~ "<75"
                             , age >= 75 & age <= 79 ~ "75-79"
@@ -231,22 +245,26 @@ deaths_month_agegrp <- df_input %>%
                             , age >= 85 & age <= 89 ~ "85-89"
                             , age >= 90 ~ "90+"
                             , TRUE ~ NA_character_)) %>%
-  group_by(study_month, agegrp) %>%
+  group_by(study_month, agegrp, study_quarter) %>%
   summarise(deaths = n()) %>%
-  mutate(deaths = plyr::round_any(deaths, 5)) %>%
   left_join(read_csv(here::here("docs", "ons_comparison_data", "table4_8c_agegrp_onsmortality.csv"))
-            , by = c("study_month" = "period", "agegrp")) %>%
+            , by = c("study_month" = "period", "agegrp"))  %>%
+  group_by(study_quarter, agegrp) %>%
+  summarise(deaths = sum(deaths, na.rm = TRUE)
+            , ons_deaths = sum(ons_deaths, na.rm = TRUE)) %>%
+  mutate(deaths = plyr::round_any(deaths, 5)) %>%
   mutate(proportion = deaths / ons_deaths)
 
-write_csv(deaths_month_agegrp, here::here("output", "describe_cohorts", "deaths_month_agegrp.csv"))
+write_csv(deaths_quarter_agegrp, here::here("output", "describe_cohorts", "deaths_quarter_agegrp.csv"))
 
-# Monthly deaths (Jan 20 - Feb 21) by leading (top 10) cause of death - Table 11a
+# Quarterly deaths (Mar 19 - Feb 21) by leading (top 10) cause of death - Table 11a
+# Deaths for 2019 are by date of occurrence
 
 # ONS cause of death groupings
 # Check the categories mutually exclusive particularly around covid-19 addition
 # Check how 4+ character codes appear - with or without "."
-deaths_month_cod <- df_input %>%
-  filter(study_month >= as_date("2020-01-01") & study_month <= as_date("2021-02-01")) %>%
+deaths_quarter_cod <- df_input %>%
+  filter(study_month >= as_date("2019-03-01") & study_month <= as_date("2021-02-01")) %>%
   mutate(cod_ons_grp = case_when(cod_ons_3 >= "A00" & cod_ons_3 <= "A09" ~ "Intestinal infectious diseases"
                                    , (cod_ons_3 >= "A15" & cod_ons_3 <= "A19") | cod_ons_3 == "B90" ~ "Tuberculosis"
                                    , cod_ons_3 %in% c("A20", "A44") | (cod_ons_3 >= "A75" & cod_ons_3 <= "A79") | (cod_ons_3 >= "A82" & cod_ons_3 <= "A84") | cod_ons_4 == "A85.2" | (cod_ons_3 >= "A90" & cod_ons_3 <= "A98") | (cod_ons_3 >= "B50" & cod_ons_3 <= "B57") ~ "Vector–borne diseases and rabies"
@@ -321,19 +339,22 @@ deaths_month_cod <- df_input %>%
                                    , cod_ons_4 == "U50.9" | (cod_ons_3 >= "X85" & cod_ons_3 <= "Y09") | cod_ons_4 == "Y87.1" ~ "Homicide and probable homicide"
                                    , cod_ons_3 >= "R00" & cod_ons_3 <= "R99" ~ "Symptoms, signs and ill-defined conditions"
                                    , cod_ons_4 %in% c("U07.1","U07.2", "U10.9") ~ "COVID-19"
-                                   , TRUE ~ NA_character_)) %>%
-  group_by(study_month, cod_ons_grp) %>%
+                                   , TRUE ~ "All other causes")) %>%
+  group_by(study_month, cod_ons_grp, study_quarter) %>%
   summarise(deaths = n()) %>%
-  mutate(deaths = plyr::round_any(deaths, 5)) %>%
   group_by(study_month) %>%
   arrange(study_month, desc(deaths)) %>%
   mutate(rank_in = row_number()
          , cod_ons_grp = tolower(cod_ons_grp))  %>%
   left_join(read_csv(here::here("docs", "ons_comparison_data", "table11a_cod_onsmortality.csv"))
-            , by = c("study_month" = "period", "cod_ons_grp" = "cause")) %>%
-  mutate(proportion = deaths / number_of_deaths)
+            , by = c("study_month" = "period", "cod_ons_grp" = "cause"))  %>%
+  group_by(study_quarter, cod_ons_grp) %>%
+  summarise(deaths = sum(deaths, na.rm = TRUE)
+            , ons_deaths = sum(ons_deaths, na.rm = TRUE)) %>%
+  mutate(deaths = plyr::round_any(deaths, 5)) %>%
+  mutate(proportion = deaths / ons_deaths)
 
-write_csv(deaths_month_cod, here::here("output", "describe_cohorts", "deaths_month_cod.csv"))
+write_csv(deaths_quarter_cod, here::here("output", "describe_cohorts", "deaths_quarter_cod.csv"))
 
 # Monthly deaths (Jan 20 - Feb 21) by place of death - Table 14a
 
