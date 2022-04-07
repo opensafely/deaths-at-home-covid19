@@ -39,14 +39,13 @@ actions:
     needs: [generate_study_population]
     outputs:
       moderately_sensitive:
-        deaths_cohort: output/describe_cohorts/deaths_cohort.csv
+        deaths_cohort: output/describe_cohorts/deaths_cohort*.csv
         deaths_quarter: output/describe_cohorts/deaths_quarter.csv
         deaths_quarter_figure: output/describe_cohorts/deaths_quarter.png
         deaths_cohort_pod: output/describe_cohorts/deaths_cohort_pod.csv
         deaths_quarter_pod: output/describe_cohorts/deaths_quarter_pod.csv
         deaths_pod_figures: output/describe_cohorts/deaths_pod_cohort*.png
-        deaths_quarter_ons: output/describe_cohorts/deaths_quarter*.csv
-        deaths_month_ons: output/describe_cohorts/deaths_month*.csv
+        deaths_ons: output/describe_cohorts/deaths_ons*.csv
         deaths_ratio: output/describe_cohorts/deaths_ratio*.csv
 
   describe_service_use:

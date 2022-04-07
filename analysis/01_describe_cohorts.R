@@ -170,13 +170,12 @@ deaths_cohort_pod_cod <- df_input %>%
   mutate(cod_ons_grp = case_when(cod_ons_3 >= "A00" & cod_ons_3 <= "A09" ~ "Intestinal infectious diseases"
                                  , (cod_ons_3 >= "A15" & cod_ons_3 <= "A19") | cod_ons_3 == "B90" ~ "Tuberculosis"
                                  , cod_ons_3 %in% c("A20", "A44") | (cod_ons_3 >= "A75" & cod_ons_3 <= "A79") | (cod_ons_3 >= "A82" & cod_ons_3 <= "A84") | cod_ons_4 == "A852" | (cod_ons_3 >= "A90" & cod_ons_3 <= "A98") | (cod_ons_3 >= "B50" & cod_ons_3 <= "B57") ~ "Vector–borne diseases and rabies"
-                                 , (cod_ons_3 >= "A33" & cod_ons_3 <= "A37") | cod_ons_4 == "A492" | cod_ons_3 %in% c("A80", "B01", "B02", "B05", "B06", "B15", "B16") | cod_ons_4 %in% c("B170", "B180", "B181") | cod_ons_3 %in% c("B26", "B91", "G14") ~ "Vaccine-preventable diseases1"
+                                 , (cod_ons_3 >= "A33" & cod_ons_3 <= "A37") | cod_ons_4 == "A492" | cod_ons_3 %in% c("A80", "B01", "B02", "B05", "B06", "B15", "B16") | cod_ons_4 %in% c("B170", "B180", "B181") | cod_ons_3 %in% c("B26", "B91", "G14") ~ "Vaccine-preventable diseases"
                                  , cod_ons_3 %in% c("A39", "A87") | (cod_ons_3 >= "G00" & cod_ons_3 <= "G03") ~ "Meningitis and meningococcal infection"
                                  , cod_ons_3 >= "A40" & cod_ons_3 <= "A41" ~ "Septicaemia"
-                                 , cod_ons_3 >= "B20" & cod_ons_3 <= "B24" ~ "Human immunodeficiency virus [HIV] disease"
+                                 , cod_ons_3 >= "B20" & cod_ons_3 <= "B24" ~ "HIV"
                                  , cod_ons_3 >= "C00" & cod_ons_3 <= "C14"  | cod_ons_3 >= "C26" & cod_ons_3 <= "C31" | cod_ons_3 >= "C35" & cod_ons_3 <= "C39"
                                  | cod_ons_3 >= "C45" & cod_ons_3 <= "C49" | cod_ons_3 >= "C57" & cod_ons_3 <= "C60" | cod_ons_3 >= "C68" & cod_ons_3 <= "C70"
-                                 | cod_ons_3 >= "C72" & cod_ons_3 <= "C80" | cod_ons_3 %in% c("C17", "C42", "C51", "C52", "C62", "C63", "C65", "C66", "C97") ~ "Malignant neoplasms"
                                  , cod_ons_3 == "C15" ~ "Malignant neoplasm of oesophagus"
                                  , cod_ons_3 == "C16" ~ "Malignant neoplasm of stomach"
                                  , cod_ons_3 >= "C18" & cod_ons_3 <= "C21" ~ "Malignant neoplasm of colon, sigmoid, rectum and anus"
@@ -185,7 +184,7 @@ deaths_cohort_pod_cod <- df_input %>%
                                  , cod_ons_3 == "C25" ~ "Malignant neoplasm of pancreas"
                                  , cod_ons_3 == "C32" ~ "Malignant neoplasm of larynx"
                                  , cod_ons_3 >= "C33" & cod_ons_3 <= "C34" ~ "Malignant neoplasm of trachea, bronchus and lung"
-                                 , cod_ons_3 >= "C40" & cod_ons_3 <= "C41" ~ "Malignant neoplasms of bone and articular cartilage"
+                                 , cod_ons_3 >= "C40" & cod_ons_3 <= "C41" ~ "Malignant neoplasm of bone and articular cartilage"
                                  , cod_ons_3 >= "C43" & cod_ons_3 <= "C44" ~ "Melanoma and other malignant neoplasms of skin"
                                  , cod_ons_3 == "C50" ~ "Malignant neoplasm of breast"
                                  , cod_ons_3 >= "C53" & cod_ons_3 <= "C55" ~ "Malignant neoplasm of uterus"
@@ -198,7 +197,7 @@ deaths_cohort_pod_cod <- df_input %>%
                                  , cod_ons_3 >= "D00" & cod_ons_3 <= "D48" ~ "In situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour"
                                  , cod_ons_3 >= "E10" & cod_ons_3 <= "E14" ~ "Diabetes"
                                  , (cod_ons_3 >= "D50" & cod_ons_3 <= "D53") | (cod_ons_3 >= "E40" & cod_ons_3 <= "E64") ~ "Malnutrition, nutritional anaemias and other nutritional deficiencies"
-                                 , cod_ons_3 >= "E86" & cod_ons_3 <= "E87" ~ "Disorders of fluid, electrolyte and acid–base balance (incl. dehydration)"
+                                 , cod_ons_3 >= "E86" & cod_ons_3 <= "E87" ~ "Disorders of fluid, electrolyte and acid-base balance"
                                  , cod_ons_3 %in% c("F01", "F03", "G30") ~ "Dementia and Alzheimer disease"
                                  , cod_ons_3 >= "F10" & cod_ons_3 <= "F19" ~ "Mental and behavioural disorders due to psychoactive substance use"
                                  , cod_ons_3 >= "G10" & cod_ons_3 <= "G12" ~ "Systemic atrophies primarily affecting the central nervous system"
@@ -213,7 +212,7 @@ deaths_cohort_pod_cod <- df_input %>%
                                  , cod_ons_3 == "I42" ~ "Cardiomyopathy"
                                  , cod_ons_3 == "I46" ~ "Cardiac arrest"
                                  , cod_ons_3 >= "I47" & cod_ons_3 <= "I49" ~ "Cardiac arrhythmias"
-                                 , cod_ons_3 >= "I50" & cod_ons_3 <= "I51" ~ "Heart failure and complications and ill–defined heart disease"
+                                 , cod_ons_3 >= "I50" & cod_ons_3 <= "I51" ~ "Heart failure and complications and ill-defined heart disease"
                                  , cod_ons_3 >= "I60" & cod_ons_3 <= "I69" ~ "Cerebrovascular diseases"
                                  , cod_ons_3 == "I70" ~ "Atherosclerosis"
                                  , cod_ons_3 == "I71" ~ "Aortic aneurysm and dissection"
@@ -224,24 +223,23 @@ deaths_cohort_pod_cod <- df_input %>%
                                  , cod_ons_3 == "J96" ~ "Respiratory failure"
                                  , (cod_ons_3 >= "K35" & cod_ons_3 <= "K46") | cod_ons_3 == "K56" ~ "Appendicitis, hernia and intestinal obstruction"
                                  , cod_ons_3 >= "K70" & cod_ons_3 <= "K76" ~ "Cirrhosis and other diseases of liver"
-                                 , cod_ons_3 >= "M00" & cod_ons_3 <= "M99" ~ "Diseases of the musculoskeletal system and connective tissue"
+                                 , cod_ons_3 >= "M00" & cod_ons_3 <= "M99" ~ "Diseases of musculoskeletal system and connective tissue"
                                  , cod_ons_3 >= "N00" & cod_ons_3 <= "N39" ~ "Diseases of the urinary system"
-                                 , cod_ons_3 >= "O00" & cod_ons_3 <= "O99" ~ "Pregnancy, childbirth and the puerperium"
+                                 , cod_ons_3 >= "O00" & cod_ons_3 <= "O99" ~ "Pregnancy, childbirth and puerperium"
                                  , cod_ons_3 >= "P00" & cod_ons_3 <= "P96" ~ "Certain conditions originating in the perinatal period"
                                  , cod_ons_3 >= "Q00" & cod_ons_3 <= "Q99" ~ "Congenital malformations, deformations and chromosomal abnormalities"
                                  , cod_ons_3 >= "V90" & cod_ons_3 <= "V99" | cod_ons_3 >= "W20" & cod_ons_3 <= "W31" | cod_ons_3 >= "W35" & cod_ons_3 <= "W64"
-                                 | cod_ons_3 >= "W85" & cod_ons_3 <= "X39" | cod_ons_3 >= "X50" & cod_ons_3 <= "X59" ~ "Accidents"
                                  , cod_ons_3 >= "V01" & cod_ons_3 <= "V89" ~ "Land transport accidents"
                                  , cod_ons_3 >= "W00" & cod_ons_3 <= "W19" ~ "Accidental falls"
                                  , cod_ons_3 >= "W32" & cod_ons_3 <= "W34" ~ "Non-intentional firearm discharge"
                                  , cod_ons_3 >= "W65" & cod_ons_3 <= "W74" ~ "Accidental drowning and submersion"
                                  , cod_ons_3 >= "W75" & cod_ons_3 <= "W84" ~ "Accidental threats to breathing"
                                  , cod_ons_3 >= "X40" & cod_ons_3 <= "X49" ~ "Accidental poisoning"
-                                 , (cod_ons_3 >= "X60" & cod_ons_3 <= "X84") | (cod_ons_3 >= "Y10" & cod_ons_3 <= "Y34") ~ "Suicide and injury/poisoning of undetermined intent2"
-                                 , cod_ons_4 == "U509" | (cod_ons_3 >= "X85" & cod_ons_3 <= "Y09") | cod_ons_4 == "Y871" ~ "Homicide and probable homicide"
+                                 , (cod_ons_3 >= "X60" & cod_ons_3 <= "X84") | (cod_ons_3 >= "Y10" & cod_ons_3 <= "Y34") ~ "Suicide and injury/poisoning of undetermined intent"
+                                 , cod_ons_4 == "U509" | (cod_ons_3 >= "X85" & cod_ons_3 <= "Y09") | cod_ons_4 == "Y871" ~ "Homicide and probable suicide"
                                  , cod_ons_3 >= "R00" & cod_ons_3 <= "R99" ~ "Symptoms, signs and ill-defined conditions"
                                  , cod_ons_4 %in% c("U071","U072", "U109") ~ "COVID-19"
-                                 , TRUE ~ "All other causes")) %>% 
+                                 , TRUE ~ "All other causes")) %>%
   group_by(cohort, pod_ons, cod_ons_grp) %>%
   summarise(deaths = n()) %>%
   mutate(deaths = plyr::round_any(deaths, 5)
@@ -293,7 +291,7 @@ ggsave(plot = plot_deaths_pod_cohort_prop, filename ="deaths_pod_cohort_prop.png
 
 # Quarterly (Mar 19 - Feb 21) deaths by region 
 
-deaths_quarter_region <- df_input %>%
+deaths_ons_quarter_region <- df_input %>%
   filter(study_month >= as_date("2019-03-01") & study_month <= as_date("2021-02-01")) %>%
   group_by(study_month, rgn20cd, study_quarter) %>%
   summarise(deaths = n()) %>%
@@ -305,11 +303,11 @@ deaths_quarter_region <- df_input %>%
   mutate(deaths = plyr::round_any(deaths, 5)) %>%
   mutate(proportion = deaths / ons_deaths)
 
-write_csv(deaths_quarter_region, here::here("output", "describe_cohorts", "deaths_quarter_region.csv"))
+write_csv(deaths_ons_quarter_region, here::here("output", "describe_cohorts", "deaths_ons_quarter_region.csv"))
 
-# Monthly (Mar 19 - Feb 21) deaths by sex - Table 1
+# Quarterly (Mar 19 - Feb 21) deaths by sex - Table 1
 
-deaths_quarter_sex <- df_input %>%
+deaths_ons_quarter_sex <- df_input %>%
   filter(study_month >= as_date("2019-03-01") & study_month <= as_date("2021-02-01")) %>%
   group_by(study_month, sex, study_quarter) %>%
   summarise(deaths = n()) %>%
@@ -321,11 +319,11 @@ deaths_quarter_sex <- df_input %>%
   mutate(deaths = plyr::round_any(deaths, 5)) %>%
   mutate(proportion = deaths / ons_deaths)
 
-write_csv(deaths_quarter_sex, here::here("output", "describe_cohorts", "deaths_quarter_sex.csv"))
+write_csv(deaths_ons_quarter_sex, here::here("output", "describe_cohorts", "deaths_ons_quarter_sex.csv"))
 
-# Monthly deaths (Mar 19 - Feb 21) by age group (<75, 75-79, 80-84, 85-89, 90+)  - Table 4, 8c
+# Quarterly deaths (Mar 19 - Feb 21) by age group (<75, 75-79, 80-84, 85-89, 90+)  - Table 4, 8c
 
-deaths_quarter_agegrp <- df_input %>%
+deaths_ons_quarter_agegrp <- df_input %>%
   filter(study_month >= as_date("2019-03-01") & study_month <= as_date("2021-02-01")) %>%
   mutate(agegrp = case_when(age >= 0 & age <= 74 ~ "<75"
                             , age >= 75 & age <= 79 ~ "75-79"
@@ -343,7 +341,7 @@ deaths_quarter_agegrp <- df_input %>%
   mutate(deaths = plyr::round_any(deaths, 5)) %>%
   mutate(proportion = deaths / ons_deaths)
 
-write_csv(deaths_quarter_agegrp, here::here("output", "describe_cohorts", "deaths_quarter_agegrp.csv"))
+write_csv(deaths_ons_quarter_agegrp, here::here("output", "describe_cohorts", "deaths_ons_quarter_agegrp.csv"))
 
 # Quarterly deaths (Mar 19 - Feb 21) by leading (top 10) cause of death - Table 11a
 # Deaths for 2019 are by date of occurrence
@@ -351,18 +349,17 @@ write_csv(deaths_quarter_agegrp, here::here("output", "describe_cohorts", "death
 # ONS cause of death groupings
 # Check the categories mutually exclusive particularly around covid-19 addition
 # Check how 4+ character codes appear - with or without "."
-deaths_quarter_cod <- df_input %>%
+deaths_ons_quarter_cod <- df_input %>%
   filter(study_month >= as_date("2019-03-01") & study_month <= as_date("2021-02-01")) %>%
   mutate(cod_ons_grp = case_when(cod_ons_3 >= "A00" & cod_ons_3 <= "A09" ~ "Intestinal infectious diseases"
                                  , (cod_ons_3 >= "A15" & cod_ons_3 <= "A19") | cod_ons_3 == "B90" ~ "Tuberculosis"
                                  , cod_ons_3 %in% c("A20", "A44") | (cod_ons_3 >= "A75" & cod_ons_3 <= "A79") | (cod_ons_3 >= "A82" & cod_ons_3 <= "A84") | cod_ons_4 == "A852" | (cod_ons_3 >= "A90" & cod_ons_3 <= "A98") | (cod_ons_3 >= "B50" & cod_ons_3 <= "B57") ~ "Vector–borne diseases and rabies"
-                                 , (cod_ons_3 >= "A33" & cod_ons_3 <= "A37") | cod_ons_4 == "A492" | cod_ons_3 %in% c("A80", "B01", "B02", "B05", "B06", "B15", "B16") | cod_ons_4 %in% c("B170", "B180", "B181") | cod_ons_3 %in% c("B26", "B91", "G14") ~ "Vaccine-preventable diseases1"
+                                 , (cod_ons_3 >= "A33" & cod_ons_3 <= "A37") | cod_ons_4 == "A492" | cod_ons_3 %in% c("A80", "B01", "B02", "B05", "B06", "B15", "B16") | cod_ons_4 %in% c("B170", "B180", "B181") | cod_ons_3 %in% c("B26", "B91", "G14") ~ "Vaccine-preventable diseases"
                                  , cod_ons_3 %in% c("A39", "A87") | (cod_ons_3 >= "G00" & cod_ons_3 <= "G03") ~ "Meningitis and meningococcal infection"
                                  , cod_ons_3 >= "A40" & cod_ons_3 <= "A41" ~ "Septicaemia"
-                                 , cod_ons_3 >= "B20" & cod_ons_3 <= "B24" ~ "Human immunodeficiency virus [HIV] disease"
+                                 , cod_ons_3 >= "B20" & cod_ons_3 <= "B24" ~ "HIV"
                                  , cod_ons_3 >= "C00" & cod_ons_3 <= "C14"  | cod_ons_3 >= "C26" & cod_ons_3 <= "C31" | cod_ons_3 >= "C35" & cod_ons_3 <= "C39"
                                  | cod_ons_3 >= "C45" & cod_ons_3 <= "C49" | cod_ons_3 >= "C57" & cod_ons_3 <= "C60" | cod_ons_3 >= "C68" & cod_ons_3 <= "C70"
-                                 | cod_ons_3 >= "C72" & cod_ons_3 <= "C80" | cod_ons_3 %in% c("C17", "C42", "C51", "C52", "C62", "C63", "C65", "C66", "C97") ~ "Malignant neoplasms"
                                  , cod_ons_3 == "C15" ~ "Malignant neoplasm of oesophagus"
                                  , cod_ons_3 == "C16" ~ "Malignant neoplasm of stomach"
                                  , cod_ons_3 >= "C18" & cod_ons_3 <= "C21" ~ "Malignant neoplasm of colon, sigmoid, rectum and anus"
@@ -371,7 +368,7 @@ deaths_quarter_cod <- df_input %>%
                                  , cod_ons_3 == "C25" ~ "Malignant neoplasm of pancreas"
                                  , cod_ons_3 == "C32" ~ "Malignant neoplasm of larynx"
                                  , cod_ons_3 >= "C33" & cod_ons_3 <= "C34" ~ "Malignant neoplasm of trachea, bronchus and lung"
-                                 , cod_ons_3 >= "C40" & cod_ons_3 <= "C41" ~ "Malignant neoplasms of bone and articular cartilage"
+                                 , cod_ons_3 >= "C40" & cod_ons_3 <= "C41" ~ "Malignant neoplasm of bone and articular cartilage"
                                  , cod_ons_3 >= "C43" & cod_ons_3 <= "C44" ~ "Melanoma and other malignant neoplasms of skin"
                                  , cod_ons_3 == "C50" ~ "Malignant neoplasm of breast"
                                  , cod_ons_3 >= "C53" & cod_ons_3 <= "C55" ~ "Malignant neoplasm of uterus"
@@ -384,7 +381,7 @@ deaths_quarter_cod <- df_input %>%
                                  , cod_ons_3 >= "D00" & cod_ons_3 <= "D48" ~ "In situ and benign neoplasms, and neoplasms of uncertain or unknown behaviour"
                                  , cod_ons_3 >= "E10" & cod_ons_3 <= "E14" ~ "Diabetes"
                                  , (cod_ons_3 >= "D50" & cod_ons_3 <= "D53") | (cod_ons_3 >= "E40" & cod_ons_3 <= "E64") ~ "Malnutrition, nutritional anaemias and other nutritional deficiencies"
-                                 , cod_ons_3 >= "E86" & cod_ons_3 <= "E87" ~ "Disorders of fluid, electrolyte and acid–base balance (incl. dehydration)"
+                                 , cod_ons_3 >= "E86" & cod_ons_3 <= "E87" ~ "Disorders of fluid, electrolyte and acid-base balance"
                                  , cod_ons_3 %in% c("F01", "F03", "G30") ~ "Dementia and Alzheimer disease"
                                  , cod_ons_3 >= "F10" & cod_ons_3 <= "F19" ~ "Mental and behavioural disorders due to psychoactive substance use"
                                  , cod_ons_3 >= "G10" & cod_ons_3 <= "G12" ~ "Systemic atrophies primarily affecting the central nervous system"
@@ -399,7 +396,7 @@ deaths_quarter_cod <- df_input %>%
                                  , cod_ons_3 == "I42" ~ "Cardiomyopathy"
                                  , cod_ons_3 == "I46" ~ "Cardiac arrest"
                                  , cod_ons_3 >= "I47" & cod_ons_3 <= "I49" ~ "Cardiac arrhythmias"
-                                 , cod_ons_3 >= "I50" & cod_ons_3 <= "I51" ~ "Heart failure and complications and ill–defined heart disease"
+                                 , cod_ons_3 >= "I50" & cod_ons_3 <= "I51" ~ "Heart failure and complications and ill-defined heart disease"
                                  , cod_ons_3 >= "I60" & cod_ons_3 <= "I69" ~ "Cerebrovascular diseases"
                                  , cod_ons_3 == "I70" ~ "Atherosclerosis"
                                  , cod_ons_3 == "I71" ~ "Aortic aneurysm and dissection"
@@ -410,21 +407,20 @@ deaths_quarter_cod <- df_input %>%
                                  , cod_ons_3 == "J96" ~ "Respiratory failure"
                                  , (cod_ons_3 >= "K35" & cod_ons_3 <= "K46") | cod_ons_3 == "K56" ~ "Appendicitis, hernia and intestinal obstruction"
                                  , cod_ons_3 >= "K70" & cod_ons_3 <= "K76" ~ "Cirrhosis and other diseases of liver"
-                                 , cod_ons_3 >= "M00" & cod_ons_3 <= "M99" ~ "Diseases of the musculoskeletal system and connective tissue"
+                                 , cod_ons_3 >= "M00" & cod_ons_3 <= "M99" ~ "Diseases of musculoskeletal system and connective tissue"
                                  , cod_ons_3 >= "N00" & cod_ons_3 <= "N39" ~ "Diseases of the urinary system"
-                                 , cod_ons_3 >= "O00" & cod_ons_3 <= "O99" ~ "Pregnancy, childbirth and the puerperium"
+                                 , cod_ons_3 >= "O00" & cod_ons_3 <= "O99" ~ "Pregnancy, childbirth and puerperium"
                                  , cod_ons_3 >= "P00" & cod_ons_3 <= "P96" ~ "Certain conditions originating in the perinatal period"
                                  , cod_ons_3 >= "Q00" & cod_ons_3 <= "Q99" ~ "Congenital malformations, deformations and chromosomal abnormalities"
                                  , cod_ons_3 >= "V90" & cod_ons_3 <= "V99" | cod_ons_3 >= "W20" & cod_ons_3 <= "W31" | cod_ons_3 >= "W35" & cod_ons_3 <= "W64"
-                                 | cod_ons_3 >= "W85" & cod_ons_3 <= "X39" | cod_ons_3 >= "X50" & cod_ons_3 <= "X59" ~ "Accidents"
                                  , cod_ons_3 >= "V01" & cod_ons_3 <= "V89" ~ "Land transport accidents"
                                  , cod_ons_3 >= "W00" & cod_ons_3 <= "W19" ~ "Accidental falls"
                                  , cod_ons_3 >= "W32" & cod_ons_3 <= "W34" ~ "Non-intentional firearm discharge"
                                  , cod_ons_3 >= "W65" & cod_ons_3 <= "W74" ~ "Accidental drowning and submersion"
                                  , cod_ons_3 >= "W75" & cod_ons_3 <= "W84" ~ "Accidental threats to breathing"
                                  , cod_ons_3 >= "X40" & cod_ons_3 <= "X49" ~ "Accidental poisoning"
-                                 , (cod_ons_3 >= "X60" & cod_ons_3 <= "X84") | (cod_ons_3 >= "Y10" & cod_ons_3 <= "Y34") ~ "Suicide and injury/poisoning of undetermined intent2"
-                                 , cod_ons_4 == "U509" | (cod_ons_3 >= "X85" & cod_ons_3 <= "Y09") | cod_ons_4 == "Y871" ~ "Homicide and probable homicide"
+                                 , (cod_ons_3 >= "X60" & cod_ons_3 <= "X84") | (cod_ons_3 >= "Y10" & cod_ons_3 <= "Y34") ~ "Suicide and injury/poisoning of undetermined intent"
+                                 , cod_ons_4 == "U509" | (cod_ons_3 >= "X85" & cod_ons_3 <= "Y09") | cod_ons_4 == "Y871" ~ "Homicide and probable suicide"
                                  , cod_ons_3 >= "R00" & cod_ons_3 <= "R99" ~ "Symptoms, signs and ill-defined conditions"
                                  , cod_ons_4 %in% c("U071","U072", "U109") ~ "COVID-19"
                                  , TRUE ~ "All other causes")) %>%
@@ -442,11 +438,11 @@ deaths_quarter_cod <- df_input %>%
   mutate(deaths = plyr::round_any(deaths, 5)) %>%
   mutate(proportion = deaths / ons_deaths)
 
-write_csv(deaths_quarter_cod, here::here("output", "describe_cohorts", "deaths_quarter_cod.csv"))
+write_csv(deaths_ons_quarter_cod, here::here("output", "describe_cohorts", "deaths_ons_quarter_cod.csv"))
 
 # Monthly deaths (Jan 20 - Feb 21) by place of death - Table 14a
 
-deaths_month_pod <- df_input %>%
+deaths_ons_month_pod <- df_input %>%
   filter(study_month >= as_date("2020-01-01") & study_month <= as_date("2021-02-01")) %>%
   group_by(study_month, pod_ons) %>%
   summarise(deaths = n()) %>%
@@ -455,7 +451,7 @@ deaths_month_pod <- df_input %>%
             , by = c("study_month" = "period", "pod_ons" = "place_of_death")) %>%
   mutate(proportion = deaths / ons_deaths)
 
-write_csv(deaths_month_pod, here::here("output", "describe_cohorts", "deaths_month_pod.csv"))
+write_csv(deaths_ons_month_pod, here::here("output", "describe_cohorts", "deaths_ons_month_pod.csv"))
 
 ################################################################################
 
