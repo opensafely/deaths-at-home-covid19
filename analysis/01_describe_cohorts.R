@@ -305,6 +305,17 @@ deaths_ons_quarter_region <- df_input %>%
 
 write_csv(deaths_ons_quarter_region, here::here("output", "describe_cohorts", "deaths_ons_quarter_region.csv"))
 
+plot_deaths_ons_quarter_region <- ggplot(deaths_ons_quarter_region, aes(x = study_quarter, y = proportion, colour = rgn20cd)) +
+  geom_line() +
+  labs(x = "Study quarter", y = "Percent of ONS deaths") +
+  scale_colour_manual(values = c("#9F67FF", "#00C27A", "#FF6B57", "#4DCFF5", "#EABE17", "#0066F4", "#D3C4FC", "#8BF8BD", "#FFCFC9")) +
+  scale_x_continuous(expand = c(0, 1), breaks = seq(1, 8, 1)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1), breaks = seq(0, 1, 0.1)
+                     , labels = c("0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%")) +
+  NT_style()
+
+ggsave(plot = plot_deaths_ons_quarter_region, filename ="deaths_ons_quarter_region.png", path = here::here("output", "describe_cohorts"))
+
 # Quarterly (Mar 19 - Feb 21) deaths by sex - Table 1
 
 deaths_ons_quarter_sex <- df_input %>%
@@ -320,6 +331,17 @@ deaths_ons_quarter_sex <- df_input %>%
   mutate(proportion = deaths / ons_deaths)
 
 write_csv(deaths_ons_quarter_sex, here::here("output", "describe_cohorts", "deaths_ons_quarter_sex.csv"))
+
+plot_deaths_ons_quarter_sex <- ggplot(deaths_ons_quarter_sex, aes(x = study_quarter, y = proportion, colour = sex)) +
+  geom_line() +
+  labs(x = "Study quarter", y = "Percent of ONS deaths") +
+  scale_colour_manual(values = c("#9F67FF", "#00C27A")) +
+  scale_x_continuous(expand = c(0, 1), breaks = seq(1, 8, 1)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1), breaks = seq(0, 1, 0.1)
+                     , labels = c("0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%")) +
+  NT_style()
+
+ggsave(plot = plot_deaths_ons_quarter_sex, filename ="deaths_ons_quarter_sex.png", path = here::here("output", "describe_cohorts"))
 
 # Quarterly deaths (Mar 19 - Feb 21) by age group (<75, 75-79, 80-84, 85-89, 90+)  - Table 4, 8c
 
@@ -342,6 +364,17 @@ deaths_ons_quarter_agegrp <- df_input %>%
   mutate(proportion = deaths / ons_deaths)
 
 write_csv(deaths_ons_quarter_agegrp, here::here("output", "describe_cohorts", "deaths_ons_quarter_agegrp.csv"))
+
+plot_deaths_ons_quarter_agegrp <- ggplot(deaths_ons_quarter_agegrp, aes(x = study_quarter, y = proportion, colour = agegrp)) +
+  geom_line() +
+  labs(x = "Study quarter", y = "Percent of ONS deaths") +
+  scale_colour_manual(values = c("#9F67FF", "#00C27A", "#FF6B57", "#4DCFF5", "#EABE17")) +
+  scale_x_continuous(expand = c(0, 1), breaks = seq(1, 8, 1)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1), breaks = seq(0, 1, 0.1)
+                     , labels = c("0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%")) +
+  NT_style()
+
+ggsave(plot = plot_deaths_ons_quarter_agegrp, filename ="deaths_ons_quarter_agegrp.png", path = here::here("output", "describe_cohorts"))
 
 # Quarterly deaths (Mar 19 - Feb 21) by leading (top 10) cause of death - Table 11a
 # Deaths for 2019 are by date of occurrence
@@ -452,6 +485,19 @@ deaths_ons_month_pod <- df_input %>%
   mutate(proportion = deaths / ons_deaths)
 
 write_csv(deaths_ons_month_pod, here::here("output", "describe_cohorts", "deaths_ons_month_pod.csv"))
+
+plot_deaths_ons_month_pod <- ggplot(deaths_ons_month_pod, aes(x = study_month, y = proportion, colour = pod_ons)) +
+  geom_line() +
+  labs(x = "Month", y = "Percent of ONS deaths") +
+  scale_colour_manual(values = c("#9F67FF", "#00C27A", "#FF6B57", "#4DCFF5", "#EABE17", "#0066F4")) +
+  scale_x_date(expand = c(0, 1), date_breaks = "month", date_labels = "%b %y") +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1), breaks = seq(0, 1, 0.1)
+                     , labels = c("0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%")) +
+  NT_style() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+
+ggsave(plot = plot_deaths_ons_month_pod, filename ="deaths_ons_month_pod.png", path = here::here("output", "describe_cohorts"))
+
 
 ################################################################################
 
