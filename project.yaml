@@ -11,6 +11,19 @@ actions:
       highly_sensitive:
         cohort: output/input.feather
 
+  generate_study_population_measures:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_practice_measures --output-format feather --index-date-range "2019-03-01 to 2021-02-01 by month" --skip-existing --output-dir=output/practice_measures
+    outputs:
+      highly_sensitive:
+        cohort: output/practice_measures/input_*.feather
+
+  generate_practice_measures:
+      run: cohortextractor:latest generate_measures --study-definition study_definition_practice_measures --skip-existing --output-dir=output/practice_measures
+      needs: [generate_study_population_measures]
+      outputs:
+        moderately_sensitive:
+          measure_csv: output/practice_measures/measure_*.csv
+
   generate_report:
     run: cohort-report:v3.0.0 output/input.feather
     needs: [generate_study_population]
@@ -32,8 +45,8 @@ actions:
         deaths_cohort_pod: output/describe_cohorts/overall_death_counts/deaths_cohort_pod.csv
         deaths_quarter_pod: output/describe_cohorts/overall_death_counts/deaths_quarter_pod.csv
         deaths_pod_figures: output/describe_cohorts/overall_death_counts/deaths_pod_cohort*.png
-        deaths_quarter_ons: output/describe_cohorts/ons_death_comparisons/deaths_quarter*.csv
-        deaths_month_ons: output/describe_cohorts/ons_death_comparisons/deaths_month*.csv
+        deaths_quarter_ons: output/describe_cohorts/ons_death_comparisons/deaths_ons_quarter*.csv
+        deaths_month_ons: output/describe_cohorts/ons_death_comparisons/deaths_ons_month*.csv
         death_ratios_cohort: output/describe_cohorts/death_ratios_cohort/death_ratio_cohort*.csv
         death_ratios_pod_cohort: output/describe_cohorts/death_ratios_pod_cohort/death_ratio_pod_cohort*.csv
 
@@ -44,3 +57,10 @@ actions:
       moderately_sensitive:
         service_use_means: output/describe_service_use/service_use_mean*.csv
         service_use_ratios: output/describe_service_use/service_use_ratio*.csv
+
+  practice_measures_charts:
+    run: r:latest analysis/03_practice_measures_charts.R
+    needs: [generate_study_population_measures, generate_practice_measures]
+    outputs:
+      moderately_sensitive:
+        deciles_charts: output/practice_measures/charts/deciles_*.png
