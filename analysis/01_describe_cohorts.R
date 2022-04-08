@@ -306,11 +306,12 @@ deaths_ons_quarter_region <- df_input %>%
 
 write_csv(deaths_ons_quarter_region, here::here("output", "describe_cohorts", "ons_death_comparisons", "deaths_ons_quarter_region.csv"))
 
-plot_deaths_ons_quarter_region <- ggplot(deaths_ons_quarter_region, aes(x = study_quarter, y = proportion, colour = rgn20cd)) +
-  geom_line() +
+plot_deaths_ons_quarter_region <- ggplot(deaths_ons_quarter_region %>% filter(str_detect(rgn20cd, "^E12")), aes(x = study_quarter, y = proportion, colour = rgn20cd)) +
+  geom_line(size = 1) +
+  geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
   labs(x = "Study quarter", y = "Percent of ONS deaths") +
   scale_colour_manual(values = c("#9F67FF", "#00C27A", "#FF6B57", "#4DCFF5", "#EABE17", "#0066F4", "#D3C4FC", "#8BF8BD", "#FFCFC9")) +
-  scale_x_continuous(expand = c(0, 1), breaks = seq(1, 8, 1)) +
+  scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 1), breaks = seq(0, 1, 0.1)
                      , labels = c("0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%")) +
   NT_style()
@@ -333,8 +334,9 @@ deaths_ons_quarter_sex <- df_input %>%
 
 write_csv(deaths_ons_quarter_sex, here::here("output", "describe_cohorts", "ons_death_comparisons", "deaths_ons_quarter_sex.csv"))
 
-plot_deaths_ons_quarter_sex <- ggplot(deaths_ons_quarter_sex, aes(x = study_quarter, y = proportion, colour = sex)) +
-  geom_line() +
+plot_deaths_ons_quarter_sex <- ggplot(deaths_ons_quarter_sex %>% filter(sex %in% c("M", "F")), aes(x = study_quarter, y = proportion, colour = sex)) +
+  geom_line(size = 1) +
+  geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
   labs(x = "Study quarter", y = "Percent of ONS deaths") +
   scale_colour_manual(values = c("#9F67FF", "#00C27A")) +
   scale_x_continuous(expand = c(0, 1), breaks = seq(1, 8, 1)) +
@@ -366,8 +368,9 @@ deaths_ons_quarter_agegrp <- df_input %>%
 
 write_csv(deaths_ons_quarter_agegrp, here::here("output", "describe_cohorts", "ons_death_comparisons", "deaths_ons_quarter_agegrp.csv"))
 
-plot_deaths_ons_quarter_agegrp <- ggplot(deaths_ons_quarter_agegrp, aes(x = study_quarter, y = proportion, colour = agegrp)) +
-  geom_line() +
+plot_deaths_ons_quarter_agegrp <- ggplot(deaths_ons_quarter_agegrp %>% filter(!is.na(agegrp)), aes(x = study_quarter, y = proportion, colour = agegrp)) +
+  geom_line(size = 1) +
+  geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
   labs(x = "Study quarter", y = "Percent of ONS deaths") +
   scale_colour_manual(values = c("#9F67FF", "#00C27A", "#FF6B57", "#4DCFF5", "#EABE17")) +
   scale_x_continuous(expand = c(0, 1), breaks = seq(1, 8, 1)) +
@@ -484,8 +487,10 @@ deaths_ons_month_pod <- df_input %>%
 
 write_csv(deaths_ons_month_pod, here::here("output", "describe_cohorts", "ons_death_comparisons", "deaths_ons_month_pod.csv"))
 
-plot_deaths_ons_month_pod <- ggplot(deaths_ons_month_pod, aes(x = study_month, y = proportion, colour = pod_ons)) +
-  geom_line() +
+plot_deaths_ons_month_pod <- ggplot(deaths_ons_month_pod %>% filter(pod_ons %in% c("Hospital", "Care home", "Home", "Hospice", "Elsewhere", "Other communal establishment"))
+                                    , aes(x = study_month, y = proportion, colour = pod_ons)) +
+  geom_line(size = 1) +
+  geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
   labs(x = "Month", y = "Percent of ONS deaths") +
   scale_colour_manual(values = c("#9F67FF", "#00C27A", "#FF6B57", "#4DCFF5", "#EABE17", "#0066F4")) +
   scale_x_date(expand = c(0, 1), date_breaks = "month", date_labels = "%b %y") +
