@@ -503,6 +503,25 @@ ggsave(plot = plot_deaths_ons_month_pod, filename ="deaths_ons_month_pod.png", p
 
 ################################################################################
 
+########## Descriptive table of cohorts ##########
+
+# Mean age, %female, %white...
+
+cohorts_summary_table <- df_input %>%
+  mutate(bin_sex = case_when(sex == "F" ~ 1
+                             , TRUE ~ 0)
+         , bin_white = case_when(ethnicity == 1 ~ 1
+                                 , TRUE ~ 0)
+         , bin_msoa_na = case_when(str_detect(msoa, "^E|W|S|N") ~ 0
+                                   , TRUE ~ 1)) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(cols = -c(patient_id, cohort), names_to = "variable", values_to = "value") %>%
+  group_by(cohort, variable) %>%
+  filter(variable %in% c("age", "bin_sex", "bin_white", "bin_msoa_na")) %>%
+  summarise(mean = mean(value, na.rm = TRUE))
+
+################################################################################
+
 ########## Ratios of deaths by characteristics ##########
 
 # Ratio - place of death
