@@ -82,7 +82,7 @@ write_csv(service_use_mean_cohort, here::here("output", "describe_service_use", 
 
 # Calculate the same just for people with complete gp history
 
-gp_complete_service_use_mean_cohort <- df_input %>%
+gp_service_use_mean_cohort <- df_input %>%
   filter(gp_hist_1m == TRUE) %>% 
   select(cohort, ends_with("_1m")) %>%
   select(-contains("gp_hist")) %>% 
@@ -123,7 +123,7 @@ gp_complete_service_use_mean_cohort <- df_input %>%
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_greaterthan1))) %>%
   mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
 
-write_csv(gp_complete_service_use_mean_cohort, here::here("output", "describe_service_use", "complete_gp_history", "complete_gp_service_use_mean_cohort.csv"))
+write_csv(gp_service_use_mean_cohort, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort.csv"))
 
 ################################################################################
 
@@ -145,7 +145,7 @@ write_csv(service_use_mean_quarter, here::here("output", "describe_service_use",
 
 # Calculate the same just for people with complete gp history
 
-gp_complete_service_use_mean_quarter <- df_input %>%
+gp_service_use_mean_quarter <- df_input %>%
   filter(gp_hist_1m == TRUE) %>% 
   select(study_quarter, ends_with("_1m")) %>%
   select(-contains("gp_hist")) %>% 
@@ -182,7 +182,7 @@ gp_complete_service_use_mean_quarter <- df_input %>%
               mutate(n = plyr::round_any(n, 5)
                      , n_greaterthan1 = plyr::round_any(n_greaterthan1, 5)))
 
-write_csv(gp_complete_service_use_mean_quarter, here::here("output", "describe_service_use", "complete_gp_history", "complete_gp_service_use_mean_quarter.csv"))
+write_csv(gp_service_use_mean_quarter, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_quarter.csv"))
 
 ################################################################################
 
@@ -209,7 +209,7 @@ write_csv(service_use_mean_cohort_pod, here::here("output", "describe_service_us
 
 # Calculate the same just for people with complete gp history
 
-gp_complete_service_use_mean_cohort_pod <- df_input %>%
+gp_service_use_mean_cohort_pod <- df_input %>%
   filter(gp_hist_1m == TRUE) %>% 
   select(cohort, pod_ons, ends_with("_1m")) %>%
   select(-contains("gp_hist")) %>% 
@@ -259,7 +259,7 @@ gp_complete_service_use_mean_cohort_pod <- df_input %>%
               arrange(pod_ons, activity)) %>%
   mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
 
-write_csv(gp_complete_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "complete_gp_history", "gp_complete_service_use_mean_cohort_pod.csv"))
+write_csv(gp_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort_pod.csv"))
 
 ################################################################################
 
@@ -281,7 +281,7 @@ write_csv(service_use_mean_quarter_pod, here::here("output", "describe_service_u
 
 # Calculate the same just for people with complete gp history
 
-gp_complete_service_use_mean_quarter_pod <- df_input %>%
+gp_service_use_mean_quarter_pod <- df_input %>%
   filter(gp_hist_1m == TRUE) %>% 
   select(study_quarter, pod_ons, ends_with("_1m")) %>%
   select(-contains("gp_hist")) %>% 
@@ -318,10 +318,10 @@ gp_complete_service_use_mean_quarter_pod <- df_input %>%
               mutate(n = plyr::round_any(n, 5)
                      , n_greaterthan1 = plyr::round_any(n_greaterthan1, 5)))
 
-write_csv(gp_complete_service_use_mean_quarter_pod, here::here("output", "describe_service_use", "complete_gp_history", "gp_complete_service_use_mean_quarter_pod.csv"))
+write_csv(gp_service_use_mean_quarter_pod, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_quarter_pod.csv"))
 
 ################################################################################
-
+ 
 ########## Ratios of mean service use ##########
 
 # Think about any significance testing

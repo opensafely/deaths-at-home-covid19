@@ -34,6 +34,7 @@ actions:
         deaths_pod_figures: output/describe_cohorts/overall_death_counts/deaths_pod_cohort*.png
         deaths_quarter_ons: output/describe_cohorts/ons_death_comparisons/deaths_ons_quarter*.csv
         deaths_month_ons: output/describe_cohorts/ons_death_comparisons/deaths_ons_month*.csv
+        summary_table: output/describe_cohorts/cohorts_summary_table.csv
         death_ratios_cohort: output/describe_cohorts/death_ratios_cohort/death_ratio_cohort*.csv
         death_ratios_pod_cohort: output/describe_cohorts/death_ratios_pod_cohort/death_ratio_pod_cohort*.csv
 
@@ -43,5 +44,5 @@ actions:
     outputs:
       moderately_sensitive:
         service_use_means: output/describe_service_use/service_use_mean*.csv
-        gp_complete_service_use_means: output/describe_service_use/complete_gp_history/gp_complete_service_use_mean*.csv
+        gp_complete_service_use_means: output/describe_service_use/complete_gp_history/gp_service_use_mean*.csv
         service_use_ratios: output/describe_service_use/service_use_ratio*.csv

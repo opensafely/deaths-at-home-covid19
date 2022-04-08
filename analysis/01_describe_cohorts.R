@@ -520,6 +520,8 @@ cohorts_summary_table <- df_input %>%
   filter(variable %in% c("age", "bin_sex", "bin_white", "bin_msoa_na")) %>%
   summarise(mean = mean(value, na.rm = TRUE))
 
+write_csv(cohorts_summary_table, here::here("output", "describe_cohorts", "cohorts_summary_table.csv"))
+
 ################################################################################
 
 ########## Ratios of deaths by characteristics ##########
