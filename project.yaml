@@ -43,4 +43,5 @@ actions:
     outputs:
       moderately_sensitive:
         service_use_means: output/describe_service_use/service_use_mean*.csv
+        gp_complete_service_use_means: output/describe_service_use/complete_gp_history/gp_complete_service_use_mean*.csv
         service_use_ratios: output/describe_service_use/service_use_ratio*.csv
