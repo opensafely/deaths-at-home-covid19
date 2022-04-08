@@ -26,15 +26,16 @@ actions:
     needs: [generate_study_population]
     outputs:
       moderately_sensitive:
-        deaths_cohort: output/describe_cohorts/deaths_cohort.csv
-        deaths_quarter: output/describe_cohorts/deaths_quarter.csv
-        deaths_quarter_figure: output/describe_cohorts/deaths_quarter.png
-        deaths_cohort_pod: output/describe_cohorts/deaths_cohort_pod.csv
-        deaths_quarter_pod: output/describe_cohorts/deaths_quarter_pod.csv
-        deaths_pod_figures: output/describe_cohorts/deaths_pod_cohort*.png
-        deaths_quarter_ons: output/describe_cohorts/deaths_quarter*.csv
-        deaths_month_ons: output/describe_cohorts/deaths_month*.csv
-        deaths_ratio: output/describe_cohorts/deaths_ratio*.csv
+        deaths_cohort: output/describe_cohorts/overall_death_counts/deaths_cohort.csv
+        deaths_quarter: output/describe_cohorts/overall_death_counts/deaths_quarter.csv
+        deaths_quarter_figure: output/describe_cohorts/overall_death_counts/deaths_quarter.png
+        deaths_cohort_pod: output/describe_cohorts/overall_death_counts/deaths_cohort_pod.csv
+        deaths_quarter_pod: output/describe_cohorts/overall_death_counts/deaths_quarter_pod.csv
+        deaths_pod_figures: output/describe_cohorts/overall_death_counts/deaths_pod_cohort*.png
+        deaths_quarter_ons: output/describe_cohorts/ons_death_comparisons/deaths_quarter*.csv
+        deaths_month_ons: output/describe_cohorts/ons_death_comparisons/deaths_month*.csv
+        death_ratios_cohort: output/describe_cohorts/death_ratios_cohort/death_ratio_cohort*.csv
+        death_ratios_pod_cohort: output/describe_cohorts/death_ratios_pod_cohort/death_ratio_pod_cohort*.csv
 
   describe_service_use:
     run: r:latest analysis/02_describe_service_use.R
