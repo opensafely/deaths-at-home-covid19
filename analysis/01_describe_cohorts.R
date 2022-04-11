@@ -458,19 +458,22 @@ deaths_ons_quarter_cod <- df_input %>%
                                  , cod_ons_3 >= "R00" & cod_ons_3 <= "R99" ~ "Symptoms, signs and ill-defined conditions"
                                  , cod_ons_4 %in% c("U071","U072", "U109") ~ "COVID-19"
                                  , TRUE ~ "All other causes")) %>%
+  filter(cod_ons_grp != "All other causes") %>%
   group_by(study_month, cod_ons_grp, study_quarter) %>%
   summarise(deaths = n()) %>%
-  group_by(study_month) %>%
-  arrange(study_month, desc(deaths)) %>%
-  mutate(rank_in = row_number()
-         , cod_ons_grp = tolower(cod_ons_grp))  %>%
+  mutate(cod_ons_grp = tolower(cod_ons_grp))  %>%
   left_join(read_csv(here::here("docs", "ons_comparison_data", "table11a_cod_onsmortality.csv"))
             , by = c("study_month" = "period", "cod_ons_grp" = "cause"))  %>%
   group_by(study_quarter, cod_ons_grp) %>%
   summarise(deaths = sum(deaths, na.rm = TRUE)
             , ons_deaths = sum(ons_deaths, na.rm = TRUE)) %>%
+  arrange(study_quarter, desc(deaths)) %>%
+  mutate(rank = row_number()) %>%
+  arrange(study_quarter, desc(ons_deaths)) %>%
+  mutate(rank_ons = row_number()) %>%
   mutate(deaths = plyr::round_any(deaths, 5)) %>%
-  mutate(proportion = deaths / ons_deaths)
+  mutate(proportion = deaths / ons_deaths) %>%
+  arrange(study_quarter, rank)
 
 write_csv(deaths_ons_quarter_cod, here::here("output", "describe_cohorts", "ons_death_comparisons", "deaths_ons_quarter_cod.csv"))
 
@@ -500,27 +503,6 @@ plot_deaths_ons_month_pod <- ggplot(deaths_ons_month_pod %>% filter(pod_ons %in%
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 
 ggsave(plot = plot_deaths_ons_month_pod, filename ="deaths_ons_month_pod.png", path = here::here("output", "describe_cohorts", "ons_death_comparisons"), height = 10, width = 13.7, units = "cm", dpi = 600)
-
-################################################################################
-
-########## Descriptive table of cohorts ##########
-
-# Mean age, %female, %white...
-
-cohorts_summary_table <- df_input %>%
-  mutate(bin_sex = case_when(sex == "F" ~ 1
-                             , TRUE ~ 0)
-         , bin_white = case_when(ethnicity == 1 ~ 1
-                                 , TRUE ~ 0)
-         , bin_msoa_na = case_when(str_detect(msoa, "^E|W|S|N") ~ 0
-                                   , TRUE ~ 1)) %>% 
-  select_if(is.numeric) %>% 
-  pivot_longer(cols = -c(patient_id, cohort), names_to = "variable", values_to = "value") %>%
-  group_by(cohort, variable) %>%
-  filter(variable %in% c("age", "bin_sex", "bin_white", "bin_msoa_na")) %>%
-  summarise(mean = mean(value, na.rm = TRUE))
-
-write_csv(cohorts_summary_table, here::here("output", "describe_cohorts", "cohorts_summary_table.csv"))
 
 ################################################################################
 
@@ -718,6 +700,27 @@ write_csv(death_ratio_alone, here::here("output", "describe_cohorts", "death_rat
 
 ################################################################################
 
+########## Descriptive table of cohorts ##########
+
+# Mean age, %female, %white...
+
+cohorts_summary_table <- df_input %>%
+  mutate(bin_sex = case_when(sex == "F" ~ 1
+                             , TRUE ~ 0)
+         , bin_white = case_when(ethnicity == 1 ~ 1
+                                 , TRUE ~ 0)
+         , bin_msoa_na = case_when(str_detect(msoa, "^E|W|S|N") ~ 0
+                                   , TRUE ~ 1)) %>% 
+  select_if(is.numeric) %>% 
+  pivot_longer(cols = -c(patient_id, cohort), names_to = "variable", values_to = "value") %>%
+  group_by(cohort, variable) %>%
+  filter(variable %in% c("age", "bin_sex", "bin_white", "bin_msoa_na")) %>%
+  summarise(mean = mean(value, na.rm = TRUE))
+
+write_csv(cohorts_summary_table, here::here("output", "describe_cohorts", "cohorts_summary_table.csv"))
+
+################################################################################
+
 ########## Ratios of deaths by place of death for characteristics ##########
 
 # Ratio - pod * cause of death
@@ -738,7 +741,8 @@ death_ratio_pod_cod <- df_input %>%
   select(-total) %>%
   pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
   mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
-         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0)
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+  arrange(pod_ons, cod_ons_grp)
 
 write_csv(death_ratio_pod_cod, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_cod.csv"))
 
@@ -753,7 +757,8 @@ death_ratio_pod_sex <- df_input %>%
   select(-total) %>%
   pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
   mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
-         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0)
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+  arrange(pod_ons, sex)
 
 write_csv(death_ratio_pod_sex, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_sex.csv"))
 
@@ -773,7 +778,8 @@ death_ratio_pod_agegrp <- df_input %>%
   select(-total) %>%
   pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
   mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
-         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0)
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+  arrange(pod_ons, agegrp)
 
 write_csv(death_ratio_pod_agegrp, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_agegrp.csv"))
 
@@ -788,7 +794,8 @@ death_ratio_pod_ethnicity <- df_input %>%
   select(-total) %>%
   pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
   mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
-         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0)
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+  arrange(pod_ons, ethnicity)
 
 write_csv(death_ratio_pod_ethnicity, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_ethnicity.csv"))
 
@@ -807,7 +814,8 @@ death_ratio_pod_ltc <- df_input %>%
   select(-total) %>%
   pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
   mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
-         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0)
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+  arrange(pod_ons, ltc_grp)
 
 write_csv(death_ratio_pod_ltc, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_ltc.csv"))
 
@@ -822,7 +830,8 @@ death_ratio_pod_palcare <- df_input %>%
   select(-total) %>%
   pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
   mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
-         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0)
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+  arrange(pod_ons, ltc_palcare1)
 
 write_csv(death_ratio_pod_palcare, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_palcare.csv"))
 
@@ -837,7 +846,8 @@ death_ratio_pod_region <- df_input %>%
   select(-total) %>%
   pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
   mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
-         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0)
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+  arrange(pod_ons, rgn20cd)
 
 write_csv(death_ratio_pod_region, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_region.csv"))
 
@@ -852,7 +862,8 @@ death_ratio_pod_imd <- df_input %>%
   select(-total) %>%
   pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
   mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
-         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0)
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+  arrange(pod_ons, imd_quintile)
 
 write_csv(death_ratio_pod_imd, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_imd.csv"))
 
@@ -867,7 +878,8 @@ death_ratio_pod_imd_la <- df_input %>%
   select(-total) %>%
   pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
   mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
-         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0)
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+  arrange(pod_ons, imd_quintile_la)
 
 write_csv(death_ratio_pod_imd_la, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_imd_la.csv"))
 
@@ -885,7 +897,8 @@ death_ratio_pod_alone <- df_input %>%
   select(-total) %>%
   pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
   mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
-         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0)
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+  arrange(pod_ons, lives_alone)
 
 write_csv(death_ratio_pod_alone, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_alone.csv"))
 
