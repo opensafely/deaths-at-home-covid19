@@ -704,18 +704,36 @@ write_csv(death_ratio_alone, here::here("output", "describe_cohorts", "death_rat
 
 # Mean age, %female, %white...
 
-cohorts_summary_table <- df_input %>%
-  mutate(bin_sex = case_when(sex == "F" ~ 1
-                             , TRUE ~ 0)
-         , bin_white = case_when(ethnicity == 1 ~ 1
-                                 , TRUE ~ 0)
-         , bin_msoa_na = case_when(str_detect(msoa, "^E|W|S|N") ~ 0
-                                   , TRUE ~ 1)) %>% 
-  select_if(is.numeric) %>% 
-  pivot_longer(cols = -c(patient_id, cohort), names_to = "variable", values_to = "value") %>%
-  group_by(cohort, variable) %>%
-  filter(variable %in% c("age", "bin_sex", "bin_white", "bin_msoa_na")) %>%
-  summarise(mean = mean(value, na.rm = TRUE))
+cohorts_summary_table <- deaths_cohort %>% 
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = deaths) %>% 
+  mutate(variable = "n") %>% 
+  bind_rows(death_ratio_sex %>% 
+  mutate(variable = "Sex"
+         , category = sex) %>%
+  select(variable, category, proportion_cohort_0, proportion_cohort_1) %>% 
+  bind_rows(death_ratio_agegrp %>%  
+              mutate(variable = "Age group"
+                     , category = agegrp) %>%
+              select(variable, category, proportion_cohort_0, proportion_cohort_1)) %>% 
+  bind_rows(death_ratio_ethnicity %>%  
+              mutate(variable = "Ethnicity"
+                     , category = ethnicity) %>%
+              select(variable, category, proportion_cohort_0, proportion_cohort_1)) %>% 
+  bind_rows(death_ratio_pod %>%  
+              mutate(variable = "Place of death"
+                     , category = pod_ons) %>%
+              select(variable, category, proportion_cohort_0, proportion_cohort_1)) %>% 
+  bind_rows(death_ratio_cod %>%  
+              mutate(variable = "Cause of death"
+                     , category = cod_ons_grp) %>%
+              select(variable, category, proportion_cohort_0, proportion_cohort_1)) %>% 
+  bind_rows(death_ratio_ltc %>%  
+              mutate(variable = "Long term conditions"
+                     , category = ltc_grp) %>%
+              select(variable, category, proportion_cohort_0, proportion_cohort_1)) %>%
+  mutate(cohort_0 = round(proportion_cohort_0 * 100, 1)
+         , cohort_1 = round(proportion_cohort_1 * 100, 1))) %>% 
+  select(variable, category, cohort_0, cohort_1)
 
 write_csv(cohorts_summary_table, here::here("output", "describe_cohorts", "cohorts_summary_table.csv"))
 
