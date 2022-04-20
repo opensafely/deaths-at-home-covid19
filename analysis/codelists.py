@@ -111,3 +111,4 @@ midazolam_codes = codelist_from_csv("codelists/opensafely-midazolam-end-of-life.
 ## SERVICE USE ##
 
 respite_codes = codelist_from_csv("codelists/user-eiliskeeble-respite-care.csv", system = "snomed", column = "code")
+hospice_codes = codelist_from_csv("codelists/user-tgeorghiou-hospice-mentions.csv", system = "snomed", column = "code")

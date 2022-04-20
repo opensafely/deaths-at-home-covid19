@@ -879,7 +879,7 @@ study = StudyDefinition(
             }
     ),
 
-    ## Hospice referrals
+    ## Respite care
     respite_1m = patients.with_these_clinical_events(
         respite_codes,
         returning = "number_of_matches_in_period",
@@ -908,11 +908,39 @@ study = StudyDefinition(
             "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
             "incidence": 0.8
             }
+    ),
+
+    ## Hospice care
+    hospice_1m = patients.with_these_clinical_events(
+        hospice_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    hospice_3m = patients.with_these_clinical_events(
+        hospice_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    hospice_1y = patients.with_these_clinical_events(
+        hospice_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
     )
 
-    ## Respite referrals
-
-    ## Community referrals
 
     #**loop_over_codes(palcare_codes1),
 
