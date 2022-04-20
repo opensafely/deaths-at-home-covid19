@@ -1,3 +1,4 @@
+from dis import code_info
 from cohortextractor import (codelist_from_csv, combine_codelists)
 
 ## DEMOGRAPHICS ##
@@ -106,3 +107,8 @@ ltc_codes = combine_codelists(
 ## MEDICATION ##
 
 midazolam_codes = codelist_from_csv("codelists/opensafely-midazolam-end-of-life.csv", system = "snomed", column = "dmd_id") 
+
+## SERVICE USE ##
+
+respite_codes = codelist_from_csv("codelists/user-eiliskeeble-respite-care.csv", system = "snomed", column = "code")
+hospice_codes = codelist_from_csv("codelists/user-tgeorghiou-hospice-mentions.csv", system = "snomed", column = "code")

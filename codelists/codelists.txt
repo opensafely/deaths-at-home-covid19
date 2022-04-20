@@ -26,4 +26,7 @@ nhsd-primary-care-domain-refsets/palcare_cod/20200812
 #nhsd-primary-care-domain-refsets/palcareni_cod/20200812
 opensafely/midazolam-end-of-life/4c1b3c89
 
+user/eiliskeeble/respite-care/5a0aff01
+user/tgeorghiou/hospice-mentions/0aa5e74b
+
 # opensafely codelists update
