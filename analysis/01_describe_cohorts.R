@@ -486,6 +486,21 @@ deaths_quarter_palcare <- df_input %>%
   pivot_wider(names_from = study_quarter, names_prefix = c("study_quarter_"), values_from = c(deaths, proportion))
 write_csv(deaths_quarter_palcare, here::here("output", "describe_cohorts", "quarter_death_counts", "deaths_quarter_palcare.csv"))
 
+# MSOA
+
+deaths_quarter_msoa <- df_input %>%
+  mutate(msoa_present = case_when(is.na(msoa) ~ "No"
+                              , TRUE ~ "Yes")) %>%
+  group_by(study_quarter, msoa_present) %>%
+  summarise(deaths = n()) %>%
+  mutate(deaths = plyr::round_any(deaths, 5)
+         , total = sum(deaths)
+         , proportion = deaths / total) %>%
+  select(-total) %>%
+  pivot_wider(names_from = study_quarter, names_prefix = c("study_quarter_"), values_from = c(deaths, proportion))
+
+write_csv(deaths_quarter_msoa, here::here("output", "describe_cohorts", "quarter_death_counts", "deaths_quarter_msoa.csv"))
+
 # Region
 
 deaths_quarter_region <- df_input %>%
