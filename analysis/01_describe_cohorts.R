@@ -1004,7 +1004,7 @@ death_ratio_pod_agegrp <- df_input %>%
   mutate(agegrp = case_when(age >= 0 & age <= 69 ~ "<70"
                             , age >= 70 & age <= 79 ~ "70-79"
                             , age >= 80 & age <= 89 ~ "80-89"
-                            , age >= 90 ~ "90+"
+                            , age >= 90 & age <= 120 ~ "90+"
                             , TRUE ~ NA_character_)) %>%
   group_by(cohort, pod_ons, agegrp) %>%
   summarise(deaths = n()) %>%
