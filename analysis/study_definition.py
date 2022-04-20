@@ -60,12 +60,18 @@ study = StudyDefinition(
     # Registered with TPP on date of death - could make this more/less flexible
     # Not sure if this is doing what I want around registered
     population = patients.satisfying(
-        "has_died AND has_registered",
+        """
+        has_died 
+        AND 
+        registered 
+        AND 
+        (sex = "F" OR sex = "M")
+        """,
         has_died = patients.died_from_any_cause(
-        between = [EARLIEST, LATEST],
-        return_expectations = {"incidence": 1.0}
+            between = [EARLIEST, LATEST],
+            return_expectations = {"incidence": 1.0}
         ),
-        has_registered = patients.registered_as_of(
+        registered = patients.registered_as_of(
             "dod_ons",
             return_expectations = {"incidence": 0.98}
         )
