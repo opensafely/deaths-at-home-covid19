@@ -608,6 +608,36 @@ write_csv(quarters_summary_table, here::here("output", "describe_cohorts", "quar
 
 ########## Create tables and compare to published ONS deaths ##########
 
+# Quarterly (Mar 19 - Feb 21)
+
+deaths_ons_quarter <- df_input %>%
+  filter(study_month >= as_date("2019-03-01") & study_month <= as_date("2021-02-01")) %>%
+  group_by(study_month, study_quarter) %>%
+  summarise(deaths = n()) %>%
+  left_join(read_csv(here::here("docs", "ons_comparison_data", "table1_sex_onsmortality.csv")) %>% 
+              group_by(period) %>% 
+              summarise(ons_deaths = sum(ons_deaths, na.rm = TRUE))
+            , by = c("study_month" = "period")) %>%
+  group_by(study_quarter) %>%
+  summarise(deaths = sum(deaths, na.rm = TRUE)
+            , ons_deaths = sum(ons_deaths, na.rm = TRUE)) %>%
+  mutate(deaths = plyr::round_any(deaths, 5)) %>%
+  mutate(proportion = deaths / ons_deaths)
+
+write_csv(deaths_ons_quarter, here::here("output", "describe_cohorts", "ons_death_comparisons", "deaths_ons_quarter.csv"))
+
+plot_deaths_ons_quarter <- ggplot(deaths_ons_quarter, aes(x = study_quarter, y = proportion)) +
+  geom_line(size = 1, colour = "#9F67FF") +
+  geom_point(fill = "#F4F4F4", colour = "#9F67FF", shape = 21, size = 1.5, stroke = 1.3) +
+  labs(x = "Study quarter", y = "Percent of ONS deaths") +
+  scale_x_continuous(expand = c(0, 1), breaks = seq(1, 8, 1)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1), breaks = seq(0, 1, 0.1)
+                     , labels = c("0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%")) +
+  NT_style()
+
+ggsave(plot = plot_deaths_ons_quarter, filename ="deaths_ons_quarter.png", path = here::here("output", "describe_cohorts", "ons_death_comparisons"), height = 10, width = 13.7, units = "cm", dpi = 600)
+
+
 # Quarterly (Mar 19 - Feb 21) deaths by region 
 
 deaths_ons_quarter_region <- df_input %>%
