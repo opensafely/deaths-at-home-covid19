@@ -70,8 +70,8 @@ service_use_mean_cohort <- df_input %>%
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
             , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 5)
-         , n_atleast1 = plyr::round_any(n_atleast1, 5)) %>% 
+  mutate(n = plyr::round_any(n, 10)
+         , n_atleast1 = plyr::round_any(n_atleast1, 10)) %>% 
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
@@ -92,8 +92,8 @@ gp_service_use_mean_cohort <- df_input %>%
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
             , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 5)
-         , n_atleast1 = plyr::round_any(n_atleast1, 5)) %>% 
+  mutate(n = plyr::round_any(n, 10)
+         , n_atleast1 = plyr::round_any(n_atleast1, 10)) %>% 
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_3m == TRUE) %>% 
@@ -105,8 +105,8 @@ gp_service_use_mean_cohort <- df_input %>%
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
                         , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 5)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 5)) %>% 
+              mutate(n = plyr::round_any(n, 10)
+                     , n_atleast1 = plyr::round_any(n_atleast1, 10)) %>% 
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_1y == TRUE) %>% 
@@ -118,8 +118,8 @@ gp_service_use_mean_cohort <- df_input %>%
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
                         , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 5)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 5)) %>% 
+              mutate(n = plyr::round_any(n, 10)
+                     , n_atleast1 = plyr::round_any(n_atleast1, 10)) %>% 
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>%
   mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
 
@@ -138,8 +138,8 @@ service_use_mean_quarter <- df_input %>%
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
             , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 5)
-         , n_atleast1 = plyr::round_any(n_atleast1, 5))
+  mutate(n = plyr::round_any(n, 10)
+         , n_atleast1 = plyr::round_any(n_atleast1, 10))
 
 write_csv(service_use_mean_quarter, here::here("output", "describe_service_use", "service_use_mean_quarter.csv"))
 
@@ -155,8 +155,8 @@ gp_service_use_mean_quarter <- df_input %>%
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
             , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 5)
-         , n_atleast1 = plyr::round_any(n_atleast1, 5)) %>% 
+  mutate(n = plyr::round_any(n, 10)
+         , n_atleast1 = plyr::round_any(n_atleast1, 10)) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_3m == TRUE) %>% 
               select(study_quarter, ends_with("_3m")) %>%
@@ -167,8 +167,8 @@ gp_service_use_mean_quarter <- df_input %>%
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
                         , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 5)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 5))) %>% 
+              mutate(n = plyr::round_any(n, 10)
+                     , n_atleast1 = plyr::round_any(n_atleast1, 10))) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_1y == TRUE) %>% 
               select(study_quarter, ends_with("_1y")) %>%
@@ -179,8 +179,8 @@ gp_service_use_mean_quarter <- df_input %>%
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
                         , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 5)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 5)))
+              mutate(n = plyr::round_any(n, 10)
+                     , n_atleast1 = plyr::round_any(n_atleast1, 10)))
 
 write_csv(gp_service_use_mean_quarter, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_quarter.csv"))
 
@@ -197,8 +197,8 @@ service_use_mean_cohort_pod <- df_input %>%
               , mean = mean(value, na.rm = TRUE)
               , sd = sd(value, na.rm = TRUE)
               , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 5)
-         , n_atleast1 = plyr::round_any(n_atleast1, 5)) %>%  
+  mutate(n = plyr::round_any(n, 10)
+         , n_atleast1 = plyr::round_any(n_atleast1, 10)) %>%  
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
@@ -219,8 +219,8 @@ gp_service_use_mean_cohort_pod <- df_input %>%
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
             , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 5)
-         , n_atleast1 = plyr::round_any(n_atleast1, 5)) %>%  
+  mutate(n = plyr::round_any(n, 10)
+         , n_atleast1 = plyr::round_any(n_atleast1, 10)) %>%  
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
@@ -235,8 +235,8 @@ gp_service_use_mean_cohort_pod <- df_input %>%
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
                         , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 5)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 5)) %>%  
+              mutate(n = plyr::round_any(n, 10)
+                     , n_atleast1 = plyr::round_any(n_atleast1, 10)) %>%  
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
               mutate(activity = str_sub(measure, 1, -4)
                      , period = str_sub(measure, -2, -1)) %>%
@@ -251,8 +251,8 @@ gp_service_use_mean_cohort_pod <- df_input %>%
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
                         , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 5)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 5)) %>%  
+              mutate(n = plyr::round_any(n, 10)
+                     , n_atleast1 = plyr::round_any(n_atleast1, 10)) %>%  
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
               mutate(activity = str_sub(measure, 1, -4)
                      , period = str_sub(measure, -2, -1)) %>%
@@ -274,8 +274,8 @@ service_use_mean_quarter_pod <- df_input %>%
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
             , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 5)
-         , n_atleast1 = plyr::round_any(n_atleast1, 5))
+  mutate(n = plyr::round_any(n, 10)
+         , n_atleast1 = plyr::round_any(n_atleast1, 10))
 
 write_csv(service_use_mean_quarter_pod, here::here("output", "describe_service_use", "service_use_mean_quarter_pod.csv"))
 
@@ -291,8 +291,8 @@ gp_service_use_mean_quarter_pod <- df_input %>%
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
             , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 5)
-         , n_atleast1 = plyr::round_any(n_atleast1, 5)) %>% 
+  mutate(n = plyr::round_any(n, 10)
+         , n_atleast1 = plyr::round_any(n_atleast1, 10)) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_3m == TRUE) %>% 
             select(study_quarter, pod_ons, ends_with("_3m")) %>%
@@ -303,8 +303,8 @@ gp_service_use_mean_quarter_pod <- df_input %>%
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
                         , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 5)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 5))) %>% 
+              mutate(n = plyr::round_any(n, 10)
+                     , n_atleast1 = plyr::round_any(n_atleast1, 10))) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_1y == TRUE) %>% 
             select(study_quarter, pod_ons, ends_with("_1y")) %>%
@@ -315,8 +315,8 @@ gp_service_use_mean_quarter_pod <- df_input %>%
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
                         , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 5)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 5)))
+              mutate(n = plyr::round_any(n, 10)
+                     , n_atleast1 = plyr::round_any(n_atleast1, 10)))
 
 write_csv(gp_service_use_mean_quarter_pod, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_quarter_pod.csv"))
 
