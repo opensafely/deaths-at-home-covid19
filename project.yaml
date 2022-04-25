@@ -34,7 +34,7 @@ actions:
         deaths_pod_figures: output/describe_cohorts/overall_death_counts/deaths_pod_cohort*.png
         deaths_quarter_characteristic: output/describe_cohorts/quarter_death_counts/deaths_quarter_*.csv
         quarter_summary_table: output/describe_cohorts/quarter_summary_table.csv
-        quarter_pod_summary_table: output/describe_cohorts/quart_pod_summary_table.csv
+        quarter_pod_summary_table: output/describe_cohorts/quarter_pod_summary_table.csv
         deaths_quarter_ons: output/describe_cohorts/ons_death_comparisons/deaths_ons_quarter*.csv
         deaths_month_ons: output/describe_cohorts/ons_death_comparisons/deaths_ons_month*.csv
         deaths_ons_plots: output/describe_cohorts/ons_death_comparisons/deaths_ons*.png
