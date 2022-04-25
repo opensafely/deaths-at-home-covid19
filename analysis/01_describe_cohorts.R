@@ -561,46 +561,40 @@ write_csv(deaths_quarter_alone, here::here("output", "describe_cohorts", "quarte
 ########## Descriptive table of quarters ##########
 
 quarter_summary_table <- deaths_quarter %>% 
-  pivot_wider(names_from = study_quarter, names_prefix = "study_quarter_", values_from = deaths) %>% 
+  pivot_wider(names_from = study_quarter, names_prefix = "deaths_study_quarter_", values_from = deaths) %>% 
   mutate(variable = "n") %>% 
   bind_rows(deaths_quarter_sex %>% 
               mutate(variable = "Sex"
                      , category = sex) %>%
-              select(variable, category, starts_with("proportion_study_quarter_")) %>% 
               bind_rows(deaths_quarter_agegrp %>%  
                           mutate(variable = "Age group"
-                                 , category = agegrp) %>%
-                          select(variable, category, starts_with("proportion_study_quarter_"))) %>% 
+                                 , category = agegrp)) %>% 
               bind_rows(deaths_quarter_ethnicity %>%  
                           mutate(variable = "Ethnicity"
-                                 , category = ethnicity) %>%
-                          select(variable, category, starts_with("proportion_study_quarter_"))) %>% 
+                                 , category = ethnicity)) %>% 
               bind_rows(deaths_quarter_pod %>%  
                           mutate(variable = "Place of death"
-                                 , category = pod_ons) %>%
-                          select(variable, category, starts_with("proportion_study_quarter_"))) %>% 
+                                 , category = pod_ons)) %>% 
               bind_rows(deaths_quarter_cod %>%  
                           mutate(variable = "Cause of death"
-                                 , category = cod_ons_grp) %>%
-                          select(variable, category, starts_with("proportion_study_quarter_"))) %>% 
+                                 , category = cod_ons_grp)) %>% 
               bind_rows(deaths_quarter_ltc %>%  
                           mutate(variable = "Long term conditions"
-                                 , category = ltc_grp) %>%
-                          select(variable, category, starts_with("proportion_study_quarter_"))) %>%
+                                 , category = ltc_grp)) %>%
               bind_rows(deaths_quarter_palcare %>%  
                           mutate(variable = "Palliative care"
                                  , category = case_when(ltc_palcare1 == TRUE ~ "Yes"
-                                                        , TRUE ~ "No")) %>%
-                          select(variable, category, starts_with("proportion_study_quarter_"))) %>%
-              mutate(study_quarter_1 = round(proportion_study_quarter_1 * 100, 1)
-                     , study_quarter_2 = round(proportion_study_quarter_2 * 100, 1)
-                     , study_quarter_3 = round(proportion_study_quarter_3 * 100, 1)
-                     , study_quarter_4 = round(proportion_study_quarter_4 * 100, 1)
-                     , study_quarter_5 = round(proportion_study_quarter_5 * 100, 1)
-                     , study_quarter_6 = round(proportion_study_quarter_6 * 100, 1)
-                     , study_quarter_7 = round(proportion_study_quarter_7 * 100, 1)
-                     , study_quarter_8 = round(proportion_study_quarter_8 * 100, 1))) %>% 
-  select(variable, category, starts_with("study_quarter_"))
+                                                        , TRUE ~ "No"))) %>%
+              mutate(percent_study_quarter_1 = round(proportion_study_quarter_1 * 100, 1)
+                     , percent_study_quarter_2 = round(proportion_study_quarter_2 * 100, 1)
+                     , percent_study_quarter_3 = round(proportion_study_quarter_3 * 100, 1)
+                     , percent_study_quarter_4 = round(proportion_study_quarter_4 * 100, 1)
+                     , percent_study_quarter_5 = round(proportion_study_quarter_5 * 100, 1)
+                     , percent_study_quarter_6 = round(proportion_study_quarter_6 * 100, 1)
+                     , percent_study_quarter_7 = round(proportion_study_quarter_7 * 100, 1)
+                     , percent_study_quarter_8 = round(proportion_study_quarter_8 * 100, 1))) %>% 
+  select(variable, category, starts_with("deaths_study_quarter_"), starts_with("percent_study_quarter_")) %>% 
+  arrange(factor(variable, levels = c("n", "Sex", "Age group", "Ethnicity", "Cause of death", "Long term conditions", "Palliative care")), category)
 
 write_csv(quarter_summary_table, here::here("output", "describe_cohorts", "quarter_summary_table.csv"))
 
@@ -1051,40 +1045,34 @@ write_csv(death_ratio_alone, here::here("output", "describe_cohorts", "death_rat
 ########## Descriptive table of cohorts ##########
 
 cohorts_summary_table <- deaths_cohort %>% 
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = deaths) %>% 
+  pivot_wider(names_from = cohort, names_prefix = "deaths_cohort_", values_from = deaths) %>% 
   mutate(variable = "n") %>% 
   bind_rows(death_ratio_sex %>% 
   mutate(variable = "Sex"
          , category = sex) %>%
-  select(variable, category, proportion_cohort_0, proportion_cohort_1) %>% 
   bind_rows(death_ratio_agegrp %>%  
               mutate(variable = "Age group"
-                     , category = agegrp) %>%
-              select(variable, category, proportion_cohort_0, proportion_cohort_1)) %>% 
+                     , category = agegrp)) %>% 
   bind_rows(death_ratio_ethnicity %>%  
               mutate(variable = "Ethnicity"
-                     , category = ethnicity) %>%
-              select(variable, category, proportion_cohort_0, proportion_cohort_1)) %>% 
+                     , category = ethnicity)) %>% 
   bind_rows(death_ratio_pod %>%  
               mutate(variable = "Place of death"
-                     , category = pod_ons) %>%
-              select(variable, category, proportion_cohort_0, proportion_cohort_1)) %>% 
+                     , category = pod_ons)) %>% 
   bind_rows(death_ratio_cod %>%  
               mutate(variable = "Cause of death"
-                     , category = cod_ons_grp) %>%
-              select(variable, category, proportion_cohort_0, proportion_cohort_1)) %>% 
+                     , category = cod_ons_grp)) %>% 
   bind_rows(death_ratio_ltc %>%  
               mutate(variable = "Long term conditions"
-                     , category = ltc_grp) %>%
-              select(variable, category, proportion_cohort_0, proportion_cohort_1)) %>%
+                     , category = ltc_grp)) %>%
     bind_rows(death_ratio_palcare %>%  
                 mutate(variable = "Palliative care"
                        , category = case_when(ltc_palcare1 == TRUE ~ "Yes"
-                                              , TRUE ~ "No")) %>%
-                select(variable, category, proportion_cohort_0, proportion_cohort_1)) %>%
-  mutate(cohort_0 = round(proportion_cohort_0 * 100, 1)
-         , cohort_1 = round(proportion_cohort_1 * 100, 1))) %>% 
-  select(variable, category, cohort_0, cohort_1)
+                                              , TRUE ~ "No"))) %>%
+  mutate(percent_cohort_0 = round(proportion_cohort_0 * 100, 1)
+         , percent_cohort_1 = round(proportion_cohort_1 * 100, 1))) %>% 
+  select(variable, category, deaths_cohort_0, deaths_cohort_1, percent_cohort_0, percent_cohort_1) %>% 
+  arrange(factor(variable, levels = c("n", "Sex", "Age group", "Ethnicity", "Cause of death", "Long term conditions", "Palliative care")), category)
 
 write_csv(cohorts_summary_table, here::here("output", "describe_cohorts", "cohorts_summary_table.csv"))
 
@@ -1283,36 +1271,30 @@ write_csv(death_ratio_pod_alone, here::here("output", "describe_cohorts", "death
 
 cohorts_pod_summary_table <- deaths_cohort_pod %>% 
   select(cohort, pod_ons, deaths) %>% 
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = deaths) %>% 
+  pivot_wider(names_from = cohort, names_prefix = "deaths_cohort_", values_from = deaths) %>% 
   mutate(variable = "n") %>% 
   bind_rows(death_ratio_pod_sex %>% 
               mutate(variable = "Sex"
                      , category = sex) %>%
-              select(pod_ons, variable, category, proportion_cohort_0, proportion_cohort_1) %>% 
               bind_rows(death_ratio_pod_agegrp %>%  
                           mutate(variable = "Age group"
-                                 , category = agegrp) %>%
-                          select(pod_ons, variable, category, proportion_cohort_0, proportion_cohort_1)) %>% 
+                                 , category = agegrp)) %>% 
               bind_rows(death_ratio_pod_ethnicity %>%  
                           mutate(variable = "Ethnicity"
-                                 , category = ethnicity) %>%
-                          select(pod_ons, variable, category, proportion_cohort_0, proportion_cohort_1)) %>% 
+                                 , category = ethnicity)) %>% 
               bind_rows(death_ratio_pod_cod %>%  
                           mutate(variable = "Cause of death"
-                                 , category = cod_ons_grp) %>%
-                          select(pod_ons, variable, category, proportion_cohort_0, proportion_cohort_1)) %>% 
+                                 , category = cod_ons_grp)) %>% 
               bind_rows(death_ratio_pod_ltc %>%  
                           mutate(variable = "Long term conditions"
-                                 , category = ltc_grp) %>%
-                          select(pod_ons, variable, category, proportion_cohort_0, proportion_cohort_1)) %>%
+                                 , category = ltc_grp)) %>%
               bind_rows(death_ratio_pod_palcare %>%  
                           mutate(variable = "Palliative care"
                                  , category = case_when(ltc_palcare1 == TRUE ~ "Yes"
-                                                        , TRUE ~ "No")) %>%
-                          select(pod_ons, variable, category, proportion_cohort_0, proportion_cohort_1)) %>%
-              mutate(cohort_0 = round(proportion_cohort_0 * 100, 1)
-                     , cohort_1 = round(proportion_cohort_1 * 100, 1))) %>% 
-  select(pod_ons, variable, category, cohort_0, cohort_1) %>% 
+                                                        , TRUE ~ "No"))) %>%
+              mutate(percent_cohort_0 = round(proportion_cohort_0 * 100, 1)
+                     , percent_cohort_1 = round(proportion_cohort_1 * 100, 1))) %>% 
+  select(pod_ons, variable, category, deaths_cohort_0, deaths_cohort_1, percent_cohort_0, percent_cohort_1) %>% 
   arrange(pod_ons, factor(variable, levels = c("n", "Sex", "Age group", "Ethnicity", "Cause of death", "Long term conditions", "Palliative care")), category)
 
 write_csv(cohorts_pod_summary_table, here::here("output", "describe_cohorts", "cohorts_pod_summary_table.csv"))
@@ -1562,46 +1544,36 @@ write_csv(deaths_quarter_pod_alone, here::here("output", "describe_cohorts", "qu
 
 ########## Descriptive table of study quarters by place of death ##########
 
-quarter_pod_summary_table <- df_input %>%
-  group_by(study_quarter, pod_ons) %>%
-  summarise(deaths = n()) %>%
-  mutate(deaths = plyr::round_any(deaths, 5)) %>%
-  pivot_wider(names_from = study_quarter, names_prefix = c("study_quarter_"), values_from = c(deaths))  %>% 
+quarter_pod_summary_table <- deaths_quarter_pod  %>% 
   mutate(variable = "n") %>% 
   bind_rows(deaths_quarter_pod_sex %>% 
               mutate(variable = "Sex"
                      , category = sex) %>%
-              select(pod_ons, variable, category, starts_with("proportion_study_quarter_")) %>% 
               bind_rows(deaths_quarter_pod_agegrp %>%  
                           mutate(variable = "Age group"
-                                 , category = agegrp) %>%
-                          select(pod_ons, variable, category, starts_with("proportion_study_quarter_"))) %>% 
+                                 , category = agegrp)) %>% 
               bind_rows(deaths_quarter_pod_ethnicity %>%  
                           mutate(variable = "Ethnicity"
-                                 , category = ethnicity) %>%
-                          select(pod_ons, variable, category, starts_with("proportion_study_quarter_"))) %>% 
+                                 , category = ethnicity)) %>% 
               bind_rows(deaths_quarter_pod_cod %>%  
                           mutate(variable = "Cause of death"
-                                 , category = cod_ons_grp) %>%
-                          select(pod_ons, variable, category, starts_with("proportion_study_quarter_"))) %>% 
+                                 , category = cod_ons_grp)) %>% 
               bind_rows(deaths_quarter_pod_ltc %>%  
                           mutate(variable = "Long term conditions"
-                                 , category = ltc_grp) %>%
-                          select(pod_ons, variable, category, starts_with("proportion_study_quarter_"))) %>%
+                                 , category = ltc_grp)) %>%
               bind_rows(deaths_quarter_pod_palcare %>%  
                           mutate(variable = "Palliative care"
                                  , category = case_when(ltc_palcare1 == TRUE ~ "Yes"
-                                                        , TRUE ~ "No")) %>%
-                          select(pod_ons, variable, category, starts_with("proportion_study_quarter_"))) %>%
-              mutate(study_quarter_1 = round(proportion_study_quarter_1 * 100, 1)
-                     , study_quarter_2 = round(proportion_study_quarter_2 * 100, 1)
-                     , study_quarter_3 = round(proportion_study_quarter_3 * 100, 1)
-                     , study_quarter_4 = round(proportion_study_quarter_4 * 100, 1)
-                     , study_quarter_5 = round(proportion_study_quarter_5 * 100, 1)
-                     , study_quarter_6 = round(proportion_study_quarter_6 * 100, 1)
-                     , study_quarter_7 = round(proportion_study_quarter_7 * 100, 1)
-                     , study_quarter_8 = round(proportion_study_quarter_8 * 100, 1))) %>% 
-  select(pod_ons, variable, category, starts_with("study_quarter_")) %>% 
+                                                        , TRUE ~ "No"))) %>%
+              mutate(percent_study_quarter_1 = round(proportion_study_quarter_1 * 100, 1)
+                     , percent_study_quarter_2 = round(proportion_study_quarter_2 * 100, 1)
+                     , percent_study_quarter_3 = round(proportion_study_quarter_3 * 100, 1)
+                     , percent_study_quarter_4 = round(proportion_study_quarter_4 * 100, 1)
+                     , percent_study_quarter_5 = round(proportion_study_quarter_5 * 100, 1)
+                     , percent_study_quarter_6 = round(proportion_study_quarter_6 * 100, 1)
+                     , percent_study_quarter_7 = round(proportion_study_quarter_7 * 100, 1)
+                     , percent_study_quarter_8 = round(proportion_study_quarter_8 * 100, 1))) %>% 
+  select(pod_ons, variable, category, starts_with("deaths_study_quarter_"), starts_with("percent_study_quarter_")) %>% 
   arrange(pod_ons, factor(variable, levels = c("n", "Sex", "Age group", "Ethnicity", "Cause of death", "Long term conditions", "Palliative care")), category)
 
 write_csv(quarter_pod_summary_table, here::here("output", "describe_cohorts", "quarter_pod_summary_table.csv"))
