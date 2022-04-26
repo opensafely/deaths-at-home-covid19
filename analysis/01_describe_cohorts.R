@@ -650,6 +650,21 @@ deaths_ons_quarter_region <- df_input %>%
 
 write_csv(deaths_ons_quarter_region, here::here("output", "describe_cohorts", "ons_death_comparisons", "deaths_ons_quarter_region.csv"))
 
+deaths_ons_quarter_region_late <- df_input %>%
+  filter(study_month >= as_date("2019-03-01") & study_month <= as_date("2021-02-01")) %>%
+  group_by(study_month, rgn20cd, study_quarter) %>%
+  summarise(deaths = n()) %>%
+  left_join(read_csv(here::here("docs", "ons_comparison_data", "region_onsmortality.csv"))
+            , by = c("study_month" = "period", "rgn20cd" = "region")) %>%
+  group_by(study_quarter, rgn20cd) %>%
+  summarise(deaths = sum(deaths, na.rm = TRUE)
+            , ons_deaths = sum(ons_deaths, na.rm = TRUE)) %>%
+  mutate(deaths = plyr::round_any(deaths, 10)) %>%
+  mutate(proportion = deaths / ons_deaths) %>% 
+  filter(study_quarter >= 5)
+
+write_csv(deaths_ons_quarter_region_late, here::here("output", "describe_cohorts", "ons_death_comparisons", "deaths_ons_quarter_region_late.csv"))
+
 plot_deaths_ons_quarter_region <- ggplot(deaths_ons_quarter_region %>% filter(str_detect(rgn20cd, "^E12")), aes(x = study_quarter, y = proportion, colour = rgn20cd)) +
   geom_line(size = 1) +
   geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
