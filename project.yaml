@@ -52,7 +52,7 @@ actions:
         deaths_month_ons: output/describe_cohorts/ons_death_comparisons/deaths_ons_month*.csv
         deaths_ons_plots: output/describe_cohorts/ons_death_comparisons/deaths_ons*.png
         cohort_summary_table: output/describe_cohorts/cohorts_summary_table.csv
-        cohort_pod_summary_table: output/describe_cohorts/cohorts_pod_summary_table.csv
+        cohort_pod_summary_table: output/describe_cohorts/cohorts_pod_summary_table*.csv
         death_ratios_cohort: output/describe_cohorts/death_ratios_cohort/death_ratio_cohort*.csv
         death_ratios_pod_cohort: output/describe_cohorts/death_ratios_pod_cohort/death_ratio_pod_cohort*.csv
 
