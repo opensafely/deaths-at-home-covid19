@@ -195,7 +195,7 @@ deaths_cohort_pod_cod <- df_input %>%
                                  , cod_ons_3 >= "C53" & cod_ons_3 <= "C55" ~ "Malignant neoplasm of uterus"
                                  , cod_ons_3 == "C56" ~ "Malignant neoplasm of ovary"
                                  , cod_ons_3 == "C61" ~ "Malignant neoplasm of prostate"
-                                 , cod_ood_ns_3 == "C64" ~ "Malignant neoplasm of kidney, except renal pelvis"
+                                 , cod_ons_3 == "C64" ~ "Malignant neoplasm of kidney, except renal pelvis"
                                  , cod_ons_3 == "C67" ~ "Malignant neoplasm of bladder"
                                  , cod_ons_3 == "C71" ~ "Malignant neoplasm of brain"
                                  , cod_ons_3 >= "C81" & cod_ons_3 <= "C96" ~ "Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue"
