@@ -195,7 +195,7 @@ deaths_cohort_pod_cod <- df_input %>%
                                  , cod_ons_3 >= "C53" & cod_ons_3 <= "C55" ~ "Malignant neoplasm of uterus"
                                  , cod_ons_3 == "C56" ~ "Malignant neoplasm of ovary"
                                  , cod_ons_3 == "C61" ~ "Malignant neoplasm of prostate"
-                                 , cod_ons_3 == "C64" ~ "Malignant neoplasm of kidney, except renal pelvis"
+                                 , cod_ood_ns_3 == "C64" ~ "Malignant neoplasm of kidney, except renal pelvis"
                                  , cod_ons_3 == "C67" ~ "Malignant neoplasm of bladder"
                                  , cod_ons_3 == "C71" ~ "Malignant neoplasm of brain"
                                  , cod_ons_3 >= "C81" & cod_ons_3 <= "C96" ~ "Malignant neoplasms, stated or presumed to be primary of lymphoid, haematopoietic and related tissue"
@@ -1300,6 +1300,62 @@ cohorts_pod_summary_table <- deaths_cohort_pod %>%
   arrange(pod_ons_new, factor(variable, levels = c("n", "Sex", "Age group", "Ethnicity", "Cause of death", "Long term conditions", "Palliative care")), category)
 
 write_csv(cohorts_pod_summary_table, here::here("output", "describe_cohorts", "cohorts_pod_summary_table.csv"))
+
+cohorts_pod_summary_table_short <- deaths_cohort_pod %>% 
+  select(cohort, pod_ons_new, deaths) %>% 
+  pivot_wider(names_from = cohort, names_prefix = "deaths_cohort_", values_from = deaths) %>% 
+  mutate(variable = "n") %>% 
+  bind_rows(death_ratio_pod_sex %>% 
+              mutate(variable = "Sex"
+                     , category = sex) %>%
+              filter(sex == "F") %>% 
+              bind_rows(df_input %>%
+                          mutate(agegrp = case_when(age >= 0 & age <= 79 ~ "00-79"
+                                                    , age >= 80 ~ "80+")) %>%
+                          group_by(cohort, pod_ons_new, agegrp) %>%
+                          summarise(deaths = n()) %>%
+                          mutate(deaths = plyr::round_any(deaths, 10)
+                                 , total = sum(deaths)
+                                 , proportion = deaths / total) %>%
+                          select(-total) %>%
+                          pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
+                          mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
+                                 , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+                          arrange(pod_ons_new, agegrp)%>% 
+                          mutate(variable = "Age 80+"
+                                 , category = agegrp) %>%
+                          filter(agegrp == "80+")) %>% 
+              bind_rows(death_ratio_pod_ethnicity %>%  
+                          mutate(variable = "Ethnicity"
+                                 , category = ethnicity) %>% 
+                          filter(ethnicity == 1)) %>% 
+              bind_rows(death_ratio_pod_cod %>%  
+                          mutate(variable = "Cause of death"
+                                 , category = cod_ons_grp)) %>% 
+              bind_rows(df_input %>%
+                          mutate(ltc_count = df_input %>% select(starts_with("ltc_")) %>% rowSums()
+                                 , ltc_grp = case_when(ltc_count < 3 ~ "<3"
+                                                       , ltc_count >= 3 ~ "3+"
+                                                       , TRUE ~ NA_character_)) %>%
+                          group_by(cohort, pod_ons_new, ltc_grp) %>%
+                          summarise(deaths = n()) %>%
+                          mutate(deaths = plyr::round_any(deaths, 10)
+                                 , total = sum(deaths)
+                                 , proportion = deaths / total) %>%
+                          select(-total) %>%
+                          pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
+                          mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
+                                 , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+                          arrange(pod_ons_new, ltc_grp) %>%  
+                          mutate(variable = "Long term conditions"
+                                 , category = ltc_grp) %>%
+                          filter(ltc_grp == "3+")) %>%
+              mutate(percent_cohort_0 = round(proportion_cohort_0 * 100, 1)
+                     , percent_cohort_1 = round(proportion_cohort_1 * 100, 1))) %>% 
+  select(pod_ons_new, variable, category, deaths_cohort_0, deaths_cohort_1, percent_cohort_0, percent_cohort_1) %>% 
+  arrange(pod_ons_new, factor(variable, levels = c("n", "Sex", "Age 80+", "Ethnicity", "Cause of death", "Long term conditions")), category)
+
+write_csv(cohorts_pod_summary_table_short, here::here("output", "describe_cohorts", "cohorts_pod_summary_table_short.csv"))
 
 ################################################################################
 
