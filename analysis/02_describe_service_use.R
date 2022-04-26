@@ -49,7 +49,9 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
                                     , (month(dod_ons) == 12 & year(dod_ons) == 2020) | (month(dod_ons) %in% c(1, 2) & year(dod_ons) == 2021) ~ 8)
         , study_month = floor_date(dod_ons, unit = "month")
         , cod_ons_3 = str_sub(cod_ons, 1, 3)
-        , cod_ons_4 = str_sub(cod_ons, 1, 5)) %>%
+        , cod_ons_4 = str_sub(cod_ons, 1, 5)
+        , pod_ons_new = case_when(pod_ons == "Elsewhere" | pod_ons == "Other communal establishment" ~ "Elsewhere/other"
+                                  , TRUE ~ as.character(pod_ons))) %>%
   left_join(read_csv(here::here("docs", "lookups", "msoa_lad_rgn_2020.csv"))
             , by = c("msoa" = "msoa11cd")) %>%
   left_join(read_csv(here::here("docs", "lookups", "lad_imd_2019.csv"))
@@ -189,10 +191,10 @@ write_csv(gp_service_use_mean_quarter, here::here("output", "describe_service_us
 ########## Descriptive stats service use by cohort and place of death ##########
 
 service_use_mean_cohort_pod <- df_input %>%
-    select(cohort, pod_ons, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+    select(cohort, pod_ons_new, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
   select(-contains("gp_hist")) %>% 
-    pivot_longer(cols = -c(cohort, pod_ons), names_to = "measure", values_to = "value") %>%
-    group_by(cohort, pod_ons, measure) %>%
+    pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
+    group_by(cohort, pod_ons_new, measure) %>%
     summarise(n = n()
               , mean = mean(value, na.rm = TRUE)
               , sd = sd(value, na.rm = TRUE)
@@ -202,7 +204,7 @@ service_use_mean_cohort_pod <- df_input %>%
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), pod_ons, activity) %>%
+  arrange(factor(period, levels = c("1m", "3m", "1y")), pod_ons_new, activity) %>%
   mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
 
 write_csv(service_use_mean_cohort_pod, here::here("output", "describe_service_use", "service_use_mean_cohort_pod.csv"))
@@ -211,10 +213,10 @@ write_csv(service_use_mean_cohort_pod, here::here("output", "describe_service_us
 
 gp_service_use_mean_cohort_pod <- df_input %>%
   filter(gp_hist_1m == TRUE) %>% 
-  select(cohort, pod_ons, ends_with("_1m")) %>%
+  select(cohort, pod_ons_new, ends_with("_1m")) %>%
   select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, pod_ons), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, pod_ons, measure) %>%
+  pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
+  group_by(cohort, pod_ons_new, measure) %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
@@ -224,13 +226,13 @@ gp_service_use_mean_cohort_pod <- df_input %>%
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
-  arrange(pod_ons, activity) %>% 
+  arrange(pod_ons_new, activity) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_3m == TRUE) %>% 
-              select(cohort, pod_ons, ends_with("_3m")) %>%
+              select(cohort, pod_ons_new, ends_with("_3m")) %>%
               select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, pod_ons), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, pod_ons, measure) %>%
+              pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
+              group_by(cohort, pod_ons_new, measure) %>%
               summarise(n = n()
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
@@ -240,13 +242,13 @@ gp_service_use_mean_cohort_pod <- df_input %>%
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
               mutate(activity = str_sub(measure, 1, -4)
                      , period = str_sub(measure, -2, -1)) %>%
-              arrange(pod_ons, activity)) %>% 
+              arrange(pod_ons_new, activity)) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_1y == TRUE) %>% 
-              select(cohort, pod_ons, ends_with("_1y")) %>%
+              select(cohort, pod_ons_new, ends_with("_1y")) %>%
               select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, pod_ons), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, pod_ons, measure) %>%
+              pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
+              group_by(cohort, pod_ons_new, measure) %>%
               summarise(n = n()
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
@@ -256,7 +258,7 @@ gp_service_use_mean_cohort_pod <- df_input %>%
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
               mutate(activity = str_sub(measure, 1, -4)
                      , period = str_sub(measure, -2, -1)) %>%
-              arrange(pod_ons, activity)) %>%
+              arrange(pod_ons_new, activity)) %>%
   mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
 
 write_csv(gp_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort_pod.csv"))
@@ -266,10 +268,10 @@ write_csv(gp_service_use_mean_cohort_pod, here::here("output", "describe_service
 ########## Descriptive stats service use by study quarter and place of death ##########
 
 service_use_mean_quarter_pod <- df_input %>%
-  select(study_quarter, pod_ons, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+  select(study_quarter, pod_ons_new, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
   select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, pod_ons), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, pod_ons, measure) %>%
+  pivot_longer(cols = -c(study_quarter, pod_ons_new), names_to = "measure", values_to = "value") %>%
+  group_by(study_quarter, pod_ons_new, measure) %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
@@ -283,10 +285,10 @@ write_csv(service_use_mean_quarter_pod, here::here("output", "describe_service_u
 
 gp_service_use_mean_quarter_pod <- df_input %>%
   filter(gp_hist_1m == TRUE) %>% 
-  select(study_quarter, pod_ons, ends_with("_1m")) %>%
+  select(study_quarter, pod_ons_new, ends_with("_1m")) %>%
   select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, pod_ons), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, pod_ons, measure) %>%
+  pivot_longer(cols = -c(study_quarter, pod_ons_new), names_to = "measure", values_to = "value") %>%
+  group_by(study_quarter, pod_ons_new, measure) %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
@@ -295,10 +297,10 @@ gp_service_use_mean_quarter_pod <- df_input %>%
          , n_atleast1 = plyr::round_any(n_atleast1, 10)) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_3m == TRUE) %>% 
-            select(study_quarter, pod_ons, ends_with("_3m")) %>%
+            select(study_quarter, pod_ons_new, ends_with("_3m")) %>%
               select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, pod_ons), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, pod_ons, measure) %>%
+              pivot_longer(cols = -c(study_quarter, pod_ons_new), names_to = "measure", values_to = "value") %>%
+              group_by(study_quarter, pod_ons_new, measure) %>%
               summarise(n = n()
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
@@ -307,10 +309,10 @@ gp_service_use_mean_quarter_pod <- df_input %>%
                      , n_atleast1 = plyr::round_any(n_atleast1, 10))) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_1y == TRUE) %>% 
-            select(study_quarter, pod_ons, ends_with("_1y")) %>%
+            select(study_quarter, pod_ons_new, ends_with("_1y")) %>%
               select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, pod_ons), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, pod_ons, measure) %>%
+              pivot_longer(cols = -c(study_quarter, pod_ons_new), names_to = "measure", values_to = "value") %>%
+              group_by(study_quarter, pod_ons_new, measure) %>%
               summarise(n = n()
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
@@ -329,10 +331,10 @@ write_csv(gp_service_use_mean_quarter_pod, here::here("output", "describe_servic
 # Ratio for each place of death pre-pandemic quarter to pandemic quarter e.g. Mar-May 19 to Mar-May 20
 
 service_use_ratio_pod_quarter <- df_input %>%
-  select(study_quarter, pod_ons, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+  select(study_quarter, pod_ons_new, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
   select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, pod_ons), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, pod_ons, measure) %>%
+  pivot_longer(cols = -c(study_quarter, pod_ons_new), names_to = "measure", values_to = "value") %>%
+  group_by(study_quarter, pod_ons_new, measure) %>%
   summarise(mean = mean(value, na.rm = TRUE)) %>%
   pivot_wider(names_from = study_quarter, names_prefix = "quarter_", values_from = mean) %>%
   mutate(ratio_q1 = quarter_5 - quarter_1
