@@ -425,7 +425,7 @@ write_csv(deaths_quarter_sex, here::here("output", "describe_cohorts", "quarter_
 # Age group
 
 deaths_quarter_agegrp <- df_input %>%
-  mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "<10"
+  mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
                             , age >= 10 & age <= 19 ~ "10-19"
                             , age >= 20 & age <= 29 ~ "20-29"
                             , age >= 30 & age <= 39 ~ "30-39"
@@ -907,7 +907,7 @@ write_csv(death_ratio_sex, here::here("output", "describe_cohorts", "death_ratio
 #  Ratio - age group
 
 death_ratio_agegrp <- df_input %>%
-  mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "<10"
+  mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
                             , age >= 10 & age <= 19 ~ "10-19"
                             , age >= 20 & age <= 29 ~ "20-29"
                             , age >= 30 & age <= 39 ~ "30-39"
@@ -1124,7 +1124,7 @@ write_csv(death_ratio_pod_sex, here::here("output", "describe_cohorts", "death_r
 #  Ratio - pod * age group
 
 death_ratio_pod_agegrp <- df_input %>%
-  mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "<10"
+  mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
                             , age >= 10 & age <= 19 ~ "10-19"
                             , age >= 20 & age <= 29 ~ "20-29"
                             , age >= 30 & age <= 39 ~ "30-39"
@@ -1424,7 +1424,7 @@ write_csv(deaths_quarter_pod_sex, here::here("output", "describe_cohorts", "quar
 # Age group
 
 deaths_quarter_pod_agegrp <- df_input %>%
-  mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "<10"
+  mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
                             , age >= 10 & age <= 19 ~ "10-19"
                             , age >= 20 & age <= 29 ~ "20-29"
                             , age >= 30 & age <= 39 ~ "30-39"
