@@ -102,11 +102,21 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
                                , TRUE ~ as.character(pod_ons))) %>%
   left_join(read_csv(here::here("docs", "lookups", "msoa_lad_rgn_2020.csv"))
             , by = c("msoa" = "msoa11cd")) %>%
-  left_join(read_csv(here::here("docs", "lookups", "lad_imd_2019.csv"))
+  left_join(read_csv(here::here("docs", "lookups", "lad_imd_2019.csv")) %>% 
+              rename(imd_quintile_la = imd19_quintile)
             , by = "lad20cd") %>%
-  rename(imd_quintile_la = imd19_quintile) %>%
+  left_join(read_csv(here::here("docs", "lookups", "msoa_lad_rgn_2020.csv")) %>%
+              select(msoa11cd, lad20cd) %>% 
+              rename(la_gp = lad20cd)
+            , by = c("msoa" = "msoa11cd")) %>%
+  left_join(read_csv(here::here("docs", "lookups", "lad_imd_2019.csv")) %>% 
+              select(lad20cd, imd19_quintile) %>%
+              rename(imd_quintile_la_gp = imd19_quintile)
+            , by = "lad20cd") %>%
   mutate(imd_quintile_la = case_when(is.na(imd_quintile_la) ~ 0
-                                     , TRUE ~ imd_quintile_la))
+                                     , TRUE ~ imd_quintile_la)
+         , imd_quintile_la_gp = case_when(is.na(imd_quintile_la_gp) ~ 0
+                                       , TRUE ~ imd_quintile_la_gp))
 
 ################################################################################
 
@@ -542,13 +552,36 @@ deaths_quarter_imd_la <- df_input %>%
 
 write_csv(deaths_quarter_imd_la, here::here("output", "describe_cohorts", "quarter_death_counts", "deaths_quarter_imd_la.csv"))
 
-# Household size
+# Rural urban
 
-deaths_quarter_alone <- df_input %>%
-  mutate(lives_alone = case_when(hhold_size == 0 ~ NA_real_
-                                 , hhold_size == 1 ~ 1
-                                 , TRUE ~ 0)) %>%
-  group_by(study_quarter, lives_alone) %>%
+deaths_quarter_rural_urban <- df_input %>%
+  group_by(study_quarter, rural_urban) %>%
+  summarise(deaths = n()) %>%
+  mutate(deaths = plyr::round_any(deaths, 10)
+         , total = sum(deaths)
+         , proportion = deaths / total) %>%
+  select(-total) %>%
+  pivot_wider(names_from = study_quarter, names_prefix = c("study_quarter_"), values_from = c(deaths, proportion))
+
+write_csv(deaths_quarter_rural_urban, here::here("output", "describe_cohorts", "quarter_death_counts", "deaths_quarter_rural_urban.csv"))
+
+# GP Region
+
+deaths_quarter_region_gp <- df_input %>%
+  group_by(study_quarter, region_gp) %>%
+  summarise(deaths = n()) %>%
+  mutate(deaths = plyr::round_any(deaths, 10)
+         , total = sum(deaths)
+         , proportion = deaths / total) %>%
+  select(-total) %>%
+  pivot_wider(names_from = study_quarter, names_prefix = c("study_quarter_"), values_from = c(deaths, proportion))
+
+write_csv(deaths_quarter_region_gp, here::here("output", "describe_cohorts", "quarter_death_counts", "deaths_quarter_region_gp.csv"))
+
+# GP Local authority deprivation quintile
+
+deaths_quarter_imd_la_gp <- df_input %>%
+  group_by(study_quarter, imd_quintile_la_gp) %>%
   summarise(deaths = n()) %>%
   mutate(deaths = plyr::round_any(deaths, 10)
          , total = sum(deaths)
@@ -556,7 +589,7 @@ deaths_quarter_alone <- df_input %>%
   select(-total) %>%
   pivot_wider(names_from = study_quarter, names_prefix = c("study_quarter_"), values_from = c(deaths, proportion)) 
 
-write_csv(deaths_quarter_alone, here::here("output", "describe_cohorts", "quarter_death_counts", "deaths_quarter_alone.csv"))
+write_csv(deaths_quarter_imd_la_gp, here::here("output", "describe_cohorts", "quarter_death_counts", "deaths_quarter_imd_la_gp.csv"))
 
 ################################################################################
 
@@ -632,7 +665,6 @@ plot_deaths_ons_quarter <- ggplot(deaths_ons_quarter, aes(x = study_quarter, y =
   NT_style()
 
 ggsave(plot = plot_deaths_ons_quarter, filename ="deaths_ons_quarter.png", path = here::here("output", "describe_cohorts", "ons_death_comparisons"), height = 10, width = 13.7, units = "cm", dpi = 600)
-
 
 # Quarterly (Mar 19 - Feb 21) deaths by region 
 
@@ -1039,13 +1071,10 @@ death_ratio_imd_la <- df_input %>%
 
 write_csv(death_ratio_imd_la, here::here("output", "describe_cohorts", "death_ratios_cohort", "death_ratio_cohort_imd_la.csv"))
 
-# Ratio - Household size
+# Ratio - Rural urban
 
-death_ratio_alone <- df_input %>%
-  mutate(lives_alone = case_when(hhold_size == 0 ~ NA_real_
-                                 , hhold_size == 1 ~ 1
-                                 , TRUE ~ 0)) %>%
-  group_by(cohort, lives_alone) %>%
+death_ratio_rural_urban <- df_input %>%
+  group_by(cohort, rural_urban) %>%
   summarise(deaths = n()) %>%
   mutate(deaths = plyr::round_any(deaths, 10)
          , total = sum(deaths)
@@ -1055,7 +1084,37 @@ death_ratio_alone <- df_input %>%
   mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
          , ratio_proportion = proportion_cohort_1 / proportion_cohort_0)
 
-write_csv(death_ratio_alone, here::here("output", "describe_cohorts", "death_ratios_cohort", "death_ratio_cohort_alone.csv"))
+write_csv(death_ratio_rural_urban, here::here("output", "describe_cohorts", "death_ratios_cohort", "death_ratio_cohort_rural_urban.csv"))
+
+# Ratio - GP Region
+
+death_ratio_region_gp <- df_input %>%
+  group_by(cohort, region_gp) %>%
+  summarise(deaths = n()) %>%
+  mutate(deaths = plyr::round_any(deaths, 10)
+         , total = sum(deaths)
+         , proportion = deaths / total) %>%
+  select(-total) %>%
+  pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
+  mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0)
+
+write_csv(death_ratio_region_gp, here::here("output", "describe_cohorts", "death_ratios_cohort", "death_ratio_cohort_region_gp.csv"))
+
+# Ratio - Local authority deprivation quintile gp
+
+death_ratio_imd_la_gp <- df_input %>%
+  group_by(cohort, imd_quintile_la_gp) %>%
+  summarise(deaths = n()) %>%
+  mutate(deaths = plyr::round_any(deaths, 10)
+         , total = sum(deaths)
+         , proportion = deaths / total) %>%
+  select(-total) %>%
+  pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
+  mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0)
+
+write_csv(death_ratio_imd_la_gp, here::here("output", "describe_cohorts", "death_ratios_cohort", "death_ratio_cohort_imd_la_gp.csv"))
 
 ################################################################################
 
@@ -1263,13 +1322,10 @@ death_ratio_pod_imd_la <- df_input %>%
 
 write_csv(death_ratio_pod_imd_la, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_imd_la.csv"))
 
-# Ratio - pod * Household size
+# Ratio - pod * rural urban
 
-death_ratio_pod_alone <- df_input %>%
-  mutate(lives_alone = case_when(hhold_size == 0 ~ NA_real_
-                                 , hhold_size == 1 ~ 1
-                                 , TRUE ~ 0)) %>%
-  group_by(cohort, pod_ons_new, lives_alone) %>%
+death_ratio_pod_rural_urban <- df_input %>%
+  group_by(cohort, pod_ons_new, rural_urban) %>%
   summarise(deaths = n()) %>%
   mutate(deaths = plyr::round_any(deaths, 10)
          , total = sum(deaths)
@@ -1278,9 +1334,41 @@ death_ratio_pod_alone <- df_input %>%
   pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
   mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
          , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
-  arrange(pod_ons_new, lives_alone)
+  arrange(pod_ons_new, rural_urban)
 
-write_csv(death_ratio_pod_alone, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_alone.csv"))
+write_csv(death_ratio_pod_rural_urban, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_rural_urban.csv"))
+
+# Ratio - pod * Region gp
+
+death_ratio_pod_region_gp <- df_input %>%
+  group_by(cohort, pod_ons_new, region_gp) %>%
+  summarise(deaths = n()) %>%
+  mutate(deaths = plyr::round_any(deaths, 10)
+         , total = sum(deaths)
+         , proportion = deaths / total) %>%
+  select(-total) %>%
+  pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
+  mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+  arrange(pod_ons_new, region_gp)
+
+write_csv(death_ratio_pod_region_gp, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_region_gp.csv"))
+
+# Ratio - pod * Local authority deprivation quintile GP
+
+death_ratio_pod_imd_la_gp <- df_input %>%
+  group_by(cohort, pod_ons_new, imd_quintile_la_gp) %>%
+  summarise(deaths = n()) %>%
+  mutate(deaths = plyr::round_any(deaths, 10)
+         , total = sum(deaths)
+         , proportion = deaths / total) %>%
+  select(-total) %>%
+  pivot_wider(names_from = cohort, names_prefix = c("cohort_"), values_from = c(deaths, proportion)) %>%
+  mutate(ratio_deaths = deaths_cohort_1 / deaths_cohort_0
+         , ratio_proportion = proportion_cohort_1 / proportion_cohort_0) %>%
+  arrange(pod_ons_new, imd_quintile_la_gp)
+
+write_csv(death_ratio_pod_imd_la_gp, here::here("output", "describe_cohorts", "death_ratios_pod_cohort", "death_ratio_pod_cohort_imd_la_gp.csv"))
 
 ################################################################################
 
@@ -1597,13 +1685,36 @@ deaths_quarter_pod_imd_la <- df_input %>%
 
 write_csv(deaths_quarter_pod_imd_la, here::here("output", "describe_cohorts", "quarter_death_counts", "deaths_quarter_pod_imd_la.csv"))
 
-# Household size
+# Rural urban
 
-deaths_quarter_pod_alone <- df_input %>%
-  mutate(lives_alone = case_when(hhold_size == 0 ~ NA_real_
-                                 , hhold_size == 1 ~ 1
-                                 , TRUE ~ 0)) %>%
-  group_by(study_quarter, pod_ons_new, lives_alone) %>%
+deaths_quarter_pod_rural_urban <- df_input %>%
+  group_by(study_quarter, pod_ons_new, rural_urban) %>%
+  summarise(deaths = n()) %>%
+  mutate(deaths = plyr::round_any(deaths, 10)
+         , total = sum(deaths)
+         , proportion = deaths / total) %>%
+  select(-total) %>%
+  pivot_wider(names_from = study_quarter, names_prefix = c("study_quarter_"), values_from = c(deaths, proportion))
+
+write_csv(deaths_quarter_pod_rural_urban, here::here("output", "describe_cohorts", "quarter_death_counts", "deaths_quarter_pod_rural_urban.csv"))
+
+# GP region
+
+deaths_quarter_pod_region_gp <- df_input %>%
+  group_by(study_quarter, pod_ons_new, region_gp) %>%
+  summarise(deaths = n()) %>%
+  mutate(deaths = plyr::round_any(deaths, 10)
+         , total = sum(deaths)
+         , proportion = deaths / total) %>%
+  select(-total) %>%
+  pivot_wider(names_from = study_quarter, names_prefix = c("study_quarter_"), values_from = c(deaths, proportion))
+
+write_csv(deaths_quarter_pod_region_gp, here::here("output", "describe_cohorts", "quarter_death_counts", "deaths_quarter_pod_region_gp.csv"))
+
+# Local authority deprivation quintile GP
+
+deaths_quarter_pod_imd_la_gp <- df_input %>%
+  group_by(study_quarter, pod_ons_new, imd_quintile_la_gp) %>%
   summarise(deaths = n()) %>%
   mutate(deaths = plyr::round_any(deaths, 10)
          , total = sum(deaths)
@@ -1611,7 +1722,7 @@ deaths_quarter_pod_alone <- df_input %>%
   select(-total) %>%
   pivot_wider(names_from = study_quarter, names_prefix = c("study_quarter_"), values_from = c(deaths, proportion)) 
 
-write_csv(deaths_quarter_pod_alone, here::here("output", "describe_cohorts", "quarter_death_counts", "deaths_quarter_pod_alone.csv"))
+write_csv(deaths_quarter_pod_imd_la_gp, here::here("output", "describe_cohorts", "quarter_death_counts", "deaths_quarter_pod_imd_la_gp.csv"))
 
 ################################################################################
 

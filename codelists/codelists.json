@@ -138,6 +138,12 @@
       "downloaded_at": "2022-02-15 11:36:26.557473Z",
       "sha": "777b61f976301db98e5da0c5b9ceebe48222558f"
     },
+    "nhsd-primary-care-domain-refsets-palcareni_cod.csv": {
+      "id": "nhsd-primary-care-domain-refsets/palcareni_cod/20200812",
+      "url": "https://codelists.opensafely.org/codelist/nhsd-primary-care-domain-refsets/palcareni_cod/20200812/",
+      "downloaded_at": "2022-05-06 14:14:28.069368Z",
+      "sha": "37e012b9c2a339b1ae2199c36e575e7d325a3f0c"
+    },
     "opensafely-midazolam-end-of-life.csv": {
       "id": "opensafely/midazolam-end-of-life/4c1b3c89",
       "url": "https://codelists.opensafely.org/codelist/opensafely/midazolam-end-of-life/4c1b3c89/",

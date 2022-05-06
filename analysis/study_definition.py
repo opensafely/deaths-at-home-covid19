@@ -16,31 +16,6 @@ from codelists import *
 EARLIEST = "2019-03-01"
 LATEST = "2021-02-28"
 
-## LOOP FUNCTIONS ##
-# To loop through and find matches for individual snomed codes within a codelist
-# Will potentially need to update period to look in
-
-# def make_variable(code):
-#     return {
-#         f"snomed_{code}": (
-#             patients.with_these_clinical_events(
-#                 codelist([code], system="snomed"),
-#                 between = ["dod_ons - 365 days", "dod_ons"],
-#                 returning="number_of_matches_in_period",
-#                 return_expectations={
-#                     "incidence": 0.1,
-#                     "int": {"distribution": "normal", "mean": 3, "stddev": 1},
-#                 },
-#             )
-#         )
-#     }
-
-# def loop_over_codes(code_list):
-#     variables = {}
-#     for code in code_list:
-#         variables.update(make_variable(code))
-#     return variables
-
 ## STUDY DEFINITION ##
 
 study = StudyDefinition(
@@ -57,8 +32,7 @@ study = StudyDefinition(
 
     ## Study population
     # Everyone who died between March 2019 and February 2021
-    # Registered with TPP on date of death - could make this more/less flexible
-    # Not sure if this is doing what I want around registered
+    # Registered with TPP on date of death
     population = patients.satisfying(
         """
         has_died 
@@ -76,10 +50,6 @@ study = StudyDefinition(
             return_expectations = {"incidence": 0.98}
         )
     ),  
-    #population = patients.died_from_any_cause(
-    #    between = [EARLIEST, LATEST],
-    #    return_expectations = {"incidence": 1.0}
-    #),
 
     ## CREATE VARIABLES ##
 
@@ -172,7 +142,30 @@ study = StudyDefinition(
         }
     ),
 
-    ## Index of multiple deprivation based on patient address
+    ## Geography ##
+
+    ## MSOA of patient address 
+    msoa = patients.address_as_of(
+        "dod_ons",
+        returning = "msoa",
+        return_expectations = {
+            "rate": "universal",
+            "category": {"ratios": {"E02000001": 0.5, "E02000002": 0.5}}
+        }
+    ),
+
+    ## Rural/urban class of patient address
+    ## MSOA of patient address 
+    rural_urban = patients.address_as_of(
+        "dod_ons",
+        returning = "rural_urban_classification",
+        return_expectations = {
+            "rate": "universal",
+            "category": {"ratios": {"rural": 0.3, "urban": 0.7}}
+            }
+    ),
+
+        ## Index of multiple deprivation based on patient address
     imd_quintile = patients.categorised_as(
         {
             "0": "DEFAULT",
@@ -233,28 +226,35 @@ study = StudyDefinition(
             }
     ),
 
-    ## Household size - TPP algorithm - as of Feb 2020
-    hhold_size = patients.household_as_of(
-        "2020-02-01",
-        returning = "household_size",
-        return_expectations = {
-            "int": {"distribution": "normal", "mean": 2, "stddev": 1}, 
-            "incidence": 0.8
-            }
-    ),
-
-    ## Geography ##
-
-    ## MSOA of address 
-    # As of Feb 2020 
-    # Need to think about how we would link info to this
-    msoa = patients.household_as_of(
-        "2020-02-01",
+    ## MSOA of gp
+    # As an alternative to MSOA from patient address
+    msoa_gp = patients.registered_practice_as_of(
+        "dod_ons",
         returning = "msoa",
         return_expectations = {
             "rate": "universal",
             "category": {"ratios": {"E02000001": 0.5, "E02000002": 0.5}}
         }
+    ),
+
+    ## Region of gp
+    # As an alternative to region from patient address
+    region_gp = patients.registered_practice_as_of(
+        "dod_ons",
+        returning = "nuts1_region_name",
+        return_expectations={
+        "rate": "universal",
+        "category": {
+            "ratios": {
+                "North East": 0.1,
+                "North West": 0.1,
+                "Yorkshire and the Humber": 0.1,
+                "East Midlands": 0.1,
+                "West Midlands": 0.1,
+                "East of England": 0.1,
+                "London": 0.2,
+                "South East": 0.2,}}
+                }
     ),
 
     ## Health ##
@@ -263,13 +263,6 @@ study = StudyDefinition(
     covid_pos = patients.with_test_result_in_sgss(
         pathogen = "SARS-CoV-2",
         test_result = "positive",
-        returning = "binary_flag"
-    ),
-
-    ## Frailty
-    frailty = patients.with_these_decision_support_values(
-        algorithm = "electronic_frailty_index",
-        between = ["dod_ons - 1825 days", "dod_ons"],
         returning = "binary_flag"
     ),
 
@@ -389,13 +382,11 @@ study = StudyDefinition(
         returning = "binary_flag"
     ),
 
-    # **loop_over_codes(palcare_codes1),
-
-    #ltc_palcare2 = patients.with_these_clinical_events(
-    #    palcare_codes2,
-    #    between = ["dod_ons - 1825 days", "dod_ons"],
-    #    returning = "binary_flag"
-    #),
+    ltc_palcare2 = patients.with_these_clinical_events(
+        palcare_codes2,
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
+    ),
 
     # Epilepsy
     ltc_epil = patients.with_these_clinical_events(
@@ -456,7 +447,6 @@ study = StudyDefinition(
     ## SERVICE USE ##
 
     ## Hospital activity in 1 month, 3 months and 1 year prior to death
-
     aevis_1m = patients.attended_emergency_care(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 30 days", "dod_ons"],
@@ -804,7 +794,6 @@ study = StudyDefinition(
 
     ## Flag for people with complete gp history
     # Some measures of activity drawn from GP record will be affected if people change practices/switch to TPP
-
     gp_hist_1m = patients.with_complete_gp_consultation_history_between(
        "dod_ons - 30 days", "dod_ons", return_expectations={"incidence": 0.9}
     ),
@@ -818,8 +807,7 @@ study = StudyDefinition(
     ),
 
     ## GP consultations
-    # Consultation can include things like phone number update
-    
+    # Consultation can include things like phone number update  
     gp_1m = patients.with_gp_consultations(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 30 days", "dod_ons"],
@@ -880,7 +868,6 @@ study = StudyDefinition(
     ),
 
     ## Palliative care
-
     palliative_1m = patients.with_these_clinical_events(
         palcare_codes1,
         returning = "number_of_matches_in_period",
@@ -972,9 +959,6 @@ study = StudyDefinition(
             "incidence": 0.8
             }
     )
-
-
-    #**loop_over_codes(palcare_codes1),
 
 )
 

@@ -43,7 +43,7 @@ mh_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-mh_cod.
 ld_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-ld_cod.csv", system = "snomed", column = "code")
 
 palcare_codes1 = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-palcare_cod.csv", system = "snomed", column = "code")
-#palcare_codes2 = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-palcareni_cod.csv", system = "snomed", column = "code")
+palcare_codes2 = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-palcareni_cod.csv", system = "snomed", column = "code")
 
 epil_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-epil_cod.csv", system = "snomed", column = "code") 
 
@@ -78,7 +78,6 @@ physical_ltc_codes = combine_codelists(
     dm_codes,
     # Palliative care
     palcare_codes1,
-    #palcare_codes2,
     # Epilepsy
     epil_codes,
     # Osteoporosis
