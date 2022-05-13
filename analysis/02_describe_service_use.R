@@ -59,8 +59,21 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
                                   , TRUE ~ as.character(pod_ons))) %>%
   left_join(read_csv(here::here("docs", "lookups", "msoa_lad_rgn_2020.csv"))
             , by = c("msoa" = "msoa11cd")) %>%
-  left_join(read_csv(here::here("docs", "lookups", "lad_imd_2019.csv"))
-            , by = "lad20cd")
+  left_join(read_csv(here::here("docs", "lookups", "lad_imd_2019.csv")) %>% 
+              rename(imd_quintile_la = imd19_quintile)
+            , by = "lad20cd") %>%
+  left_join(read_csv(here::here("docs", "lookups", "msoa_lad_rgn_2020.csv")) %>%
+              select(msoa11cd, lad20cd) %>% 
+              rename(la_gp = lad20cd)
+            , by = c("msoa" = "msoa11cd")) %>%
+  left_join(read_csv(here::here("docs", "lookups", "lad_imd_2019.csv")) %>% 
+              select(lad20cd, imd19_quintile) %>%
+              rename(imd_quintile_la_gp = imd19_quintile)
+            , by = "lad20cd") %>%
+  mutate(imd_quintile_la = case_when(is.na(imd_quintile_la) ~ 0
+                                     , TRUE ~ imd_quintile_la)
+         , imd_quintile_la_gp = case_when(is.na(imd_quintile_la_gp) ~ 0
+                                          , TRUE ~ imd_quintile_la_gp))
 
 ################################################################################
 

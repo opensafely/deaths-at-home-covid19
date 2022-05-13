@@ -42,6 +42,7 @@ actions:
         cohort_pod_summary_table: output/describe_cohorts/cohorts_pod_summary_table*.csv
         death_ratios_cohort: output/describe_cohorts/death_ratios_cohort/death_ratio_cohort*.csv
         death_ratios_pod_cohort: output/describe_cohorts/death_ratios_pod_cohort/death_ratio_pod_cohort*.csv
+        deaths_region_ethnicity: output/describe_cohorts/overall_death_counts/deaths_region*.csv
 
   describe_service_use:
     run: r:latest analysis/02_describe_service_use.R
@@ -50,4 +51,3 @@ actions:
       moderately_sensitive:
         service_use_means: output/describe_service_use/service_use_mean*.csv
         gp_complete_service_use_means: output/describe_service_use/complete_gp_history/gp_service_use_mean*.csv
-        service_use_ratios: output/describe_service_use/service_use_ratio*.csv
