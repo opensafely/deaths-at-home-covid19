@@ -27,7 +27,9 @@ library("lubridate")
 ########## Save location ##########
 
 fs::dir_create(here::here("output", "describe_service_use"))
+fs::dir_create(here::here("output", "describe_service_use", "plots"))
 fs::dir_create(here::here("output", "describe_service_use", "complete_gp_history"))
+fs::dir_create(here::here("output", "describe_service_use", "complete_gp_history", "plots"))
 
 ################################################################################
 
@@ -412,5 +414,181 @@ gp_service_use_mean_quarter_pod <- df_input %>%
   arrange(study_quarter, pod_ons_new, factor(period, levels = c("1m", "3m", "1y")), activity)
 
 write_csv(gp_service_use_mean_quarter_pod, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_quarter_pod.csv"))
+
+################################################################################
+
+########## Plots service use by study quarter and place of death ##########
+
+service <- unique(service_use_mean_quarter_pod$activity)
+
+pdf("output/describe_service_use/plots/service_use_mean_quarter_pod_1m.pdf")
+
+for (i in service) {   
+  
+  print(
+    ggplot(service_use_mean_quarter_pod %>%
+             mutate(pod_ons_new = case_when(pod_ons_new == "Elsewhere/other" ~ "Other"
+                                            , TRUE ~ pod_ons_new)
+                    , activity = str_sub(measure, 1, -4)
+                    , period = str_sub(measure, -2, -1)) %>%
+             filter(activity == i & period == "1m")
+           , aes(x = study_quarter, y = mean
+                 , colour = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital", "Hospice", "Other")))) +
+      geom_line(size = 1) +
+      geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+      labs(x = "Study quarter", y = "Events per person"
+           , title = i) +
+      guides(colour = guide_legend(nrow = 1)) +
+      scale_colour_manual(values = c("#9F67FF", "#00C27A", "#FF6B57", "#4DCFF5", "#EABE17")) +
+      scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+      NT_style()
+  )
+  
+}
+
+dev.off()
+
+pdf("output/describe_service_use/plots/service_use_mean_quarter_pod_3m.pdf")
+
+for (i in service) {   
+  
+  print(
+    ggplot(service_use_mean_quarter_pod %>%
+             mutate(pod_ons_new = case_when(pod_ons_new == "Elsewhere/other" ~ "Other"
+                                            , TRUE ~ pod_ons_new)
+                    , activity = str_sub(measure, 1, -4)
+                    , period = str_sub(measure, -2, -1)) %>%
+             filter(activity == i & period == "3m")
+           , aes(x = study_quarter, y = mean
+                 , colour = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital", "Hospice", "Other")))) +
+      geom_line(size = 1) +
+      geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+      labs(x = "Study quarter", y = "Events per person"
+           , title = i) +
+      guides(colour = guide_legend(nrow = 1)) +
+      scale_colour_manual(values = c("#9F67FF", "#00C27A", "#FF6B57", "#4DCFF5", "#EABE17")) +
+      scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+      NT_style()
+  )
+  
+}
+
+dev.off()
+
+pdf("output/describe_service_use/plots/service_use_mean_quarter_pod_1y.pdf")
+
+for (i in service) {   
+  
+  print(
+    ggplot(service_use_mean_quarter_pod %>%
+             mutate(pod_ons_new = case_when(pod_ons_new == "Elsewhere/other" ~ "Other"
+                                            , TRUE ~ pod_ons_new)
+                    , activity = str_sub(measure, 1, -4)
+                    , period = str_sub(measure, -2, -1)) %>%
+             filter(activity == i & period == "1y")
+           , aes(x = study_quarter, y = mean
+                 , colour = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital", "Hospice", "Other")))) +
+      geom_line(size = 1) +
+      geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+      labs(x = "Study quarter", y = "Events per person"
+           , title = i) +
+      guides(colour = guide_legend(nrow = 1)) +
+      scale_colour_manual(values = c("#9F67FF", "#00C27A", "#FF6B57", "#4DCFF5", "#EABE17")) +
+      scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+      NT_style()
+  )
+  
+}
+
+dev.off()
+
+# Plot the same for complete GP history
+
+pdf("output/describe_service_use/complete_gp_history/plots/gp_service_use_mean_quarter_pod_1m.pdf")
+
+for (i in service) {   
+  
+  print(
+    ggplot(gp_service_use_mean_quarter_pod %>%
+             mutate(pod_ons_new = case_when(pod_ons_new == "Elsewhere/other" ~ "Other"
+                                            , TRUE ~ pod_ons_new)
+                    , activity = str_sub(measure, 1, -4)
+                    , period = str_sub(measure, -2, -1)) %>%
+             filter(activity == i & period == "1m")
+           , aes(x = study_quarter, y = mean
+                 , colour = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital", "Hospice", "Other")))) +
+      geom_line(size = 1) +
+      geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+      labs(x = "Study quarter", y = "Events per person"
+           , title = i) +
+      guides(colour = guide_legend(nrow = 1)) +
+      scale_colour_manual(values = c("#9F67FF", "#00C27A", "#FF6B57", "#4DCFF5", "#EABE17")) +
+      scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+      NT_style()
+  )
+  
+}
+
+dev.off()
+
+pdf("output/describe_service_use/complete_gp_history/plots/gp_service_use_mean_quarter_pod_3m.pdf")
+
+for (i in service) {   
+  
+  print(
+    ggplot(gp_service_use_mean_quarter_pod %>%
+             mutate(pod_ons_new = case_when(pod_ons_new == "Elsewhere/other" ~ "Other"
+                                            , TRUE ~ pod_ons_new)
+                    , activity = str_sub(measure, 1, -4)
+                    , period = str_sub(measure, -2, -1)) %>%
+             filter(activity == i & period == "3m")
+           , aes(x = study_quarter, y = mean
+                 , colour = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital", "Hospice", "Other")))) +
+      geom_line(size = 1) +
+      geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+      labs(x = "Study quarter", y = "Events per person"
+           , title = i) +
+      guides(colour = guide_legend(nrow = 1)) +
+      scale_colour_manual(values = c("#9F67FF", "#00C27A", "#FF6B57", "#4DCFF5", "#EABE17")) +
+      scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+      NT_style()
+  )
+  
+}
+
+dev.off()
+
+pdf("output/describe_service_use/complete_gp_history/plots/gp_service_use_mean_quarter_pod_1y.pdf")
+
+for (i in service) {   
+  
+  print(
+    ggplot(gp_service_use_mean_quarter_pod %>%
+             mutate(pod_ons_new = case_when(pod_ons_new == "Elsewhere/other" ~ "Other"
+                                            , TRUE ~ pod_ons_new)
+                    , activity = str_sub(measure, 1, -4)
+                    , period = str_sub(measure, -2, -1)) %>%
+             filter(activity == i & period == "1y")
+           , aes(x = study_quarter, y = mean
+                 , colour = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital", "Hospice", "Other")))) +
+      geom_line(size = 1) +
+      geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+      labs(x = "Study quarter", y = "Events per person"
+           , title = i) +
+      guides(colour = guide_legend(nrow = 1)) +
+      scale_colour_manual(values = c("#9F67FF", "#00C27A", "#FF6B57", "#4DCFF5", "#EABE17")) +
+      scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+      NT_style()
+  )
+  
+}
+
+dev.off()
 
 ################################################################################
