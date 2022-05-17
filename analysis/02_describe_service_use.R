@@ -93,9 +93,9 @@ service_use_mean_cohort <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ n_atleast1)
+                            , TRUE ~ mean)
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ n_atleast1)) %>% 
+                          , TRUE ~ sd)) %>% 
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
@@ -119,9 +119,9 @@ gp_service_use_mean_cohort <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ n_atleast1)
+                            , TRUE ~ mean)
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ n_atleast1)) %>%  
+                          , TRUE ~ sd)) %>%  
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_3m == TRUE) %>% 
@@ -136,9 +136,9 @@ gp_service_use_mean_cohort <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ n_atleast1)
+                                        , TRUE ~ mean)
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ n_atleast1)) %>% 
+                                      , TRUE ~ sd)) %>% 
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_1y == TRUE) %>% 
@@ -153,9 +153,9 @@ gp_service_use_mean_cohort <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ n_atleast1)
+                                        , TRUE ~ mean)
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ n_atleast1)) %>%  
+                                      , TRUE ~ sd)) %>%  
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
@@ -180,9 +180,9 @@ service_use_mean_quarter <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ n_atleast1)
+                            , TRUE ~ mean)
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ n_atleast1)
+                          , TRUE ~ sd)
          , activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), activity)
@@ -204,9 +204,9 @@ gp_service_use_mean_quarter <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ n_atleast1)
+                            , TRUE ~ mean)
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ n_atleast1)) %>%  
+                          , TRUE ~ sd)) %>%  
   bind_rows(df_input %>%
               filter(gp_hist_3m == TRUE) %>% 
               select(study_quarter, ends_with("_3m")) %>%
@@ -220,9 +220,9 @@ gp_service_use_mean_quarter <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ n_atleast1)
+                                        , TRUE ~ mean)
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ n_atleast1))) %>% 
+                                      , TRUE ~ sd))) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_1y == TRUE) %>% 
               select(study_quarter, ends_with("_1y")) %>%
@@ -236,9 +236,9 @@ gp_service_use_mean_quarter <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ n_atleast1)
+                                        , TRUE ~ mean)
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ n_atleast1))) %>% 
+                                      , TRUE ~ sd))) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), activity)
@@ -261,9 +261,9 @@ service_use_mean_cohort_pod <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ n_atleast1)
+                            , TRUE ~ mean)
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ n_atleast1)) %>%   
+                          , TRUE ~ sd)) %>%   
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
@@ -287,9 +287,9 @@ gp_service_use_mean_cohort_pod <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ n_atleast1)
+                            , TRUE ~ mean)
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ n_atleast1)) %>%   
+                          , TRUE ~ sd)) %>%   
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_3m == TRUE) %>% 
@@ -304,9 +304,9 @@ gp_service_use_mean_cohort_pod <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ n_atleast1)
+                                        , TRUE ~ mean)
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ n_atleast1)) %>%   
+                                      , TRUE ~ sd)) %>%   
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_1y == TRUE) %>% 
@@ -321,9 +321,9 @@ gp_service_use_mean_cohort_pod <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ n_atleast1)
+                                        , TRUE ~ mean)
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ n_atleast1)) %>%   
+                                      , TRUE ~ sd)) %>%   
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
@@ -348,9 +348,9 @@ service_use_mean_quarter_pod <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ n_atleast1)
+                            , TRUE ~ mean)
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ n_atleast1)
+                          , TRUE ~ sd)
          , activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(study_quarter, pod_ons_new, factor(period, levels = c("1m", "3m", "1y")), activity)
@@ -372,9 +372,9 @@ gp_service_use_mean_quarter_pod <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ n_atleast1)
+                            , TRUE ~ mean)
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ n_atleast1)) %>%  
+                          , TRUE ~ sd)) %>%  
   bind_rows(df_input %>%
               filter(gp_hist_3m == TRUE) %>% 
             select(study_quarter, pod_ons_new, ends_with("_3m")) %>%
@@ -388,9 +388,9 @@ gp_service_use_mean_quarter_pod <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ n_atleast1)
+                                        , TRUE ~ mean)
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ n_atleast1))) %>% 
+                                      , TRUE ~ sd))) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_1y == TRUE) %>% 
             select(study_quarter, pod_ons_new, ends_with("_1y")) %>%
@@ -404,9 +404,9 @@ gp_service_use_mean_quarter_pod <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ n_atleast1)
+                                        , TRUE ~ mean)
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ n_atleast1))) %>%
+                                      , TRUE ~ sd))) %>%
   mutate(activity = str_sub(measure, 1, -4)
     , period = str_sub(measure, -2, -1)) %>%
   arrange(study_quarter, pod_ons_new, factor(period, levels = c("1m", "3m", "1y")), activity)
@@ -414,4 +414,3 @@ gp_service_use_mean_quarter_pod <- df_input %>%
 write_csv(gp_service_use_mean_quarter_pod, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_quarter_pod.csv"))
 
 ################################################################################
- 
