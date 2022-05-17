@@ -51,3 +51,13 @@ actions:
       moderately_sensitive:
         service_use_means: output/describe_service_use/service_use_mean*.csv
         gp_complete_service_use_means: output/describe_service_use/complete_gp_history/gp_service_use_mean*.csv
+
+  describe_service_use_home: 
+    run: r:latest analysis/03_describe_service_use_home.R
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        service_use_cohort: output/describe_service_use_home/service_use_cohort*.csv
+        gp_complete_service_use_cohort: output/describe_service_use_home/complete_gp_history/gp_service_use_cohort*.csv
+        service_use_quarter: output/describe_service_use_home/service_use_quarter*.csv
+        gp_complete_service_use_quarter: output/describe_service_use_home/complete_gp_history/gp_service_use_quarter*.csv
