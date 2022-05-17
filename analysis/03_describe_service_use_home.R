@@ -218,6 +218,32 @@ service_use_cohort_home_palcare <- df_input %>%
 
 write_csv(service_use_cohort_home_palcare, here::here("output", "describe_service_use_home", "service_use_cohort_home_palcare.csv"))
 
+# No palliative care
+
+service_use_cohort_home_nopalcare <- df_input %>%
+  filter(pod_ons_new == "Home") %>% 
+  select(cohort, ltc_palcare2, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+  select(-contains("gp_hist")) %>% 
+  pivot_longer(cols = -c(cohort, ltc_palcare2), names_to = "measure", values_to = "value") %>%
+  group_by(cohort, ltc_palcare2, measure) %>%
+  summarise(n = n()
+            , mean = mean(value, na.rm = TRUE)
+            , sd = sd(value, na.rm = TRUE)
+            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+  mutate(n = plyr::round_any(n, 10)
+         , n_atleast1 = plyr::round_any(n_atleast1, 10)
+         , mean = case_when(n_atleast1 == 0 ~ 0
+                            , TRUE ~ n_atleast1)
+         , sd = case_when(n_atleast1 == 0 ~ 0
+                          , TRUE ~ n_atleast1)) %>%   
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)) %>%
+  arrange(factor(period, levels = c("1m", "3m", "1y")), ltc_palcare2, activity) %>%
+  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
+
+write_csv(service_use_cohort_home_nopalcare, here::here("output", "describe_service_use_home", "service_use_cohort_home_nopalcare.csv"))
+
 # Region
 
 service_use_cohort_home_region <- df_input %>%
@@ -755,6 +781,66 @@ gp_service_use_cohort_home_palcare <- df_input %>%
   mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
 
 write_csv(gp_service_use_cohort_home_palcare, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_palcare.csv"))
+
+# No palliative care
+
+gp_service_use_cohort_home_nopalcare <- df_input %>%
+  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
+  select(cohort, ltc_palcare2, ends_with("_1m")) %>%
+  select(-contains("gp_hist")) %>% 
+  pivot_longer(cols = -c(cohort, ltc_palcare2), names_to = "measure", values_to = "value") %>%
+  group_by(cohort, ltc_palcare2, measure) %>%
+  summarise(n = n()
+            , mean = mean(value, na.rm = TRUE)
+            , sd = sd(value, na.rm = TRUE)
+            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+  mutate(n = plyr::round_any(n, 10)
+         , n_atleast1 = plyr::round_any(n_atleast1, 10)
+         , mean = case_when(n_atleast1 == 0 ~ 0
+                            , TRUE ~ n_atleast1)
+         , sd = case_when(n_atleast1 == 0 ~ 0
+                          , TRUE ~ n_atleast1)) %>%   
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
+  bind_rows(df_input %>%
+              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
+              select(cohort, ltc_palcare2, ends_with("_3m")) %>%
+              select(-contains("gp_hist")) %>% 
+              pivot_longer(cols = -c(cohort, ltc_palcare2), names_to = "measure", values_to = "value") %>%
+              group_by(cohort, ltc_palcare2, measure) %>%
+              summarise(n = n()
+                        , mean = mean(value, na.rm = TRUE)
+                        , sd = sd(value, na.rm = TRUE)
+                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+              mutate(n = plyr::round_any(n, 10)
+                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                     , mean = case_when(n_atleast1 == 0 ~ 0
+                                        , TRUE ~ n_atleast1)
+                     , sd = case_when(n_atleast1 == 0 ~ 0
+                                      , TRUE ~ n_atleast1)) %>%   
+              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
+  bind_rows(df_input %>%
+              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
+              select(cohort, ltc_palcare2, ends_with("_1y")) %>%
+              select(-contains("gp_hist")) %>% 
+              pivot_longer(cols = -c(cohort, ltc_palcare2), names_to = "measure", values_to = "value") %>%
+              group_by(cohort, ltc_palcare2, measure) %>%
+              summarise(n = n()
+                        , mean = mean(value, na.rm = TRUE)
+                        , sd = sd(value, na.rm = TRUE)
+                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+              mutate(n = plyr::round_any(n, 10)
+                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                     , mean = case_when(n_atleast1 == 0 ~ 0
+                                        , TRUE ~ n_atleast1)
+                     , sd = case_when(n_atleast1 == 0 ~ 0
+                                      , TRUE ~ n_atleast1)) %>%  
+              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)) %>%
+  arrange(ltc_palcare2, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
+  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
+
+write_csv(gp_service_use_cohort_home_nopalcare, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_nopalcare.csv"))
 
 # Region
 
@@ -1336,6 +1422,30 @@ service_use_quarter_home_palcare <- df_input %>%
 
 write_csv(service_use_quarter_home_palcare, here::here("output", "describe_service_use_home", "service_use_quarter_home_palcare.csv"))
 
+# No palliative care
+
+service_use_quarter_home_nopalcare <- df_input %>%
+  filter(pod_ons_new == "Home") %>% 
+  select(study_quarter, ltc_palcare2, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+  select(-contains("gp_hist")) %>% 
+  pivot_longer(cols = -c(study_quarter, ltc_palcare2), names_to = "measure", values_to = "value") %>%
+  group_by(study_quarter, ltc_palcare2, measure) %>%
+  summarise(n = n()
+            , mean = mean(value, na.rm = TRUE)
+            , sd = sd(value, na.rm = TRUE)
+            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+  mutate(n = plyr::round_any(n, 10)
+         , n_atleast1 = plyr::round_any(n_atleast1, 10)
+         , mean = case_when(n_atleast1 == 0 ~ 0
+                            , TRUE ~ n_atleast1)
+         , sd = case_when(n_atleast1 == 0 ~ 0
+                          , TRUE ~ n_atleast1)) %>%   
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)) %>%
+  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), ltc_palcare2, activity) 
+
+write_csv(service_use_quarter_home_nopalcare, here::here("output", "describe_service_use_home", "service_use_quarter_home_nopalcare.csv"))
+
 # Region
 
 service_use_quarter_home_region <- df_input %>%
@@ -1839,6 +1949,62 @@ gp_service_use_quarter_home_palcare <- df_input %>%
   arrange(ltc_palcare1, factor(period, levels = c("1m", "3m", "1y")), activity) 
 
 write_csv(gp_service_use_quarter_home_palcare, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_palcare.csv"))
+
+# No palliative care
+
+gp_service_use_quarter_home_nopalcare <- df_input %>%
+  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
+  select(study_quarter, ltc_palcare2, ends_with("_1m")) %>%
+  select(-contains("gp_hist")) %>% 
+  pivot_longer(cols = -c(study_quarter, ltc_palcare2), names_to = "measure", values_to = "value") %>%
+  group_by(study_quarter, ltc_palcare2, measure) %>%
+  summarise(n = n()
+            , mean = mean(value, na.rm = TRUE)
+            , sd = sd(value, na.rm = TRUE)
+            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+  mutate(n = plyr::round_any(n, 10)
+         , n_atleast1 = plyr::round_any(n_atleast1, 10)
+         , mean = case_when(n_atleast1 == 0 ~ 0
+                            , TRUE ~ n_atleast1)
+         , sd = case_when(n_atleast1 == 0 ~ 0
+                          , TRUE ~ n_atleast1)) %>%  
+  bind_rows(df_input %>%
+              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
+              select(study_quarter, ltc_palcare2, ends_with("_3m")) %>%
+              select(-contains("gp_hist")) %>% 
+              pivot_longer(cols = -c(study_quarter, ltc_palcare2), names_to = "measure", values_to = "value") %>%
+              group_by(study_quarter, ltc_palcare2, measure) %>%
+              summarise(n = n()
+                        , mean = mean(value, na.rm = TRUE)
+                        , sd = sd(value, na.rm = TRUE)
+                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+              mutate(n = plyr::round_any(n, 10)
+                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                     , mean = case_when(n_atleast1 == 0 ~ 0
+                                        , TRUE ~ n_atleast1)
+                     , sd = case_when(n_atleast1 == 0 ~ 0
+                                      , TRUE ~ n_atleast1))) %>% 
+  bind_rows(df_input %>%
+              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
+              select(study_quarter, ltc_palcare2, ends_with("_1y")) %>%
+              select(-contains("gp_hist")) %>% 
+              pivot_longer(cols = -c(study_quarter, ltc_palcare2), names_to = "measure", values_to = "value") %>%
+              group_by(study_quarter, ltc_palcare2, measure) %>%
+              summarise(n = n()
+                        , mean = mean(value, na.rm = TRUE)
+                        , sd = sd(value, na.rm = TRUE)
+                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+              mutate(n = plyr::round_any(n, 10)
+                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                     , mean = case_when(n_atleast1 == 0 ~ 0
+                                        , TRUE ~ n_atleast1)
+                     , sd = case_when(n_atleast1 == 0 ~ 0
+                                      , TRUE ~ n_atleast1))) %>%  
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)) %>%
+  arrange(ltc_palcare2, factor(period, levels = c("1m", "3m", "1y")), activity) 
+
+write_csv(gp_service_use_quarter_home_nopalcare, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_nopalcare.csv"))
 
 # Region
 
