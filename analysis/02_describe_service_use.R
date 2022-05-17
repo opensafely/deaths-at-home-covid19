@@ -291,9 +291,6 @@ gp_service_use_mean_cohort_pod <- df_input %>%
          , sd = case_when(n_atleast1 == 0 ~ 0
                           , TRUE ~ n_atleast1)) %>%   
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(pod_ons_new, activity) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_3m == TRUE) %>% 
               select(cohort, pod_ons_new, ends_with("_3m")) %>%
@@ -310,10 +307,7 @@ gp_service_use_mean_cohort_pod <- df_input %>%
                                         , TRUE ~ n_atleast1)
                      , sd = case_when(n_atleast1 == 0 ~ 0
                                       , TRUE ~ n_atleast1)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-              mutate(activity = str_sub(measure, 1, -4)
-                     , period = str_sub(measure, -2, -1)) %>%
-              arrange(pod_ons_new, activity)) %>% 
+              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_1y == TRUE) %>% 
               select(cohort, pod_ons_new, ends_with("_1y")) %>%
@@ -330,10 +324,7 @@ gp_service_use_mean_cohort_pod <- df_input %>%
                                         , TRUE ~ n_atleast1)
                      , sd = case_when(n_atleast1 == 0 ~ 0
                                       , TRUE ~ n_atleast1)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-              mutate(activity = str_sub(measure, 1, -4)
-                     , period = str_sub(measure, -2, -1)) %>%
-              arrange(pod_ons_new, activity)) %>% 
+              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(pod_ons_new, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
