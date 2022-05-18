@@ -50,7 +50,9 @@ actions:
     outputs:
       moderately_sensitive:
         service_use_means: output/describe_service_use/service_use_mean*.csv
+        service_use_means_plots: output/describe_service_use/plots/service_use_mean*.pdf
         gp_complete_service_use_means: output/describe_service_use/complete_gp_history/gp_service_use_mean*.csv
+        gp_complete_service_use_plots: output/describe_service_use/complete_gp_history/plots/gp_service_use_mean*.pdf
 
   describe_service_use_home: 
     run: r:latest analysis/03_describe_service_use_home.R

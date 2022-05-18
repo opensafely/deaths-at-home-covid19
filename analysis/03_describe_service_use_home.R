@@ -25,6 +25,52 @@ fs::dir_create(here::here("output", "describe_service_use_home", "complete_gp_hi
 
 ################################################################################
 
+########## NT chart style ##########
+
+NT_style <- function(){
+  
+  font <- "TT Arial"
+  family <- "sans"
+  
+  theme_minimal() %+replace%
+    theme(
+      # Background elements
+      panel.background = element_rect(fill = "#F4F4F4", colour = "#F4F4F4"),
+      panel.border = element_blank(),
+      plot.background = element_rect(fill = "#F4F4F4", colour = "#F4F4F4"),
+      plot.margin = margin(t = 0.5, r = 0.5, b = 0.5, l = 0.5, unit ="cm"),
+      # Grid elements
+      axis.ticks = element_blank(),      
+      panel.grid.major.x = element_blank(),
+      panel.grid.major.y = element_line(colour = "#9AA0AA", size = 0.3),
+      panel.grid.minor = element_blank(),
+      panel.spacing = unit(0.5, "cm"),
+      # Text elements
+      axis.text.x = element_text(colour = "#9AA0AA", size = 8, family = "sans", vjust = 0),
+      axis.text.y = element_text(colour = "#9AA0AA", size = 8, family = "sans"),
+      axis.title.x = element_text(margin = margin(t = 0.3, r = 0, b = 0, l = 0, unit ="cm"), colour = "#271544", size = 8, face = "bold"),
+      axis.title.y = element_text(margin = margin(t = 0, r = 0.3, b = 0, l = 0, unit ="cm"), colour = "#271544", size = 8, face = "bold", angle = 90),
+      legend.text = element_text(colour = "#271544", size = 8, face = "bold", family = "sans"),
+      legend.title = element_blank(),
+      plot.caption = element_text(margin = margin(t = 0.3, r = 0, b = 0, l = 0, unit ="cm"), colour = "#271544", size = 8, hjust = 1, vjust = 1),
+      plot.title = element_text(margin = margin(t = 0, r = 0, b = 0.3, l = 0, unit ="cm"), colour = "#271544", size = 10, face = "bold", hjust = 0),
+      plot.title.position = "plot",
+      strip.text = element_text(margin = margin(t = 0, r = 0, b = 0.3, l = 0, unit ="cm"), colour = "#271544", size = 8, face = "bold"),
+      # Legend elements
+      legend.background = element_blank(),
+      legend.box.background = element_blank(),
+      legend.box.margin = margin(t = 0, r = 0, b = 0, l = 0, unit ="cm"),
+      legend.key = element_blank(),
+      legend.key.size = unit(0.4, "cm"),
+      legend.margin = margin(t = 0, r = 0, b = 0, l = 0, unit ="cm"),
+      legend.position = "bottom",
+      legend.spacing.x = unit(0.1, "cm"),
+      legend.spacing.y = unit(0.1, "cm")
+    )
+}
+
+################################################################################
+
 ########## Import data ##########
 
 # Convert dod to date variable
