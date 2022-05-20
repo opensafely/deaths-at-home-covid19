@@ -161,6 +161,12 @@
       "url": "https://codelists.opensafely.org/codelist/user/tgeorghiou/hospice-mentions/0aa5e74b/",
       "downloaded_at": "2022-04-20 13:49:10.462132Z",
       "sha": "d79e92799aaabffbea141a6e28431c952d3b227c"
+    },
+    "user-eiliskeeble-ambulance-incidents.csv": {
+      "id": "user/eiliskeeble/ambulance-incidents/532180f4",
+      "url": "https://codelists.opensafely.org/codelist/user/eiliskeeble/ambulance-incidents/532180f4/",
+      "downloaded_at": "2022-05-20 10:41:30.657675Z",
+      "sha": "ceee568f7987c7156202305eb4d509e8f237c4f5"
     }
   }
 }

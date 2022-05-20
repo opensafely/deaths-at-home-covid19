@@ -958,7 +958,38 @@ study = StudyDefinition(
             "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
             "incidence": 0.8
             }
-    )
+    ),
+
+    ## Ambulance incidents
+    ambulance_1m = patients.with_these_clinical_events(
+        ambulance_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    ambulance_3m = patients.with_these_clinical_events(
+        ambulance_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    ambulance_1y = patients.with_these_clinical_events(
+        ambulance_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    )   
 
 )
 
