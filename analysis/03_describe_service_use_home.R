@@ -249,8 +249,9 @@ NT_style <- function(){
 ########## Import data ##########
 
 # Convert dod to date variable
-# Create cohort flag
+# Create cohort flag and additional flag to identify deaths in our revised 9 month cohort period
 # Death quarter variable starting in March so it is quarters of the cohort period rather than calendar or fiscal quarters
+# Create grouped and renamed characteristic variables
 # Join on region and LA imd quintile based on patient address
 # Join on LA imd quintile based on GP address
 
@@ -259,6 +260,9 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
          , cohort = case_when(dod_ons >= as_date("2019-03-01") & dod_ons <= as_date("2020-02-29") ~ 0
                               , dod_ons >= as_date("2020-03-01") & dod_ons <= as_date("2021-02-28") ~ 1
                               , TRUE ~ NA_real_)
+         , study_cohort = case_when(dod_ons >= as_date("2019-06-01") & dod_ons <= as_date("2020-02-29") ~ 0
+                                    , dod_ons >= as_date("2020-06-01") & dod_ons <= as_date("2021-02-28") ~ 1
+                                    , TRUE ~ NA_real_)
          , study_quarter = case_when(month(dod_ons) %in% c(3, 4, 5) & year(dod_ons) == 2019 ~ 1
                                      , month(dod_ons) %in% c(6, 7, 8) & year(dod_ons) == 2019 ~ 2
                                      , month(dod_ons) %in% c(9, 10, 11) & year(dod_ons) == 2019 ~ 3
@@ -326,8 +330,8 @@ characteristic <- c("sex", "agegrp", "ethnicity", "ltcgrp", "palcare", "nopalcar
 save_cohort <- function(var) {
   
   service_use_cohort_home <- df_input %>%
+    filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
     rename(variable = var) %>% 
-    filter(pod_ons_new == "Home") %>% 
     select(cohort, variable, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
     select(-contains("gp_hist")) %>% 
     pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
@@ -365,8 +369,8 @@ lapply(characteristic, save_cohort)
 save_gp_cohort <- function(var) {
   
   gp_service_use_cohort_home <- df_input %>%
+    filter(!is.na(study_cohort) & gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
     rename(variable = var) %>% 
-    filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
     select(cohort, variable, ends_with("_1m")) %>%
     select(-contains("gp_hist")) %>% 
     pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
@@ -383,8 +387,8 @@ save_gp_cohort <- function(var) {
                             , TRUE ~ sd)) %>%   
     pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
     bind_rows(df_input %>%
+                filter(!is.na(study_cohort) & gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
                 rename(variable = var) %>% 
-                filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
                 select(cohort, variable, ends_with("_3m")) %>%
                 select(-contains("gp_hist")) %>% 
                 pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
@@ -401,8 +405,8 @@ save_gp_cohort <- function(var) {
                                         , TRUE ~ sd)) %>%   
                 pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
     bind_rows(df_input %>%
+                filter(!is.na(study_cohort) & gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
                 rename(variable = var) %>% 
-                filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
                 select(cohort, variable, ends_with("_1y")) %>%
                 select(-contains("gp_hist")) %>% 
                 pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%

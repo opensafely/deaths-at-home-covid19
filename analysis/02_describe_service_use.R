@@ -254,8 +254,9 @@ NT_style <- function(){
 ########## Import data ##########
 
 # Convert dod to date variable
-# Create cohort flag
+# Create cohort flag and additional flag to identify deaths in our revised 9 month cohort period
 # Death quarter variable starting in March so it is quarters of the cohort period rather than calendar or fiscal quarters
+# Create grouped and renamed characteristic variables
 # Join on region and LA imd quintile based on patient address
 # Join on LA imd quintile based on GP address
 
@@ -264,6 +265,9 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
          , cohort = case_when(dod_ons >= as_date("2019-03-01") & dod_ons <= as_date("2020-02-29") ~ 0
                               , dod_ons >= as_date("2020-03-01") & dod_ons <= as_date("2021-02-28") ~ 1
                               , TRUE ~ NA_real_)
+         , study_cohort = case_when(dod_ons >= as_date("2019-06-01") & dod_ons <= as_date("2020-02-29") ~ 0
+                                    , dod_ons >= as_date("2020-06-01") & dod_ons <= as_date("2021-02-28") ~ 1
+                                    , TRUE ~ NA_real_)
          , study_quarter = case_when(month(dod_ons) %in% c(3, 4, 5) & year(dod_ons) == 2019 ~ 1
                                      , month(dod_ons) %in% c(6, 7, 8) & year(dod_ons) == 2019 ~ 2
                                      , month(dod_ons) %in% c(9, 10, 11) & year(dod_ons) == 2019 ~ 3
@@ -327,6 +331,7 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
 # Mean, standard deviation and number of people with at least 1 instance of each activity type
 
 service_use_mean_cohort <- df_input %>%
+  filter(!is.na(study_cohort)) %>% 
   select(cohort, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
   select(-contains("gp_hist")) %>% 
   pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
@@ -352,7 +357,7 @@ write_csv(service_use_mean_cohort, here::here("output", "describe_service_use", 
 # Calculate the same just for people with complete gp history
 
 gp_service_use_mean_cohort <- df_input %>%
-  filter(gp_hist_1m == TRUE) %>% 
+  filter(!is.na(study_cohort) & gp_hist_1m == TRUE) %>% 
   select(cohort, ends_with("_1m")) %>%
   select(-contains("gp_hist")) %>% 
   pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
@@ -369,7 +374,7 @@ gp_service_use_mean_cohort <- df_input %>%
                           , TRUE ~ sd)) %>%  
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE) %>% 
+              filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
               select(cohort, ends_with("_3m")) %>%
               select(-contains("gp_hist")) %>% 
               pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
@@ -386,7 +391,7 @@ gp_service_use_mean_cohort <- df_input %>%
                                       , TRUE ~ sd)) %>% 
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
   bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE) %>% 
+              filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
               select(cohort, ends_with("_1y")) %>%
               select(-contains("gp_hist")) %>% 
               pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
@@ -495,6 +500,7 @@ write_csv(gp_service_use_mean_quarter, here::here("output", "describe_service_us
 ########## Descriptive stats service use by cohort and place of death ##########
 
 service_use_mean_cohort_pod <- df_input %>%
+  filter(!is.na(study_cohort)) %>% 
     select(cohort, pod_ons_new, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
   select(-contains("gp_hist")) %>% 
     pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
@@ -520,7 +526,7 @@ write_csv(service_use_mean_cohort_pod, here::here("output", "describe_service_us
 # Calculate the same just for people with complete gp history
 
 gp_service_use_mean_cohort_pod <- df_input %>%
-  filter(gp_hist_1m == TRUE) %>% 
+  filter(!is.na(study_cohort) & gp_hist_1m == TRUE) %>% 
   select(cohort, pod_ons_new, ends_with("_1m")) %>%
   select(-contains("gp_hist")) %>% 
   pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
@@ -537,7 +543,7 @@ gp_service_use_mean_cohort_pod <- df_input %>%
                           , TRUE ~ sd)) %>%   
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE) %>% 
+              filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
               select(cohort, pod_ons_new, ends_with("_3m")) %>%
               select(-contains("gp_hist")) %>% 
               pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
@@ -554,7 +560,7 @@ gp_service_use_mean_cohort_pod <- df_input %>%
                                       , TRUE ~ sd)) %>%   
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
   bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE) %>% 
+              filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
               select(cohort, pod_ons_new, ends_with("_1y")) %>%
               select(-contains("gp_hist")) %>% 
               pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
