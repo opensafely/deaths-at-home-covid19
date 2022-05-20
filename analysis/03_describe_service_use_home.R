@@ -8,6 +8,7 @@
 
 # Service use for home deaths by cohort and characteristic
 # Service use for home deaths by quarter and characteristic
+# Plots of service use by quarter and characteristic
 
 ################################################################################
 
@@ -21,11 +22,185 @@ library("lubridate")
 ########## Save location ##########
 
 fs::dir_create(here::here("output", "describe_service_use_home"))
+fs::dir_create(here::here("output", "describe_service_use_home", "plots"))
 fs::dir_create(here::here("output", "describe_service_use_home", "complete_gp_history"))
+fs::dir_create(here::here("output", "describe_service_use_home", "complete_gp_history", "plots"))
 
 ################################################################################
 
 ########## NT chart style ##########
+
+# Nuffield Trust colour list
+
+NT_colours <- c(
+  `NT ink` = "#271544",
+  `white` = "#FFFFFF",
+  `NT iris` = "#AC8ACF",
+  `cool black` = "#0E1B26",
+  `cool dark grey` = "#556370",
+  `cool mid grey` = "#9AA0AA",
+  `cool light grey` = "#F4F4F4",
+  `bright purple` = "#9F67FF",
+  `light purple 1` = "#D3C4FC",
+  `light purple 2` = "#B39DFF",
+  `dark purple 1` = "#7140EA",
+  `dark purple 2` = "#49148C",
+  `bright blue` = "#0066F4",
+  `light blue 1` = "#99DBFF",
+  `light blue 2` = "#63B2FF",
+  `dark blue 1` = "#005AC7",
+  `dark blue 2` = "#192889",
+  `bright red` = "#FF6B57",
+  `light red 1` = "#FFCFC9",
+  `light red 2` = "#FF997F",
+  `dark red 1` = "#B71C1C",
+  `dark red 2` = "#700C28",
+  `bright yellow` = "#EABE17",
+  `light yellow 1` = "#FDEA9D",
+  `light yellow 2` = "#F4D05A",
+  `dark yellow 1` = "#DD931C",
+  `dark yellow 2` = "#B26605",
+  `bright green` = "#00C27A",
+  `light green 1` = "#8BF8BD",
+  `light green 2` = "#39DA91",
+  `dark green 1` = "#00823F",
+  `dark green 2` = "#195442",
+  `bright cyan` = "#4DCFF5",
+  `light cyan 1` = "#9EF7FF",
+  `light cyan 2` = "#6AE8F9",
+  `dark cyan 1` = "#008CB3",
+  `dark cyan 2` = "#004C70"
+)
+
+NT_colour <- function(index = NULL, named = FALSE){
+  
+  if(is.null(index)){
+    index <- names(NT_colours)
+  }
+  
+  return_value <- NT_colours[index]
+  if (!named) {
+    names(return_value) <- NULL
+  }
+  
+  return(return_value)
+  
+}
+
+####################################
+
+# NT colour palette
+
+NT_palette <- function(NT_theme = NULL, reverse = FALSE, ...) {
+  
+  function(n) {
+    
+    stopifnot(n <= 5 | (n <= 12 & (is.null(NT_theme) | NT_theme == "bright")))
+    
+    colour_indices <-
+      if (n == 1 & is.null(NT_theme)) { "bright purple" }
+    else if (n == 2 & is.null(NT_theme)) { c("bright purple", "bright green") }
+    else if (n == 3 & is.null(NT_theme)) { c("bright purple", "bright green", "bright blue") }
+    else if (n == 4 & is.null(NT_theme)) { c("bright purple", "bright green", "bright blue", "bright yellow") }
+    else if (n == 5 & is.null(NT_theme)) { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red") }
+    else if (n == 6 & is.null(NT_theme)) { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan") }
+    else if (n == 7 & is.null(NT_theme)) { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan", "light purple 1") }
+    else if (n == 8 & is.null(NT_theme)) { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan", "light purple 1", "light green 1") }
+    else if (n == 9 & is.null(NT_theme)) { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan", "light purple 1", "light green 1", "light blue 1") }
+    else if (n == 10 & is.null(NT_theme)) { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan", "light purple 1", "light green 1", "light blue 1", "light yellow 1") }
+    else if (n == 11 & is.null(NT_theme)) { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan", "light purple 1", "light green 1", "light blue 1", "light yellow 1", "light red 1") }
+    else if (n == 12 & is.null(NT_theme)) { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan", "light purple 1", "light green 1", "light blue 1", "light yellow 1", "light red 1", "light cyan 1") }
+    else if (n == 1 & NT_theme == "bright") { "bright purple" }
+    else if (n == 2 & NT_theme == "bright") { c("bright purple", "bright green") }
+    else if (n == 3 & NT_theme == "bright") { c("bright purple", "bright green", "bright blue") }
+    else if (n == 4 & NT_theme == "bright") { c("bright purple", "bright green", "bright blue", "bright yellow") }
+    else if (n == 5 & NT_theme == "bright") { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red") }
+    else if (n == 6 & NT_theme == "bright") { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan") }
+    else if (n == 7 & NT_theme == "bright") { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan", "light purple 1") }
+    else if (n == 8 & NT_theme == "bright") { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan", "light purple 1", "light green 1") }
+    else if (n == 9 & NT_theme == "bright") { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan", "light purple 1", "light green 1", "light blue 1") }
+    else if (n == 10 & NT_theme == "bright") { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan", "light purple 1", "light green 1", "light blue 1", "light yellow 1") }
+    else if (n == 11 & NT_theme == "bright") { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan", "light purple 1", "light green 1", "light blue 1", "light yellow 1", "light red 1") }
+    else if (n == 12 & NT_theme == "bright") { c("bright purple", "bright green", "bright blue", "bright yellow", "bright red", "bright cyan", "light purple 1", "light green 1", "light blue 1", "light yellow 1", "light red 1", "light cyan 1") }
+    else if (n == 1 & NT_theme == "purple") { "bright purple" }
+    else if (n == 2 & NT_theme == "purple") { c("dark purple 2", "bright purple") }
+    else if (n == 3 & NT_theme == "purple") { c("dark purple 2", "bright purple", "light purple 2") }
+    else if (n == 4 & NT_theme == "purple") { c("dark purple 2", "dark purple 1", "bright purple", "light purple 2") }
+    else if (n == 5 & NT_theme == "purple") { c("dark purple 2", "dark purple 1", "bright purple", "light purple 2", "light purple 1") }
+    else if (n == 1 & NT_theme == "blue") { "bright blue" }
+    else if (n == 2 & NT_theme == "blue") { c("dark blue 2", "bright blue") }
+    else if (n == 3 & NT_theme == "blue") { c("dark blue 2", "bright blue", "light blue 2") }
+    else if (n == 4 & NT_theme == "blue") { c("dark blue 2", "dark blue 1", "bright blue", "light blue 2") }
+    else if (n == 5 & NT_theme == "blue") { c("dark blue 2", "dark blue 1", "bright blue", "light blue 2", "light blue 1") }
+    else if (n == 1 & NT_theme == "red") { "bright red" }
+    else if (n == 2 & NT_theme == "red") { c("dark red 2", "bright red") }
+    else if (n == 3 & NT_theme == "red") { c("dark red 2", "bright red", "light red 2") }
+    else if (n == 4 & NT_theme == "red") { c("dark red 2", "dark red 1", "bright red", "light red 2") }
+    else if (n == 5 & NT_theme == "red") { c("dark red 2", "dark red 1", "bright red", "light red 2", "light red 1") }
+    else if (n == 1 & NT_theme == "yellow") { "bright yellow" }
+    else if (n == 2 & NT_theme == "yellow") { c("dark yellow 2", "bright yellow") }
+    else if (n == 3 & NT_theme == "yellow") { c("dark yellow 2", "bright yellow", "light yellow 2") }
+    else if (n == 4 & NT_theme == "yellow") { c("dark yellow 2", "dark yellow 1", "bright yellow", "light yellow 2") }
+    else if (n == 5 & NT_theme == "yellow") { c("dark yellow 2", "dark yellow 1", "bright yellow", "light yellow 2", "light yellow 1") }
+    else if (n == 1 & NT_theme == "green") { "bright green" }
+    else if (n == 2 & NT_theme == "green") { c("dark green 2", "bright green") }
+    else if (n == 3 & NT_theme == "green") { c("dark green 2", "bright green", "light green 2") }
+    else if (n == 4 & NT_theme == "green") { c("dark green 2", "dark green 1", "bright green", "light green 2") }
+    else if (n == 5 & NT_theme == "green") { c("dark green 2", "dark green 1", "bright green", "light green 2", "light green 1") }
+    else if (n == 1 & NT_theme == "cyan") { "bright cyan" }
+    else if (n == 2 & NT_theme == "cyan") { c("dark cyan 2", "bright cyan") }
+    else if (n == 3 & NT_theme == "cyan") { c("dark cyan 2", "bright cyan", "light cyan 2") }
+    else if (n == 4 & NT_theme == "cyan") { c("dark cyan 2", "dark cyan 1", "bright cyan", "light cyan 2") }
+    else if (n == 5 & NT_theme == "cyan") { c("dark cyan 2", "dark cyan 1", "bright cyan", "light cyan 2", "light cyan 1") }
+    
+    return_colours <- NT_colour(colour_indices)
+    
+    if (reverse) {
+      
+      return_colours <- rev(NT_colour(colour_indices))
+      
+    }
+    
+    return(return_colours)
+    
+  }
+}
+
+####################################
+
+# NT colour scale
+
+scale_colour_NT <- function(palette = NT_palette(NT_theme = NULL, reverse = FALSE, ...), ...) {
+  
+  ggplot2::discrete_scale(
+    aesthetics = "colour",
+    scale_name = "NT1",
+    palette = palette,
+    na.value = "#9AA0AA",
+    ...
+  )
+  
+}
+
+####################################
+
+# NT fill scale
+
+scale_fill_NT <- function(palette = NT_palette(NT_theme = NULL, reverse = FALSE, ...), ...) {
+  
+  ggplot2::discrete_scale(
+    aesthetics = "fill",
+    scale_name = "NT2",
+    palette = palette,
+    na.value = "#9AA0AA",
+    ...
+  )
+  
+}
+
+####################################
+
+# NT ggplot theme
 
 NT_style <- function(){
   
@@ -96,8 +271,34 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
          , cod_ons_3 = str_sub(cod_ons, 1, 3)
          , cod_ons_4 = str_sub(cod_ons, 1, 5)
          , pod_ons_new = case_when(pod_ons == "Elsewhere" | pod_ons == "Other communal establishment" ~ "Elsewhere/other"
-                                   , TRUE ~ as.character(pod_ons))) %>%
-  left_join(read_csv(here::here("docs", "lookups", "msoa_lad_rgn_2020.csv"))
+                                   , TRUE ~ as.character(pod_ons))
+         , agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
+                              , age >= 10 & age <= 19 ~ "10-19"
+                              , age >= 20 & age <= 29 ~ "20-29"
+                              , age >= 30 & age <= 39 ~ "30-39"
+                              , age >= 40 & age <= 49 ~ "40-49"
+                              , age >= 50 & age <= 59 ~ "50-59"
+                              , age >= 60 & age <= 69 ~ "60-69"
+                              , age >= 70 & age <= 79 ~ "70-79"
+                              , age >= 80 & age <= 89 ~ "80-89"
+                              , age >= 90 ~ "90+"
+                              , TRUE ~ NA_character_)
+         , ltc_count = arrow::read_feather(file = here::here("output", "input.feather")) %>% select(starts_with("ltc_")) %>% rowSums()
+         , ltcgrp = case_when(ltc_count < 5 ~ as.character(ltc_count)
+                               , ltc_count >= 5 ~ "5+"
+                               , TRUE ~ NA_character_)
+         , codgrp = case_when(cod_ons_4 %in% c("U071", "U072") ~ "Covid-19"
+                                   , cod_ons_3 >= "J09" & cod_ons_3 <= "J18" ~ "Flu and pneumonia"
+                                   , (cod_ons_3 >= "J00" & cod_ons_3 <= "J08") | (cod_ons_3 >= "J19" & cod_ons_3 <= "J99")  ~ "Other respiratory diseases"
+                                   , cod_ons_3 %in% c("F01", "F03", "G30") ~ "Dementia and Alzheimer's disease"
+                                   , cod_ons_3 >= "I00" & cod_ons_3 <= "I99" ~ "Circulatory diseases"
+                                   , cod_ons_3 >= "C00" & cod_ons_3 <= "C99" ~ "Cancer"
+                                   , TRUE ~ "All other causes")
+         , palcare = ltc_palcare1
+         , nopalcare = ltc_palcare2) %>%
+  left_join(read_csv(here::here("docs", "lookups", "msoa_lad_rgn_2020.csv")) %>% 
+              select(msoa11cd, lad20cd, rgn20cd) %>% 
+              rename(region = rgn20cd)
             , by = c("msoa" = "msoa11cd")) %>%
   left_join(read_csv(here::here("docs", "lookups", "lad_imd_2019.csv")) %>% 
               rename(imd_quintile_la = imd19_quintile)
@@ -119,2350 +320,442 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
 
 ########## Service use of home deaths by cohort and characteristics ##########
 
-# Sex
+characteristic <- c("sex", "agegrp", "ethnicity", "ltcgrp", "palcare", "nopalcare", "region", "imd_quintile", "imd_quintile_la"
+                    , "rural_urban", "region_gp", "imd_quintile_la_gp", "codgrp")
 
-service_use_cohort_home_sex <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(cohort, sex, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, sex), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, sex, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), sex, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
+save_cohort <- function(var) {
+  
+  service_use_cohort_home <- df_input %>%
+    rename(variable = var) %>% 
+    filter(pod_ons_new == "Home") %>% 
+    select(cohort, variable, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+    select(-contains("gp_hist")) %>% 
+    pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
+    group_by(cohort, variable, measure) %>%
+    summarise(n = n()
+              , mean = mean(value, na.rm = TRUE)
+              , sd = sd(value, na.rm = TRUE)
+              , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+    mutate(n = plyr::round_any(n, 10)
+           , n_atleast1 = plyr::round_any(n_atleast1, 10)
+           , mean = case_when(n_atleast1 == 0 ~ 0
+                              , TRUE ~ mean)
+           , sd = case_when(n_atleast1 == 0 ~ 0
+                            , TRUE ~ sd)) %>%   
+    pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
+    mutate(activity = str_sub(measure, 1, -4)
+           , period = str_sub(measure, -2, -1)) %>%
+    arrange(factor(period, levels = c("1m", "3m", "1y")), variable, activity) %>%
+    mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
+  
+  filename <- paste0("service_use_cohort_home_", var, ".csv")
+  
+  write_csv(service_use_cohort_home, here::here("output", "describe_service_use_home", filename))  
+  
+  return(service_use_cohort_home)
+  
+}
 
-write_csv(service_use_cohort_home_sex, here::here("output", "describe_service_use_home", "service_use_cohort_home_sex.csv"))
-
-# Age group
-
-service_use_cohort_home_agegrp <- df_input %>%
-  mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
-                            , age >= 10 & age <= 19 ~ "10-19"
-                            , age >= 20 & age <= 29 ~ "20-29"
-                            , age >= 30 & age <= 39 ~ "30-39"
-                            , age >= 40 & age <= 49 ~ "40-49"
-                            , age >= 50 & age <= 59 ~ "50-59"
-                            , age >= 60 & age <= 69 ~ "60-69"
-                            , age >= 70 & age <= 79 ~ "70-79"
-                            , age >= 80 & age <= 89 ~ "80-89"
-                            , age >= 90 ~ "90+"
-                            , TRUE ~ NA_character_)) %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(cohort, agegrp, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, agegrp), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, agegrp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), agegrp, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(service_use_cohort_home_agegrp, here::here("output", "describe_service_use_home", "service_use_cohort_home_agegrp.csv"))
-
-# Ethnicity
-
-service_use_cohort_home_ethnicity <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(cohort, ethnicity, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, ethnicity), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, ethnicity, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), ethnicity, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(service_use_cohort_home_ethnicity, here::here("output", "describe_service_use_home", "service_use_cohort_home_ethnicity.csv"))
-
-# Long term conditions
-
-service_use_cohort_home_ltc <- df_input %>%
-  mutate(ltc_count = df_input %>% select(starts_with("ltc_")) %>% rowSums()
-         , ltc_grp = case_when(ltc_count < 5 ~ as.character(ltc_count)
-                               , ltc_count >= 5 ~ "5+"
-                               , TRUE ~ NA_character_)) %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(cohort, ltc_grp, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, ltc_grp), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, ltc_grp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), ltc_grp, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(service_use_cohort_home_ltc, here::here("output", "describe_service_use_home", "service_use_cohort_home_ltc.csv"))
-
-# Palliative care
-
-service_use_cohort_home_palcare <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(cohort, ltc_palcare1, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, ltc_palcare1), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, ltc_palcare1, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), ltc_palcare1, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(service_use_cohort_home_palcare, here::here("output", "describe_service_use_home", "service_use_cohort_home_palcare.csv"))
-
-# No palliative care
-
-service_use_cohort_home_nopalcare <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(cohort, ltc_palcare2, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, ltc_palcare2), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, ltc_palcare2, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), ltc_palcare2, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(service_use_cohort_home_nopalcare, here::here("output", "describe_service_use_home", "service_use_cohort_home_nopalcare.csv"))
-
-# Region
-
-service_use_cohort_home_region <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(cohort, rgn20cd, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, rgn20cd), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, rgn20cd, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), rgn20cd, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(service_use_cohort_home_region, here::here("output", "describe_service_use_home", "service_use_cohort_home_region.csv"))
-
-# Deprivation quintile
-
-service_use_cohort_home_imd <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(cohort, imd_quintile, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, imd_quintile), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, imd_quintile, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), imd_quintile, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(service_use_cohort_home_imd, here::here("output", "describe_service_use_home", "service_use_cohort_home_imd.csv"))
-
-# Local authority deprivation quintile
-
-service_use_cohort_home_imd_la <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(cohort, imd_quintile_la, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, imd_quintile_la), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, imd_quintile_la, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), imd_quintile_la, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(service_use_cohort_home_imd_la, here::here("output", "describe_service_use_home", "service_use_cohort_home_imd_la.csv"))
-
-# Rural urban
-
-service_use_cohort_home_rural_urban <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(cohort, rural_urban, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, rural_urban), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, rural_urban, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), rural_urban, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(service_use_cohort_home_rural_urban, here::here("output", "describe_service_use_home", "service_use_cohort_home_rural_urban.csv"))
-
-# GP region
-
-service_use_cohort_home_region_gp <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(cohort, region_gp, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, region_gp), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, region_gp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), region_gp, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(service_use_cohort_home_region_gp, here::here("output", "describe_service_use_home", "service_use_cohort_home_region_gp.csv"))
-
-# GP local authority deprivation quintile
-
-service_use_cohort_home_imd_la_gp <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(cohort, imd_quintile_la_gp, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, imd_quintile_la_gp), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, imd_quintile_la_gp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), imd_quintile_la_gp, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(service_use_cohort_home_imd_la_gp, here::here("output", "describe_service_use_home", "service_use_cohort_home_imd_la_gp.csv"))
-
-# Cause of death
-
-service_use_cohort_home_cod <- df_input %>%
-  mutate(cod_ons_grp = case_when(cod_ons_4 %in% c("U071", "U072") ~ "Covid-19"
-                                 , cod_ons_3 >= "J09" & cod_ons_3 <= "J18" ~ "Flu and pneumonia"
-                                 , (cod_ons_3 >= "J00" & cod_ons_3 <= "J08") | (cod_ons_3 >= "J19" & cod_ons_3 <= "J99")  ~ "Other respiratory diseases"
-                                 , cod_ons_3 %in% c("F01", "F03", "G30") ~ "Dementia and Alzheimer's disease"
-                                 , cod_ons_3 >= "I00" & cod_ons_3 <= "I99" ~ "Circulatory diseases"
-                                 , cod_ons_3 >= "C00" & cod_ons_3 <= "C99" ~ "Cancer"
-                                 , TRUE ~ "All other causes")) %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(cohort, cod_ons_grp, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, cod_ons_grp), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, cod_ons_grp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(factor(period, levels = c("1m", "3m", "1y")), cod_ons_grp, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(service_use_cohort_home_cod, here::here("output", "describe_service_use_home", "service_use_cohort_home_cod.csv"))
+lapply(characteristic, save_cohort)
 
 ##############################
 
 ## Calculate the same just for people with complete gp history
 
-# Sex
+save_gp_cohort <- function(var) {
+  
+  gp_service_use_cohort_home <- df_input %>%
+    rename(variable = var) %>% 
+    filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
+    select(cohort, variable, ends_with("_1m")) %>%
+    select(-contains("gp_hist")) %>% 
+    pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
+    group_by(cohort, variable, measure) %>%
+    summarise(n = n()
+              , mean = mean(value, na.rm = TRUE)
+              , sd = sd(value, na.rm = TRUE)
+              , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+    mutate(n = plyr::round_any(n, 10)
+           , n_atleast1 = plyr::round_any(n_atleast1, 10)
+           , mean = case_when(n_atleast1 == 0 ~ 0
+                              , TRUE ~ mean)
+           , sd = case_when(n_atleast1 == 0 ~ 0
+                            , TRUE ~ sd)) %>%   
+    pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
+    bind_rows(df_input %>%
+                rename(variable = var) %>% 
+                filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
+                select(cohort, variable, ends_with("_3m")) %>%
+                select(-contains("gp_hist")) %>% 
+                pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
+                group_by(cohort, variable, measure) %>%
+                summarise(n = n()
+                          , mean = mean(value, na.rm = TRUE)
+                          , sd = sd(value, na.rm = TRUE)
+                          , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                mutate(n = plyr::round_any(n, 10)
+                       , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                       , mean = case_when(n_atleast1 == 0 ~ 0
+                                          , TRUE ~ mean)
+                       , sd = case_when(n_atleast1 == 0 ~ 0
+                                        , TRUE ~ sd)) %>%   
+                pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
+    bind_rows(df_input %>%
+                rename(variable = var) %>% 
+                filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
+                select(cohort, variable, ends_with("_1y")) %>%
+                select(-contains("gp_hist")) %>% 
+                pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
+                group_by(cohort, variable, measure) %>%
+                summarise(n = n()
+                          , mean = mean(value, na.rm = TRUE)
+                          , sd = sd(value, na.rm = TRUE)
+                          , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                mutate(n = plyr::round_any(n, 10)
+                       , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                       , mean = case_when(n_atleast1 == 0 ~ 0
+                                          , TRUE ~ mean)
+                       , sd = case_when(n_atleast1 == 0 ~ 0
+                                        , TRUE ~ sd)) %>%  
+                pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
+    mutate(activity = str_sub(measure, 1, -4)
+           , period = str_sub(measure, -2, -1)) %>%
+    arrange(factor(period, levels = c("1m", "3m", "1y")), variable, activity) %>%
+    mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
+  
+  filename <- paste0("gp_service_use_cohort_home_", var, ".csv")
+  
+  write_csv(gp_service_use_cohort_home, here::here("output", "describe_service_use_home", "complete_gp_history", filename))
+  
+  
+}
 
-gp_service_use_cohort_home_sex <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(cohort, sex, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, sex), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, sex, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, sex, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, sex), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, sex, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, sex, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, sex), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, sex, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(sex, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(gp_service_use_cohort_home_sex, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_sex.csv"))
-
-# Age group
-
-gp_service_use_cohort_home_agegrp <- df_input %>%
-  mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
-                            , age >= 10 & age <= 19 ~ "10-19"
-                            , age >= 20 & age <= 29 ~ "20-29"
-                            , age >= 30 & age <= 39 ~ "30-39"
-                            , age >= 40 & age <= 49 ~ "40-49"
-                            , age >= 50 & age <= 59 ~ "50-59"
-                            , age >= 60 & age <= 69 ~ "60-69"
-                            , age >= 70 & age <= 79 ~ "70-79"
-                            , age >= 80 & age <= 89 ~ "80-89"
-                            , age >= 90 ~ "90+"
-                            , TRUE ~ NA_character_)) %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(cohort, agegrp, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, agegrp), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, agegrp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  bind_rows(df_input %>%
-              mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
-                                        , age >= 10 & age <= 19 ~ "10-19"
-                                        , age >= 20 & age <= 29 ~ "20-29"
-                                        , age >= 30 & age <= 39 ~ "30-39"
-                                        , age >= 40 & age <= 49 ~ "40-49"
-                                        , age >= 50 & age <= 59 ~ "50-59"
-                                        , age >= 60 & age <= 69 ~ "60-69"
-                                        , age >= 70 & age <= 79 ~ "70-79"
-                                        , age >= 80 & age <= 89 ~ "80-89"
-                                        , age >= 90 ~ "90+"
-                                        , TRUE ~ NA_character_)) %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, agegrp, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, agegrp), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, agegrp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  bind_rows(df_input %>%
-              mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
-                                        , age >= 10 & age <= 19 ~ "10-19"
-                                        , age >= 20 & age <= 29 ~ "20-29"
-                                        , age >= 30 & age <= 39 ~ "30-39"
-                                        , age >= 40 & age <= 49 ~ "40-49"
-                                        , age >= 50 & age <= 59 ~ "50-59"
-                                        , age >= 60 & age <= 69 ~ "60-69"
-                                        , age >= 70 & age <= 79 ~ "70-79"
-                                        , age >= 80 & age <= 89 ~ "80-89"
-                                        , age >= 90 ~ "90+"
-                                        , TRUE ~ NA_character_)) %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, agegrp, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, agegrp), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, agegrp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(agegrp, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(gp_service_use_cohort_home_agegrp, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_agegrp.csv"))
-
-# Ethnicity
-
-gp_service_use_cohort_home_ethnicity <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(cohort, ethnicity, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, ethnicity), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, ethnicity, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, ethnicity, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, ethnicity), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, ethnicity, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, ethnicity, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, ethnicity), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, ethnicity, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(ethnicity, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(gp_service_use_cohort_home_ethnicity, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_ethnicity.csv"))
-
-# Long term conditions
-
-gp_service_use_cohort_home_ltc <- df_input %>%
-  mutate(ltc_count = df_input %>% select(starts_with("ltc_")) %>% rowSums()
-         , ltc_grp = case_when(ltc_count < 5 ~ as.character(ltc_count)
-                               , ltc_count >= 5 ~ "5+"
-                               , TRUE ~ NA_character_)) %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(cohort, ltc_grp, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, ltc_grp), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, ltc_grp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  bind_rows(df_input %>%
-              mutate(ltc_count = df_input %>% select(starts_with("ltc_")) %>% rowSums()
-                     , ltc_grp = case_when(ltc_count < 5 ~ as.character(ltc_count)
-                                           , ltc_count >= 5 ~ "5+"
-                                           , TRUE ~ NA_character_)) %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, ltc_grp, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, ltc_grp), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, ltc_grp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  bind_rows(df_input %>%
-              mutate(ltc_count = df_input %>% select(starts_with("ltc_")) %>% rowSums()
-                     , ltc_grp = case_when(ltc_count < 5 ~ as.character(ltc_count)
-                                           , ltc_count >= 5 ~ "5+"
-                                           , TRUE ~ NA_character_)) %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, ltc_grp, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, ltc_grp), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, ltc_grp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(ltc_grp, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(gp_service_use_cohort_home_ltc, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_ltc.csv"))
-
-# Palliative care
-
-gp_service_use_cohort_home_palcare <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(cohort, ltc_palcare1, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, ltc_palcare1), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, ltc_palcare1, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, ltc_palcare1, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, ltc_palcare1), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, ltc_palcare1, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, ltc_palcare1, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, ltc_palcare1), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, ltc_palcare1, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(ltc_palcare1, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(gp_service_use_cohort_home_palcare, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_palcare.csv"))
-
-# No palliative care
-
-gp_service_use_cohort_home_nopalcare <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(cohort, ltc_palcare2, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, ltc_palcare2), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, ltc_palcare2, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, ltc_palcare2, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, ltc_palcare2), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, ltc_palcare2, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, ltc_palcare2, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, ltc_palcare2), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, ltc_palcare2, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(ltc_palcare2, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(gp_service_use_cohort_home_nopalcare, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_nopalcare.csv"))
-
-# Region
-
-gp_service_use_cohort_home_region <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(cohort, rgn20cd, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, rgn20cd), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, rgn20cd, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, rgn20cd, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, rgn20cd), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, rgn20cd, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, rgn20cd, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, rgn20cd), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, rgn20cd, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(rgn20cd, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(gp_service_use_cohort_home_region, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_region.csv"))
-
-# IMD quintile
-
-gp_service_use_cohort_home_imd <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(cohort, imd_quintile, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, imd_quintile), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, imd_quintile, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, imd_quintile, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, imd_quintile), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, imd_quintile, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, imd_quintile, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, imd_quintile), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, imd_quintile, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(imd_quintile, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(gp_service_use_cohort_home_imd, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_imd.csv"))
-
-# LA IMD quintile
-
-gp_service_use_cohort_home_imd_la <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(cohort, imd_quintile_la, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, imd_quintile_la), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, imd_quintile_la, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, imd_quintile_la, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, imd_quintile_la), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, imd_quintile_la, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, imd_quintile_la, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, imd_quintile_la), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, imd_quintile_la, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(imd_quintile_la, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(gp_service_use_cohort_home_imd_la, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_imd_la.csv"))
-
-# Rural urban
-
-gp_service_use_cohort_home_rural_urban <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(cohort, rural_urban, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, rural_urban), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, rural_urban, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, rural_urban, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, rural_urban), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, rural_urban, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, rural_urban, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, rural_urban), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, rural_urban, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(rural_urban, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(gp_service_use_cohort_home_rural_urban, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_rural_urban.csv"))
-
-# GP region
-
-gp_service_use_cohort_home_region_gp <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(cohort, region_gp, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, region_gp), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, region_gp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, region_gp, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, region_gp), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, region_gp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, region_gp, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, region_gp), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, region_gp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(region_gp, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(gp_service_use_cohort_home_region_gp, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_region_gp.csv"))
-
-# GP LA IMD quintile
-
-gp_service_use_cohort_home_imd_la_gp <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(cohort, imd_quintile_la_gp, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, imd_quintile_la_gp), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, imd_quintile_la_gp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, imd_quintile_la_gp, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, imd_quintile_la_gp), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, imd_quintile_la_gp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, imd_quintile_la_gp, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, imd_quintile_la_gp), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, imd_quintile_la_gp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(imd_quintile_la_gp, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(gp_service_use_cohort_home_imd_la_gp, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_imd_la_gp.csv"))
-
-# Cause of death
-
-gp_service_use_cohort_home_cod <- df_input %>%
-  mutate(cod_ons_grp = case_when(cod_ons_4 %in% c("U071", "U072") ~ "Covid-19"
-                                  , cod_ons_3 >= "J09" & cod_ons_3 <= "J18" ~ "Flu and pneumonia"
-                                  , (cod_ons_3 >= "J00" & cod_ons_3 <= "J08") | (cod_ons_3 >= "J19" & cod_ons_3 <= "J99")  ~ "Other respiratory diseases"
-                                  , cod_ons_3 %in% c("F01", "F03", "G30") ~ "Dementia and Alzheimer's disease"
-                                  , cod_ons_3 >= "I00" & cod_ons_3 <= "I99" ~ "Circulatory diseases"
-                                  , cod_ons_3 >= "C00" & cod_ons_3 <= "C99" ~ "Cancer"
-                                  , TRUE ~ "All other causes")) %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(cohort, cod_ons_grp, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(cohort, cod_ons_grp), names_to = "measure", values_to = "value") %>%
-  group_by(cohort, cod_ons_grp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
-  bind_rows(df_input %>%
-              mutate(cod_ons_grp = case_when(cod_ons_4 %in% c("U071", "U072") ~ "Covid-19"
-                                             , cod_ons_3 >= "J09" & cod_ons_3 <= "J18" ~ "Flu and pneumonia"
-                                             , (cod_ons_3 >= "J00" & cod_ons_3 <= "J08") | (cod_ons_3 >= "J19" & cod_ons_3 <= "J99")  ~ "Other respiratory diseases"
-                                             , cod_ons_3 %in% c("F01", "F03", "G30") ~ "Dementia and Alzheimer's disease"
-                                             , cod_ons_3 >= "I00" & cod_ons_3 <= "I99" ~ "Circulatory diseases"
-                                             , cod_ons_3 >= "C00" & cod_ons_3 <= "C99" ~ "Cancer"
-                                             , TRUE ~ "All other causes")) %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, cod_ons_grp, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, cod_ons_grp), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, cod_ons_grp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  bind_rows(df_input %>%
-              mutate(cod_ons_grp = case_when(cod_ons_4 %in% c("U071", "U072") ~ "Covid-19"
-                                             , cod_ons_3 >= "J09" & cod_ons_3 <= "J18" ~ "Flu and pneumonia"
-                                             , (cod_ons_3 >= "J00" & cod_ons_3 <= "J08") | (cod_ons_3 >= "J19" & cod_ons_3 <= "J99")  ~ "Other respiratory diseases"
-                                             , cod_ons_3 %in% c("F01", "F03", "G30") ~ "Dementia and Alzheimer's disease"
-                                             , cod_ons_3 >= "I00" & cod_ons_3 <= "I99" ~ "Circulatory diseases"
-                                             , cod_ons_3 >= "C00" & cod_ons_3 <= "C99" ~ "Cancer"
-                                             , TRUE ~ "All other causes")) %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(cohort, cod_ons_grp, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(cohort, cod_ons_grp), names_to = "measure", values_to = "value") %>%
-              group_by(cohort, cod_ons_grp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(cod_ons_grp, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
-
-write_csv(gp_service_use_cohort_home_cod, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_cod.csv"))
+lapply(characteristic, save_gp_cohort)
 
 ################################################################################
 
 ##########  Service use of home deaths by quarter and characteristic  ##########
 
-# Sex
+save_quarter <- function(var) {
+  
+  service_use_quarter_home <- df_input %>%
+    rename(variable = var) %>%
+    filter(pod_ons_new == "Home") %>% 
+    select(study_quarter, variable, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+    select(-contains("gp_hist")) %>% 
+    pivot_longer(cols = -c(study_quarter, variable), names_to = "measure", values_to = "value") %>%
+    group_by(study_quarter, variable, measure) %>%
+    summarise(n = n()
+              , mean = mean(value, na.rm = TRUE)
+              , sd = sd(value, na.rm = TRUE)
+              , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+    mutate(n = plyr::round_any(n, 10)
+           , n_atleast1 = plyr::round_any(n_atleast1, 10)
+           , mean = case_when(n_atleast1 == 0 ~ 0
+                              , TRUE ~ mean)
+           , sd = case_when(n_atleast1 == 0 ~ 0
+                            , TRUE ~ sd)) %>%   
+    mutate(activity = str_sub(measure, 1, -4)
+           , period = str_sub(measure, -2, -1)) %>%
+    arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), variable, activity)
+  
+  filename <- paste0("service_use_quarter_home_", var, ".csv")
+  
+  write_csv(service_use_quarter_home, here::here("output", "describe_service_use_home", filename))  
+  
+}
 
-service_use_quarter_home_sex <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(study_quarter, sex, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, sex), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, sex, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), sex, activity)
-
-write_csv(service_use_quarter_home_sex, here::here("output", "describe_service_use_home", "service_use_quarter_home_sex.csv"))
-
-# Age group
-
-service_use_quarter_home_agegrp <- df_input %>%
-  mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
-                            , age >= 10 & age <= 19 ~ "10-19"
-                            , age >= 20 & age <= 29 ~ "20-29"
-                            , age >= 30 & age <= 39 ~ "30-39"
-                            , age >= 40 & age <= 49 ~ "40-49"
-                            , age >= 50 & age <= 59 ~ "50-59"
-                            , age >= 60 & age <= 69 ~ "60-69"
-                            , age >= 70 & age <= 79 ~ "70-79"
-                            , age >= 80 & age <= 89 ~ "80-89"
-                            , age >= 90 ~ "90+"
-                            , TRUE ~ NA_character_)) %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(study_quarter, agegrp, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, agegrp), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, agegrp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), agegrp, activity) 
-
-write_csv(service_use_quarter_home_agegrp, here::here("output", "describe_service_use_home", "service_use_quarter_home_agegrp.csv"))
-
-# Ethnicity
-
-service_use_quarter_home_ethnicity <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(study_quarter, ethnicity, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, ethnicity), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, ethnicity, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), ethnicity, activity) 
-
-write_csv(service_use_quarter_home_ethnicity, here::here("output", "describe_service_use_home", "service_use_quarter_home_ethnicity.csv"))
-
-# Long term conditions
-
-service_use_quarter_home_ltc <- df_input %>%
-  mutate(ltc_count = df_input %>% select(starts_with("ltc_")) %>% rowSums()
-         , ltc_grp = case_when(ltc_count < 5 ~ as.character(ltc_count)
-                               , ltc_count >= 5 ~ "5+"
-                               , TRUE ~ NA_character_)) %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(study_quarter, ltc_grp, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, ltc_grp), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, ltc_grp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), ltc_grp, activity) 
-
-write_csv(service_use_quarter_home_ltc, here::here("output", "describe_service_use_home", "service_use_quarter_home_ltc.csv"))
-
-# Palliative care
-
-service_use_quarter_home_palcare <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(study_quarter, ltc_palcare1, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, ltc_palcare1), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, ltc_palcare1, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), ltc_palcare1, activity) 
-
-write_csv(service_use_quarter_home_palcare, here::here("output", "describe_service_use_home", "service_use_quarter_home_palcare.csv"))
-
-# No palliative care
-
-service_use_quarter_home_nopalcare <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(study_quarter, ltc_palcare2, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, ltc_palcare2), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, ltc_palcare2, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), ltc_palcare2, activity) 
-
-write_csv(service_use_quarter_home_nopalcare, here::here("output", "describe_service_use_home", "service_use_quarter_home_nopalcare.csv"))
-
-# Region
-
-service_use_quarter_home_region <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(study_quarter, rgn20cd, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, rgn20cd), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, rgn20cd, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), rgn20cd, activity)
-
-write_csv(service_use_quarter_home_region, here::here("output", "describe_service_use_home", "service_use_quarter_home_region.csv"))
-
-# Deprivation quintile
-
-service_use_quarter_home_imd <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(study_quarter, imd_quintile, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, imd_quintile), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, imd_quintile, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), imd_quintile, activity) 
-
-write_csv(service_use_quarter_home_imd, here::here("output", "describe_service_use_home", "service_use_quarter_home_imd.csv"))
-
-# Local authority deprivation quintile
-
-service_use_quarter_home_imd_la <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(study_quarter, imd_quintile_la, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, imd_quintile_la), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, imd_quintile_la, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), imd_quintile_la, activity) 
-
-write_csv(service_use_quarter_home_imd_la, here::here("output", "describe_service_use_home", "service_use_quarter_home_imd_la.csv"))
-
-# Rural urban
-
-service_use_quarter_home_rural_urban <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(study_quarter, rural_urban, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, rural_urban), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, rural_urban, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), rural_urban, activity) 
-
-write_csv(service_use_quarter_home_rural_urban, here::here("output", "describe_service_use_home", "service_use_quarter_home_rural_urban.csv"))
-
-# GP region
-
-service_use_quarter_home_region_gp <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(study_quarter, region_gp, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, region_gp), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, region_gp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), region_gp, activity) 
-
-write_csv(service_use_quarter_home_region_gp, here::here("output", "describe_service_use_home", "service_use_quarter_home_region_gp.csv"))
-
-# GP local authority deprivation quintile
-
-service_use_quarter_home_imd_la_gp <- df_input %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(study_quarter, imd_quintile_la_gp, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, imd_quintile_la_gp), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, imd_quintile_la_gp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), imd_quintile_la_gp, activity) 
-
-write_csv(service_use_quarter_home_imd_la_gp, here::here("output", "describe_service_use_home", "service_use_quarter_home_imd_la_gp.csv"))
-
-# Cause of death
-
-service_use_quarter_home_cod <- df_input %>%
-  mutate(cod_ons_grp = case_when(cod_ons_4 %in% c("U071", "U072") ~ "Covid-19"
-                                 , cod_ons_3 >= "J09" & cod_ons_3 <= "J18" ~ "Flu and pneumonia"
-                                 , (cod_ons_3 >= "J00" & cod_ons_3 <= "J08") | (cod_ons_3 >= "J19" & cod_ons_3 <= "J99")  ~ "Other respiratory diseases"
-                                 , cod_ons_3 %in% c("F01", "F03", "G30") ~ "Dementia and Alzheimer's disease"
-                                 , cod_ons_3 >= "I00" & cod_ons_3 <= "I99" ~ "Circulatory diseases"
-                                 , cod_ons_3 >= "C00" & cod_ons_3 <= "C99" ~ "Cancer"
-                                 , TRUE ~ "All other causes")) %>%
-  filter(pod_ons_new == "Home") %>% 
-  select(study_quarter, cod_ons_grp, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, cod_ons_grp), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, cod_ons_grp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), cod_ons_grp, activity) 
-
-write_csv(service_use_quarter_home_cod, here::here("output", "describe_service_use_home", "service_use_quarter_home_cod.csv"))
+lapply(characteristic, save_quarter)
 
 ##############################
 
 ## Calculate the same just for people with complete gp history
 
-# Sex
+save_gp_quarter <- function(var) {
+  
+  gp_service_use_quarter_home <- df_input %>%
+    rename(variable = var) %>%
+    filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
+    select(study_quarter, variable, ends_with("_1m")) %>%
+    select(-contains("gp_hist")) %>% 
+    pivot_longer(cols = -c(study_quarter, variable), names_to = "measure", values_to = "value") %>%
+    group_by(study_quarter, variable, measure) %>%
+    summarise(n = n()
+              , mean = mean(value, na.rm = TRUE)
+              , sd = sd(value, na.rm = TRUE)
+              , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+    mutate(n = plyr::round_any(n, 10)
+           , n_atleast1 = plyr::round_any(n_atleast1, 10)
+           , mean = case_when(n_atleast1 == 0 ~ 0
+                              , TRUE ~ mean)
+           , sd = case_when(n_atleast1 == 0 ~ 0
+                            , TRUE ~ sd)) %>% 
+    bind_rows(df_input %>%
+                rename(variable = var) %>%
+                filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
+                select(study_quarter, variable, ends_with("_3m")) %>%
+                select(-contains("gp_hist")) %>% 
+                pivot_longer(cols = -c(study_quarter, variable), names_to = "measure", values_to = "value") %>%
+                group_by(study_quarter, variable, measure) %>%
+                summarise(n = n()
+                          , mean = mean(value, na.rm = TRUE)
+                          , sd = sd(value, na.rm = TRUE)
+                          , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                mutate(n = plyr::round_any(n, 10)
+                       , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                       , mean = case_when(n_atleast1 == 0 ~ 0
+                                          , TRUE ~ mean)
+                       , sd = case_when(n_atleast1 == 0 ~ 0
+                                        , TRUE ~ sd))) %>% 
+    bind_rows(df_input %>%
+                rename(variable = var) %>%
+                filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
+                select(study_quarter, variable, ends_with("_1y")) %>%
+                select(-contains("gp_hist")) %>% 
+                pivot_longer(cols = -c(study_quarter, variable), names_to = "measure", values_to = "value") %>%
+                group_by(study_quarter, variable, measure) %>%
+                summarise(n = n()
+                          , mean = mean(value, na.rm = TRUE)
+                          , sd = sd(value, na.rm = TRUE)
+                          , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                mutate(n = plyr::round_any(n, 10)
+                       , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                       , mean = case_when(n_atleast1 == 0 ~ 0
+                                          , TRUE ~ mean)
+                       , sd = case_when(n_atleast1 == 0 ~ 0
+                                        , TRUE ~ sd))) %>%  
+    mutate(activity = str_sub(measure, 1, -4)
+           , period = str_sub(measure, -2, -1)) %>%
+    arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), variable, activity)
+  
+  filename <- paste0("gp_service_use_quarter_home_", var, ".csv")
+  
+  write_csv(gp_service_use_quarter_home, here::here("output", "describe_service_use_home", "complete_gp_history", filename))
+  
+}
 
-gp_service_use_quarter_home_sex <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(study_quarter, sex, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, sex), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, sex, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, sex, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, sex), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, sex, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, sex, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, sex), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, sex, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(sex, factor(period, levels = c("1m", "3m", "1y")), activity) 
+lapply(characteristic, save_gp_quarter)
 
-write_csv(gp_service_use_quarter_home_sex, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_sex.csv"))
+################################################################################
 
-# Age group
+########## Plot service use by quarter and characteristic ##########
 
-gp_service_use_quarter_home_agegrp <- df_input %>%
-  mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
-                            , age >= 10 & age <= 19 ~ "10-19"
-                            , age >= 20 & age <= 29 ~ "20-29"
-                            , age >= 30 & age <= 39 ~ "30-39"
-                            , age >= 40 & age <= 49 ~ "40-49"
-                            , age >= 50 & age <= 59 ~ "50-59"
-                            , age >= 60 & age <= 69 ~ "60-69"
-                            , age >= 70 & age <= 79 ~ "70-79"
-                            , age >= 80 & age <= 89 ~ "80-89"
-                            , age >= 90 ~ "90+"
-                            , TRUE ~ NA_character_)) %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(study_quarter, agegrp, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, agegrp), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, agegrp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%
-  bind_rows(df_input %>%
-              mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
-                                        , age >= 10 & age <= 19 ~ "10-19"
-                                        , age >= 20 & age <= 29 ~ "20-29"
-                                        , age >= 30 & age <= 39 ~ "30-39"
-                                        , age >= 40 & age <= 49 ~ "40-49"
-                                        , age >= 50 & age <= 59 ~ "50-59"
-                                        , age >= 60 & age <= 69 ~ "60-69"
-                                        , age >= 70 & age <= 79 ~ "70-79"
-                                        , age >= 80 & age <= 89 ~ "80-89"
-                                        , age >= 90 ~ "90+"
-                                        , TRUE ~ NA_character_)) %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, agegrp, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, agegrp), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, agegrp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  bind_rows(df_input %>%
-              mutate(agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
-                                        , age >= 10 & age <= 19 ~ "10-19"
-                                        , age >= 20 & age <= 29 ~ "20-29"
-                                        , age >= 30 & age <= 39 ~ "30-39"
-                                        , age >= 40 & age <= 49 ~ "40-49"
-                                        , age >= 50 & age <= 59 ~ "50-59"
-                                        , age >= 60 & age <= 69 ~ "60-69"
-                                        , age >= 70 & age <= 79 ~ "70-79"
-                                        , age >= 80 & age <= 89 ~ "80-89"
-                                        , age >= 90 ~ "90+"
-                                        , TRUE ~ NA_character_)) %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, agegrp, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, agegrp), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, agegrp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(agegrp, factor(period, levels = c("1m", "3m", "1y")), activity) 
+activity <- unique(read_csv(here::here("output", "describe_service_use_home", "service_use_cohort_home_sex.csv"))$activity)
 
-write_csv(gp_service_use_quarter_home_agegrp, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_agegrp.csv"))
+plots_service_use_quarter_char <- tidyr::expand_grid(characteristic, activity) %>%
+  mutate(dataset = map2(characteristic, activity, function(var, service) df_input %>%
+                          rename(variable = var) %>%
+                          filter(pod_ons_new == "Home") %>% 
+                          select(study_quarter, variable, starts_with(service)) %>%
+                          pivot_longer(cols = -c(study_quarter, variable), names_to = "measure", values_to = "value") %>%
+                          group_by(study_quarter, variable, measure) %>%
+                          summarise(n = n()
+                                    , mean = mean(value, na.rm = TRUE)
+                                    , sd = sd(value, na.rm = TRUE)
+                                    , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                          mutate(n = plyr::round_any(n, 10)
+                                 , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                                 , mean = case_when(n_atleast1 == 0 ~ 0
+                                                    , TRUE ~ mean)
+                                 , sd = case_when(n_atleast1 == 0 ~ 0
+                                                  , TRUE ~ sd)) %>%   
+                          mutate(activity = str_sub(measure, 1, -4)
+                                 , period = str_sub(measure, -2, -1)) %>%
+                          arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), variable, activity))
+         , plot_1m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1m")
+                                                                           , aes(x = study_quarter, y = mean, colour = factor(variable))) +
+                         geom_line(size = 1) +
+                         geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+                         labs(x = "Study quarter", y = "Events per person"
+                              , title = var) +
+                         guides(colour = guide_legend(byrow = TRUE)) +
+                         scale_colour_NT(palette = NT_palette()) +
+                         scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+                         scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+                         NT_style())
+         , plot_3m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "3m")
+                                                                              , aes(x = study_quarter, y = mean, colour = factor(variable))) +
+                            geom_line(size = 1) +
+                            geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+                            NT_style())
+         , plot_1y = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1y")
+                                                                              , aes(x = study_quarter, y = mean, colour = factor(variable))) +
+                            geom_line(size = 1) +
+                            geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+                            NT_style())
+  )
 
-# Ethnicity
+save_plots <- function(service) { 
+  
+  filename_1m <- paste0("output/describe_service_use_home/plots/service_use_quarter_home_", service, "_1m.pdf")
+  
+  pdf(filename_1m)
+  
+  print((plots_service_use_quarter_char %>% filter(activity == service))$plot_1m)  
+  
+  dev.off()
+  
+  
+  filename_3m <- paste0("output/describe_service_use_home/plots/service_use_quarter_home_", service, "_3m.pdf")
+  
+  pdf(filename_3m)
+  
+  print((plots_service_use_quarter_char %>% filter(activity == service))$plot_3m)  
+  
+  dev.off()
+  
+  
+  filename_1y <- paste0("output/describe_service_use_home/plots/service_use_quarter_home_", service, "_1y.pdf")
+  
+  pdf(filename_1y)
+  
+  print((plots_service_use_quarter_char %>% filter(activity == service))$plot_1y)  
+  
+  dev.off()
+  
+}
 
-gp_service_use_quarter_home_ethnicity <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(study_quarter, ethnicity, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, ethnicity), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, ethnicity, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, ethnicity, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, ethnicity), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, ethnicity, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, ethnicity, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, ethnicity), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, ethnicity, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(ethnicity, factor(period, levels = c("1m", "3m", "1y")), activity) 
+lapply(activity, save_plots)
 
-write_csv(gp_service_use_quarter_home_ethnicity, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_ethnicity.csv"))
+##############################
 
-# Long term conditions
+## Plot the same just for people with complete gp history
 
-gp_service_use_quarter_home_ltc <- df_input %>%
-  mutate(ltc_count = df_input %>% select(starts_with("ltc_")) %>% rowSums()
-         , ltc_grp = case_when(ltc_count < 5 ~ as.character(ltc_count)
-                               , ltc_count >= 5 ~ "5+"
-                               , TRUE ~ NA_character_)) %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(study_quarter, ltc_grp, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, ltc_grp), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, ltc_grp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>% 
-  bind_rows(df_input %>%
-              mutate(ltc_count = df_input %>% select(starts_with("ltc_")) %>% rowSums()
-                     , ltc_grp = case_when(ltc_count < 5 ~ as.character(ltc_count)
-                                           , ltc_count >= 5 ~ "5+"
-                                           , TRUE ~ NA_character_)) %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, ltc_grp, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, ltc_grp), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, ltc_grp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  bind_rows(df_input %>%
-              mutate(ltc_count = df_input %>% select(starts_with("ltc_")) %>% rowSums()
-                     , ltc_grp = case_when(ltc_count < 5 ~ as.character(ltc_count)
-                                           , ltc_count >= 5 ~ "5+"
-                                           , TRUE ~ NA_character_)) %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, ltc_grp, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, ltc_grp), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, ltc_grp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(ltc_grp, factor(period, levels = c("1m", "3m", "1y")), activity)
+plots_gp_service_use_quarter_char <- tidyr::expand_grid(characteristic, activity) %>%
+  mutate(dataset = map2(characteristic, activity, function(var, service) df_input %>%
+                          rename(variable = var) %>%
+                          filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
+                          select(study_quarter, variable, ends_with("_1m")) %>%
+                          select(-contains("gp_hist")) %>% 
+                          select(study_quarter, variable, starts_with(service)) %>%
+                          pivot_longer(cols = -c(study_quarter, variable), names_to = "measure", values_to = "value") %>%
+                          group_by(study_quarter, variable, measure) %>%
+                          summarise(n = n()
+                                    , mean = mean(value, na.rm = TRUE)
+                                    , sd = sd(value, na.rm = TRUE)
+                                    , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                          mutate(n = plyr::round_any(n, 10)
+                                 , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                                 , mean = case_when(n_atleast1 == 0 ~ 0
+                                                    , TRUE ~ mean)
+                                 , sd = case_when(n_atleast1 == 0 ~ 0
+                                                  , TRUE ~ sd)) %>% 
+                          bind_rows(df_input %>%
+                                      rename(variable = var) %>%
+                                      filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
+                                      select(study_quarter, variable, ends_with("_3m")) %>%
+                                      select(-contains("gp_hist")) %>% 
+                                      select(study_quarter, variable, starts_with(service)) %>%
+                                      pivot_longer(cols = -c(study_quarter, variable), names_to = "measure", values_to = "value") %>%
+                                      group_by(study_quarter, variable, measure) %>%
+                                      summarise(n = n()
+                                                , mean = mean(value, na.rm = TRUE)
+                                                , sd = sd(value, na.rm = TRUE)
+                                                , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                                      mutate(n = plyr::round_any(n, 10)
+                                             , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                                             , mean = case_when(n_atleast1 == 0 ~ 0
+                                                                , TRUE ~ mean)
+                                             , sd = case_when(n_atleast1 == 0 ~ 0
+                                                              , TRUE ~ sd))) %>% 
+                          bind_rows(df_input %>%
+                                      rename(variable = var) %>%
+                                      filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
+                                      select(study_quarter, variable, ends_with("_1y")) %>%
+                                      select(-contains("gp_hist")) %>% 
+                                      select(study_quarter, variable, starts_with(service)) %>%
+                                      pivot_longer(cols = -c(study_quarter, variable), names_to = "measure", values_to = "value") %>%
+                                      group_by(study_quarter, variable, measure) %>%
+                                      summarise(n = n()
+                                                , mean = mean(value, na.rm = TRUE)
+                                                , sd = sd(value, na.rm = TRUE)
+                                                , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                                      mutate(n = plyr::round_any(n, 10)
+                                             , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                                             , mean = case_when(n_atleast1 == 0 ~ 0
+                                                                , TRUE ~ mean)
+                                             , sd = case_when(n_atleast1 == 0 ~ 0
+                                                              , TRUE ~ sd))) %>%  
+                          mutate(activity = str_sub(measure, 1, -4)
+                                 , period = str_sub(measure, -2, -1)) %>%
+                          arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), variable, activity))
+         , plot_1m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1m")
+                                                                              , aes(x = study_quarter, y = mean, colour = factor(variable))) +
+                            geom_line(size = 1) +
+                            geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+                            NT_style())
+         , plot_3m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "3m")
+                                                                              , aes(x = study_quarter, y = mean, colour = factor(variable))) +
+                            geom_line(size = 1) +
+                            geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+                            NT_style())
+         , plot_1y = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1y")
+                                                                              , aes(x = study_quarter, y = mean, colour = factor(variable))) +
+                            geom_line(size = 1) +
+                            geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+                            NT_style())
+  )
 
-write_csv(gp_service_use_quarter_home_ltc, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_ltc.csv"))
+save_plots_gp <- function(service) { 
+  
+  filename_1m <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_use_quarter_home_", service, "_1m.pdf")
+  
+  pdf(filename_1m)
+  
+  print((plots_gp_service_use_quarter_char %>% filter(activity == service))$plot_1m)  
+  
+  dev.off()
+  
+  
+  filename_3m <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_use_quarter_home_", service, "_3m.pdf")
+  
+  pdf(filename_3m)
+  
+  print((plots_gp_service_use_quarter_char %>% filter(activity == service))$plot_3m)  
+  
+  dev.off()
+  
+  
+  filename_1y <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_use_quarter_home_", service, "_1y.pdf")
+  
+  pdf(filename_1y)
+  
+  print((plots_gp_service_use_quarter_char %>% filter(activity == service))$plot_1y)  
+  
+  dev.off()
+  
+}
 
-# Palliative care
-
-gp_service_use_quarter_home_palcare <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(study_quarter, ltc_palcare1, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, ltc_palcare1), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, ltc_palcare1, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%  
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, ltc_palcare1, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, ltc_palcare1), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, ltc_palcare1, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, ltc_palcare1, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, ltc_palcare1), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, ltc_palcare1, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(ltc_palcare1, factor(period, levels = c("1m", "3m", "1y")), activity) 
-
-write_csv(gp_service_use_quarter_home_palcare, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_palcare.csv"))
-
-# No palliative care
-
-gp_service_use_quarter_home_nopalcare <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(study_quarter, ltc_palcare2, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, ltc_palcare2), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, ltc_palcare2, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%  
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, ltc_palcare2, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, ltc_palcare2), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, ltc_palcare2, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, ltc_palcare2, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, ltc_palcare2), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, ltc_palcare2, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(ltc_palcare2, factor(period, levels = c("1m", "3m", "1y")), activity) 
-
-write_csv(gp_service_use_quarter_home_nopalcare, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_nopalcare.csv"))
-
-# Region
-
-gp_service_use_quarter_home_region <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(study_quarter, rgn20cd, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, rgn20cd), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, rgn20cd, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, rgn20cd, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, rgn20cd), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, rgn20cd, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, rgn20cd, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, rgn20cd), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, rgn20cd, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(rgn20cd, factor(period, levels = c("1m", "3m", "1y")), activity) 
-
-write_csv(gp_service_use_quarter_home_region, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_region.csv"))
-
-# IMD quintile
-
-gp_service_use_quarter_home_imd <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(study_quarter, imd_quintile, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, imd_quintile), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, imd_quintile, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, imd_quintile, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, imd_quintile), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, imd_quintile, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, imd_quintile, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, imd_quintile), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, imd_quintile, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(imd_quintile, factor(period, levels = c("1m", "3m", "1y")), activity) 
-
-write_csv(gp_service_use_quarter_home_imd, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_imd.csv"))
-
-# LA IMD quintile
-
-gp_service_use_quarter_home_imd_la <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(study_quarter, imd_quintile_la, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, imd_quintile_la), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, imd_quintile_la, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%  
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, imd_quintile_la, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, imd_quintile_la), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, imd_quintile_la, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, imd_quintile_la, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, imd_quintile_la), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, imd_quintile_la, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(imd_quintile_la, factor(period, levels = c("1m", "3m", "1y")), activity)
-
-write_csv(gp_service_use_quarter_home_imd_la, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_imd_la.csv"))
-
-# Rural urban
-
-gp_service_use_quarter_home_rural_urban <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(study_quarter, rural_urban, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, rural_urban), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, rural_urban, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%  
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, rural_urban, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, rural_urban), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, rural_urban, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, rural_urban, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, rural_urban), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, rural_urban, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(rural_urban, factor(period, levels = c("1m", "3m", "1y")), activity) 
-
-write_csv(gp_service_use_quarter_home_rural_urban, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_rural_urban.csv"))
-
-# GP region
-
-gp_service_use_quarter_home_region_gp <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(study_quarter, region_gp, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, region_gp), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, region_gp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%  
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, region_gp, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, region_gp), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, region_gp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, region_gp, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, region_gp), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, region_gp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%  
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(region_gp, factor(period, levels = c("1m", "3m", "1y")), activity) 
-
-write_csv(gp_service_use_quarter_home_region_gp, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_region_gp.csv"))
-
-# GP LA IMD quintile
-
-gp_service_use_quarter_home_imd_la_gp <- df_input %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(study_quarter, imd_quintile_la_gp, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, imd_quintile_la_gp), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, imd_quintile_la_gp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%  
-  bind_rows(df_input %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, imd_quintile_la_gp, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, imd_quintile_la_gp), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, imd_quintile_la_gp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>% 
-  bind_rows(df_input %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, imd_quintile_la_gp, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, imd_quintile_la_gp), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, imd_quintile_la_gp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(imd_quintile_la_gp, factor(period, levels = c("1m", "3m", "1y")), activity) 
-
-write_csv(gp_service_use_quarter_home_imd_la_gp, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_imd_la_gp.csv"))
-
-# Cause of death
-
-gp_service_use_quarter_home_cod <- df_input %>%
-  mutate(cod_ons_grp = case_when(cod_ons_4 %in% c("U071", "U072") ~ "Covid-19"
-                                 , cod_ons_3 >= "J09" & cod_ons_3 <= "J18" ~ "Flu and pneumonia"
-                                 , (cod_ons_3 >= "J00" & cod_ons_3 <= "J08") | (cod_ons_3 >= "J19" & cod_ons_3 <= "J99")  ~ "Other respiratory diseases"
-                                 , cod_ons_3 %in% c("F01", "F03", "G30") ~ "Dementia and Alzheimer's disease"
-                                 , cod_ons_3 >= "I00" & cod_ons_3 <= "I99" ~ "Circulatory diseases"
-                                 , cod_ons_3 >= "C00" & cod_ons_3 <= "C99" ~ "Cancer"
-                                 , TRUE ~ "All other causes")) %>%
-  filter(gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
-  select(study_quarter, cod_ons_grp, ends_with("_1m")) %>%
-  select(-contains("gp_hist")) %>% 
-  pivot_longer(cols = -c(study_quarter, cod_ons_grp), names_to = "measure", values_to = "value") %>%
-  group_by(study_quarter, cod_ons_grp, measure) %>%
-  summarise(n = n()
-            , mean = mean(value, na.rm = TRUE)
-            , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-  mutate(n = plyr::round_any(n, 10)
-         , n_atleast1 = plyr::round_any(n_atleast1, 10)
-         , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
-         , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>% 
-  bind_rows(df_input %>%
-              mutate(cod_ons_grp = case_when(cod_ons_4 %in% c("U071", "U072") ~ "Covid-19"
-                                             , cod_ons_3 >= "J09" & cod_ons_3 <= "J18" ~ "Flu and pneumonia"
-                                             , (cod_ons_3 >= "J00" & cod_ons_3 <= "J08") | (cod_ons_3 >= "J19" & cod_ons_3 <= "J99")  ~ "Other respiratory diseases"
-                                             , cod_ons_3 %in% c("F01", "F03", "G30") ~ "Dementia and Alzheimer's disease"
-                                             , cod_ons_3 >= "I00" & cod_ons_3 <= "I99" ~ "Circulatory diseases"
-                                             , cod_ons_3 >= "C00" & cod_ons_3 <= "C99" ~ "Cancer"
-                                             , TRUE ~ "All other causes")) %>%
-              filter(gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, cod_ons_grp, ends_with("_3m")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, cod_ons_grp), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, cod_ons_grp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>% 
-  bind_rows(df_input %>%
-              mutate(cod_ons_grp = case_when(cod_ons_4 %in% c("U071", "U072") ~ "Covid-19"
-                                             , cod_ons_3 >= "J09" & cod_ons_3 <= "J18" ~ "Flu and pneumonia"
-                                             , (cod_ons_3 >= "J00" & cod_ons_3 <= "J08") | (cod_ons_3 >= "J19" & cod_ons_3 <= "J99")  ~ "Other respiratory diseases"
-                                             , cod_ons_3 %in% c("F01", "F03", "G30") ~ "Dementia and Alzheimer's disease"
-                                             , cod_ons_3 >= "I00" & cod_ons_3 <= "I99" ~ "Circulatory diseases"
-                                             , cod_ons_3 >= "C00" & cod_ons_3 <= "C99" ~ "Cancer"
-                                             , TRUE ~ "All other causes")) %>%
-              filter(gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
-              select(study_quarter, cod_ons_grp, ends_with("_1y")) %>%
-              select(-contains("gp_hist")) %>% 
-              pivot_longer(cols = -c(study_quarter, cod_ons_grp), names_to = "measure", values_to = "value") %>%
-              group_by(study_quarter, cod_ons_grp, measure) %>%
-              summarise(n = n()
-                        , mean = mean(value, na.rm = TRUE)
-                        , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
-              mutate(n = plyr::round_any(n, 10)
-                     , n_atleast1 = plyr::round_any(n_atleast1, 10)
-                     , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
-                     , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>% 
-  mutate(activity = str_sub(measure, 1, -4)
-         , period = str_sub(measure, -2, -1)) %>%
-  arrange(cod_ons_grp, factor(period, levels = c("1m", "3m", "1y")), activity)
-
-write_csv(gp_service_use_quarter_home_cod, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quarter_home_cod.csv"))
+lapply(activity, save_plots_gp)
 
 ################################################################################
