@@ -61,7 +61,7 @@ actions:
       moderately_sensitive:
         service_use_cohort: output/describe_service_use_home/service_use_cohort_home_*.csv
         gp_complete_service_use_cohort: output/describe_service_use_home/complete_gp_history/gp_service_use_cohort_home_*.csv
-        service_use_quarter: output/describe_service_use_home/service_use_quarter_home_*.csv
-        gp_complete_service_use_quarter: output/describe_service_use_home/complete_gp_history/gp_service_use_quarter_home_*.csv
-        service_use_quarter_plots: output/describe_service_use_home/service_use_quarter_home_*.pdf
-        gp_complete_service_use_quarter_plots: output/describe_service_use_home/complete_gp_history/gp_service_use_quarter_home_*.pdf
+        service_use_quarter: output/describe_service_use_home/service_use_quart_home_*.csv
+        gp_complete_service_use_quarter: output/describe_service_use_home/complete_gp_history/gp_service_use_quart_home_*.csv
+        service_use_quarter_plots: output/describe_service_use_home/plots/service_use_quart_home_*.pdf
+        gp_complete_service_use_quarter_plots: output/describe_service_use_home/complete_gp_history/plots/gp_service_use_quart_home_*.pdf

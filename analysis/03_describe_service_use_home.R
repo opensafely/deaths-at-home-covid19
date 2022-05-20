@@ -459,7 +459,7 @@ save_quarter <- function(var) {
            , period = str_sub(measure, -2, -1)) %>%
     arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), variable, activity)
   
-  filename <- paste0("service_use_quarter_home_", var, ".csv")
+  filename <- paste0("service_use_quart_home_", var, ".csv")
   
   write_csv(service_use_quarter_home, here::here("output", "describe_service_use_home", filename))  
   
@@ -528,7 +528,7 @@ save_gp_quarter <- function(var) {
            , period = str_sub(measure, -2, -1)) %>%
     arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), variable, activity)
   
-  filename <- paste0("gp_service_use_quarter_home_", var, ".csv")
+  filename <- paste0("gp_service_use_quart_home_", var, ".csv")
   
   write_csv(gp_service_use_quarter_home, here::here("output", "describe_service_use_home", "complete_gp_history", filename))
   
@@ -599,7 +599,7 @@ plots_service_use_quarter_char <- tidyr::expand_grid(characteristic, activity) %
 
 save_plots <- function(service) { 
   
-  filename_1m <- paste0("output/describe_service_use_home/plots/service_use_quarter_home_", service, "_1m.pdf")
+  filename_1m <- paste0("output/describe_service_use_home/plots/service_use_quart_home_", service, "_1m.pdf")
   
   pdf(filename_1m)
   
@@ -608,7 +608,7 @@ save_plots <- function(service) {
   dev.off()
   
   
-  filename_3m <- paste0("output/describe_service_use_home/plots/service_use_quarter_home_", service, "_3m.pdf")
+  filename_3m <- paste0("output/describe_service_use_home/plots/service_use_quart_home_", service, "_3m.pdf")
   
   pdf(filename_3m)
   
@@ -617,7 +617,7 @@ save_plots <- function(service) {
   dev.off()
   
   
-  filename_1y <- paste0("output/describe_service_use_home/plots/service_use_quarter_home_", service, "_1y.pdf")
+  filename_1y <- paste0("output/describe_service_use_home/plots/service_use_quart_home_", service, "_1y.pdf")
   
   pdf(filename_1y)
   
@@ -728,7 +728,7 @@ plots_gp_service_use_quarter_char <- tidyr::expand_grid(characteristic, activity
 
 save_plots_gp <- function(service) { 
   
-  filename_1m <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_use_quarter_home_", service, "_1m.pdf")
+  filename_1m <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_use_quart_home_", service, "_1m.pdf")
   
   pdf(filename_1m)
   
@@ -737,7 +737,7 @@ save_plots_gp <- function(service) {
   dev.off()
   
   
-  filename_3m <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_use_quarter_home_", service, "_3m.pdf")
+  filename_3m <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_use_quart_home_", service, "_3m.pdf")
   
   pdf(filename_3m)
   
@@ -746,7 +746,7 @@ save_plots_gp <- function(service) {
   dev.off()
   
   
-  filename_1y <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_use_quarter_home_", service, "_1y.pdf")
+  filename_1y <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_use_quart_home_", service, "_1y.pdf")
   
   pdf(filename_1y)
   
