@@ -1025,31 +1025,55 @@ cohorts_summary_table <- deaths_cohort %>%
   pivot_wider(names_from = cohort, names_prefix = "deaths_cohort_", values_from = deaths) %>% 
   mutate(variable = "n") %>% 
   bind_rows(death_ratio_sex %>% 
-  mutate(variable = "Sex"
-         , category = sex) %>%
-  bind_rows(death_ratio_agegrp %>%  
-              mutate(variable = "Age group"
-                     , category = agegrp)) %>% 
-  bind_rows(death_ratio_ethnicity %>%  
-              mutate(variable = "Ethnicity"
-                     , category = ethnicity)) %>% 
-  bind_rows(death_ratio_pod %>%  
-              mutate(variable = "Place of death"
-                     , category = pod_ons_new)) %>% 
-  bind_rows(death_ratio_cod %>%  
-              mutate(variable = "Cause of death"
-                     , category = codgrp)) %>% 
-  bind_rows(death_ratio_ltc %>%  
-              mutate(variable = "Long term conditions"
-                     , category = ltcgrp)) %>%
-    bind_rows(death_ratio_palcare %>%  
-                mutate(variable = "Palliative care"
-                       , category = case_when(palcare == TRUE ~ "Yes"
-                                              , TRUE ~ "No"))) %>%
-  mutate(percent_cohort_0 = round(proportion_cohort_0 * 100, 1)
-         , percent_cohort_1 = round(proportion_cohort_1 * 100, 1))) %>% 
+              mutate(variable = "Sex"
+                     , category = sex) %>%
+              bind_rows(death_ratio_agegrp %>%  
+                          mutate(variable = "Age group"
+                                 , category = agegrp)) %>% 
+              bind_rows(death_ratio_ethnicity %>%  
+                          mutate(variable = "Ethnicity"
+                                 , category = ethnicity)) %>% 
+              bind_rows(death_ratio_pod %>%  
+                          mutate(variable = "Place of death"
+                                 , category = pod_ons_new)) %>% 
+              bind_rows(death_ratio_cod %>%  
+                          mutate(variable = "Cause of death"
+                                 , category = codgrp)) %>% 
+              bind_rows(death_ratio_ltc %>%  
+                          mutate(variable = "Long term conditions"
+                                 , category = ltcgrp)) %>%
+              bind_rows(death_ratio_palcare %>%  
+                          mutate(variable = "Palliative care"
+                                 , category = case_when(palcare == TRUE ~ "Yes"
+                                                        , TRUE ~ "No"))) %>%
+              bind_rows(death_ratio_nopalcare %>%  
+                          mutate(variable = "No palliative care"
+                                 , category = case_when(nopalcare == TRUE ~ "Yes"
+                                                        , TRUE ~ "No"))) %>%
+              bind_rows(death_ratio_region %>%  
+                          mutate(variable = "Region"
+                                 , category = region)) %>%
+              bind_rows(death_ratio_imd %>%  
+                          mutate(variable = "IMD quintile"
+                                 , category = as.character(imd_quintile))) %>% 
+              bind_rows(death_ratio_imd_la %>%  
+                          mutate(variable = "LA IMD quintile"
+                                 , category = as.character(imd_quintile_la))) %>% 
+              bind_rows(death_ratio_rural_urban %>%  
+                          mutate(variable = "Rural urban"
+                                 , category = rural_urban)) %>% 
+              bind_rows(death_ratio_region_gp %>%  
+                          mutate(variable = "GP region"
+                                 , category = region_gp)) %>% 
+              bind_rows(death_ratio_imd_la_gp %>%  
+                          mutate(variable = "GP LA IMD quintile"
+                                 , category = as.character(imd_quintile_la_gp))) %>%  
+              mutate(percent_cohort_0 = round(proportion_cohort_0 * 100, 1)
+                     , percent_cohort_1 = round(proportion_cohort_1 * 100, 1))) %>% 
   select(variable, category, deaths_cohort_0, deaths_cohort_1, percent_cohort_0, percent_cohort_1) %>% 
-  arrange(factor(variable, levels = c("n", "Sex", "Age group", "Ethnicity", "Cause of death", "Long term conditions", "Palliative care")), category)
+  arrange(factor(variable, levels = c("n", "Sex", "Age group", "Ethnicity", "Cause of death", "Long term conditions", "Palliative care"
+                                      , "No palliative care", "Region", "IMD quintile", "LA IMD quintile", "Rural urban", "Gp region"
+                                      , "GP LA IMD quintile")), category)
 
 write_csv(cohorts_summary_table, here::here("output", "describe_cohorts", "cohorts_summary_table.csv"))
 
@@ -1390,6 +1414,28 @@ quarter_summary_table <- deaths_quarter %>%
                           mutate(variable = "Palliative care"
                                  , category = case_when(palcare == TRUE ~ "Yes"
                                                         , TRUE ~ "No"))) %>%
+              bind_rows(deaths_quarter_nopalcare %>%  
+                          mutate(variable = "No palliative care"
+                                 , category = case_when(nopalcare == TRUE ~ "Yes"
+                                                        , TRUE ~ "No"))) %>%
+              bind_rows(deaths_quarter_region %>%  
+                          mutate(variable = "Region"
+                                 , category = region)) %>%
+              bind_rows(deaths_quarter_imd %>%  
+                          mutate(variable = "IMD quintile"
+                                 , category = as.character(imd_quintile))) %>% 
+              bind_rows(deaths_quarter_imd_la %>%  
+                          mutate(variable = "LA IMD quintile"
+                                 , category = as.character(imd_quintile_la))) %>% 
+              bind_rows(deaths_quarter_rural_urban %>%  
+                          mutate(variable = "Rural urban"
+                                 , category = rural_urban)) %>% 
+              bind_rows(deaths_quarter_region_gp %>%  
+                          mutate(variable = "GP region"
+                                 , category = region_gp)) %>% 
+              bind_rows(deaths_quarter_imd_la_gp %>%  
+                          mutate(variable = "GP LA IMD quintile"
+                                 , category = as.character(imd_quintile_la_gp))) %>%  
               mutate(percent_study_quarter_1 = round(proportion_study_quarter_1 * 100, 1)
                      , percent_study_quarter_2 = round(proportion_study_quarter_2 * 100, 1)
                      , percent_study_quarter_3 = round(proportion_study_quarter_3 * 100, 1)
@@ -1399,8 +1445,9 @@ quarter_summary_table <- deaths_quarter %>%
                      , percent_study_quarter_7 = round(proportion_study_quarter_7 * 100, 1)
                      , percent_study_quarter_8 = round(proportion_study_quarter_8 * 100, 1))) %>% 
   select(variable, category, starts_with("deaths_study_quarter_"), starts_with("percent_study_quarter_")) %>% 
-  arrange(factor(variable, levels = c("n", "Sex", "Age group", "Ethnicity", "Cause of death", "Long term conditions", "Palliative care")), category)
-
+  arrange(factor(variable, levels = c("n", "Sex", "Age group", "Ethnicity", "Cause of death", "Long term conditions", "Palliative care"
+                                      , "No palliative care", "Region", "IMD quintile", "LA IMD quintile", "Rural urban", "Gp region"
+                                      , "GP LA IMD quintile")), category)
 write_csv(quarter_summary_table, here::here("output", "describe_cohorts", "quarter_summary_table.csv"))
 
 ################################################################################
@@ -1674,10 +1721,34 @@ cohorts_pod_summary_table <- deaths_cohort_pod %>%
                           mutate(variable = "Palliative care"
                                  , category = case_when(palcare == TRUE ~ "Yes"
                                                         , TRUE ~ "No"))) %>%
+              bind_rows(death_ratio_pod_nopalcare %>%  
+                          mutate(variable = "No palliative care"
+                                 , category = case_when(nopalcare == TRUE ~ "Yes"
+                                                        , TRUE ~ "No"))) %>%
+              bind_rows(death_ratio_pod_region %>%  
+                          mutate(variable = "Region"
+                                 , category = region)) %>%
+              bind_rows(death_ratio_pod_imd %>%  
+                          mutate(variable = "IMD quintile"
+                                 , category = as.character(imd_quintile))) %>% 
+              bind_rows(death_ratio_pod_imd_la %>%  
+                          mutate(variable = "LA IMD quintile"
+                                 , category = as.character(imd_quintile_la))) %>% 
+              bind_rows(death_ratio_pod_rural_urban %>%  
+                          mutate(variable = "Rural urban"
+                                 , category = rural_urban)) %>% 
+              bind_rows(death_ratio_pod_region_gp %>%  
+                          mutate(variable = "GP region"
+                                 , category = region_gp)) %>% 
+              bind_rows(death_ratio_pod_imd_la_gp %>%  
+                          mutate(variable = "GP LA IMD quintile"
+                                 , category = as.character(imd_quintile_la_gp))) %>% 
               mutate(percent_cohort_0 = round(proportion_cohort_0 * 100, 1)
                      , percent_cohort_1 = round(proportion_cohort_1 * 100, 1))) %>% 
   select(pod_ons_new, variable, category, deaths_cohort_0, deaths_cohort_1, percent_cohort_0, percent_cohort_1) %>% 
-  arrange(pod_ons_new, factor(variable, levels = c("n", "Sex", "Age group", "Ethnicity", "Cause of death", "Long term conditions", "Palliative care")), category)
+  arrange(pod_ons_new, factor(variable, levels = c("n", "Sex", "Age group", "Ethnicity", "Cause of death", "Long term conditions", "Palliative care"
+                                      , "No palliative care", "Region", "IMD quintile", "LA IMD quintile", "Rural urban", "Gp region"
+                                      , "GP LA IMD quintile")), category)
 
 write_csv(cohorts_pod_summary_table, here::here("output", "describe_cohorts", "cohorts_pod_summary_table.csv"))
 
@@ -2042,6 +2113,28 @@ quarter_pod_summary_table <- deaths_quarter_pod  %>%
                           mutate(variable = "Palliative care"
                                  , category = case_when(palcare == TRUE ~ "Yes"
                                                         , TRUE ~ "No"))) %>%
+              bind_rows(deaths_quarter_pod_nopalcare %>%  
+                          mutate(variable = "No palliative care"
+                                 , category = case_when(nopalcare == TRUE ~ "Yes"
+                                                        , TRUE ~ "No"))) %>%
+              bind_rows(deaths_quarter_pod_region %>%  
+                          mutate(variable = "Region"
+                                 , category = region)) %>%
+              bind_rows(deaths_quarter_pod_imd %>%  
+                          mutate(variable = "IMD quintile"
+                                 , category = as.character(imd_quintile))) %>% 
+              bind_rows(deaths_quarter_pod_imd_la %>%  
+                          mutate(variable = "LA IMD quintile"
+                                 , category = as.character(imd_quintile_la))) %>% 
+              bind_rows(deaths_quarter_pod_rural_urban %>%  
+                          mutate(variable = "Rural urban"
+                                 , category = rural_urban)) %>% 
+              bind_rows(deaths_quarter_pod_region_gp %>%  
+                          mutate(variable = "GP region"
+                                 , category = region_gp)) %>% 
+              bind_rows(deaths_quarter_pod_imd_la_gp %>%  
+                          mutate(variable = "GP LA IMD quintile"
+                                 , category = as.character(imd_quintile_la_gp))) %>% 
               mutate(percent_study_quarter_1 = round(proportion_study_quarter_1 * 100, 1)
                      , percent_study_quarter_2 = round(proportion_study_quarter_2 * 100, 1)
                      , percent_study_quarter_3 = round(proportion_study_quarter_3 * 100, 1)
@@ -2051,7 +2144,9 @@ quarter_pod_summary_table <- deaths_quarter_pod  %>%
                      , percent_study_quarter_7 = round(proportion_study_quarter_7 * 100, 1)
                      , percent_study_quarter_8 = round(proportion_study_quarter_8 * 100, 1))) %>% 
   select(pod_ons_new, variable, category, starts_with("deaths_study_quarter_"), starts_with("percent_study_quarter_")) %>% 
-  arrange(pod_ons_new, factor(variable, levels = c("n", "Sex", "Age group", "Ethnicity", "Cause of death", "Long term conditions", "Palliative care")), category)
+  arrange(pod_ons_new, factor(variable, levels = c("n", "Sex", "Age group", "Ethnicity", "Cause of death", "Long term conditions", "Palliative care"
+                                                   , "No palliative care", "Region", "IMD quintile", "LA IMD quintile", "Rural urban", "Gp region"
+                                                   , "GP LA IMD quintile")), category)
 
 write_csv(quarter_pod_summary_table, here::here("output", "describe_cohorts", "quarter_pod_summary_table.csv"))
 
