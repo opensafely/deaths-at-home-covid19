@@ -588,7 +588,7 @@ study = StudyDefinition(
             }
     ),
 
-    beddays_emadm_1m = patients.admitted_to_hospital(
+    embeddays_1m = patients.admitted_to_hospital(
         returning = "total_bed_days_in_period",
         between = ["dod_ons - 30 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -598,7 +598,7 @@ study = StudyDefinition(
             }
     ),
 
-    beddays_emadm_3m = patients.admitted_to_hospital(
+    embeddays_3m = patients.admitted_to_hospital(
         returning = "total_bed_days_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -608,7 +608,7 @@ study = StudyDefinition(
             }
     ),
 
-    beddays_emadm_1y = patients.admitted_to_hospital(
+    embeddays_1y = patients.admitted_to_hospital(
         returning = "total_bed_days_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -618,7 +618,7 @@ study = StudyDefinition(
             }
     ),
 
-    beddays_eladm_1m = patients.admitted_to_hospital(
+    elbeddays_1m = patients.admitted_to_hospital(
         returning = "total_bed_days_in_period",
         between = ["dod_ons - 30 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
@@ -628,7 +628,7 @@ study = StudyDefinition(
             }
     ),
 
-    beddays_eladm_3m = patients.admitted_to_hospital(
+    elbeddays_3m = patients.admitted_to_hospital(
         returning = "total_bed_days_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
@@ -638,7 +638,7 @@ study = StudyDefinition(
             }
     ),
 
-    beddays_eladm_1y = patients.admitted_to_hospital(
+    elbeddays_1y = patients.admitted_to_hospital(
         returning = "total_bed_days_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
@@ -675,7 +675,7 @@ study = StudyDefinition(
             }
     ),
 
-    crit_beddays_emadm_1m = patients.admitted_to_hospital(
+    crit_embeddays_1m = patients.admitted_to_hospital(
         returning = "total_critical_care_days_in_period",
         between = ["dod_ons - 30 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -685,7 +685,7 @@ study = StudyDefinition(
             }
     ),
 
-    crit_beddays_emadm_3m = patients.admitted_to_hospital(
+    crit_embeddays_3m = patients.admitted_to_hospital(
         returning = "total_critical_care_days_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -695,7 +695,7 @@ study = StudyDefinition(
             }
     ),
 
-    crit_beddays_emadm_1y = patients.admitted_to_hospital(
+    crit_embeddays_1y = patients.admitted_to_hospital(
         returning = "total_critical_care_days_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -705,7 +705,7 @@ study = StudyDefinition(
             }
     ),
 
-    crit_beddays_eladm_1m = patients.admitted_to_hospital(
+    crit_elbeddays_1m = patients.admitted_to_hospital(
         returning = "total_critical_care_days_in_period",
         between = ["dod_ons - 30 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
@@ -715,7 +715,7 @@ study = StudyDefinition(
             }
     ),
 
-    crit_beddays_eladm_3m = patients.admitted_to_hospital(
+    crit_elbeddays_3m = patients.admitted_to_hospital(
         returning = "total_critical_care_days_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
@@ -725,7 +725,7 @@ study = StudyDefinition(
             }
     ),
 
-    crit_beddays_eladm_1y = patients.admitted_to_hospital(
+    crit_elbeddays_1y = patients.admitted_to_hospital(
         returning = "total_critical_care_days_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
