@@ -83,7 +83,7 @@ actions:
         gp_complete_service_use_quarter_plots: output/describe_service_use_home/complete_gp_history/plots/gp_service_use_quart_home_*.pdf
 
   practice_measures_charts:
-    run: r:latest analysis/03_practice_measures_charts.R
+    run: r:latest analysis/04_practice_measures_charts.R
     needs: [generate_study_population_measures, generate_practice_measures]
     outputs:
       moderately_sensitive:
