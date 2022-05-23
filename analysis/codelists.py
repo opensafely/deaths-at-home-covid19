@@ -1,4 +1,5 @@
 from dis import code_info
+from math import comb
 from cohortextractor import (codelist_from_csv, combine_codelists)
 
 ## DEMOGRAPHICS ##
@@ -43,7 +44,7 @@ mh_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-mh_cod.
 ld_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-ld_cod.csv", system = "snomed", column = "code")
 
 palcare_codes1 = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-palcare_cod.csv", system = "snomed", column = "code")
-#palcare_codes2 = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-palcareni_cod.csv", system = "snomed", column = "code")
+palcare_codes2 = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-palcareni_cod.csv", system = "snomed", column = "code")
 
 epil_codes = codelist_from_csv("codelists/nhsd-primary-care-domain-refsets-epil_cod.csv", system = "snomed", column = "code") 
 
@@ -78,7 +79,6 @@ physical_ltc_codes = combine_codelists(
     dm_codes,
     # Palliative care
     palcare_codes1,
-    #palcare_codes2,
     # Epilepsy
     epil_codes,
     # Osteoporosis
@@ -112,3 +112,18 @@ midazolam_codes = codelist_from_csv("codelists/opensafely-midazolam-end-of-life.
 
 respite_codes = codelist_from_csv("codelists/user-eiliskeeble-respite-care.csv", system = "snomed", column = "code")
 hospice_codes = codelist_from_csv("codelists/user-tgeorghiou-hospice-mentions.csv", system = "snomed", column = "code")
+ambulance_codes = codelist_from_csv("codelists/user-eiliskeeble-ambulance-incidents.csv", system = "snomed", column = "code")
+community_nursing_codes = codelist_from_csv("codelists/user-eiliskeeble-community-nursing.csv", system = "snomed", column = "code")
+mdt_codes = codelist_from_csv("codelists/user-eiliskeeble-multidisciplinary-team.csv", system = "snomed", column = "code")
+cancer_mdt_codes = codelist_from_csv("codelists/user-eiliskeeble-cancer-multidisciplinary-team.csv", system = "snomed", column = "code")
+
+community_codes = combine_codelists(
+    community_nursing_codes,
+    mdt_codes,
+    cancer_mdt_codes
+)
+
+all_mdt_codes = combine_codelists(
+    mdt_codes,
+    cancer_mdt_codes
+)

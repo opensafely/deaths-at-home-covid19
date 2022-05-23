@@ -23,10 +23,14 @@ nhsd-primary-care-domain-refsets/osteo_cod/20200812
 nhsd-primary-care-domain-refsets/ndh_cod/20200812
 
 nhsd-primary-care-domain-refsets/palcare_cod/20200812
-#nhsd-primary-care-domain-refsets/palcareni_cod/20200812
+nhsd-primary-care-domain-refsets/palcareni_cod/20200812
 opensafely/midazolam-end-of-life/4c1b3c89
 
 user/eiliskeeble/respite-care/5a0aff01
 user/tgeorghiou/hospice-mentions/0aa5e74b
+user/eiliskeeble/ambulance-incidents/532180f4
+user/eiliskeeble/community-nursing/5e41bd18
+user/eiliskeeble/multidisciplinary-team/7cb6b039
+user/eiliskeeble/cancer-multidisciplinary-team/15c6236f
 
 # opensafely codelists update

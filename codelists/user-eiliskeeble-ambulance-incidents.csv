@@ -1,0 +1,77 @@
+code,term
+1046191000000101,Hypoglycaemic attack - attendance by ambulance crew
+1046201000000104,Hypoglycaemic attack - attendance by ambulance crew 
+1048031000000100,Arrival by emergency road ambulance
+1048041000000109,Arrival by emergency road ambulance with medical escort
+1048051000000107,Arrival by helicopter air ambulance
+1048081000000101,Arrival by medical repatriation air ambulance
+1079771000000108,Transported by ambulance
+1090341000000100,Referral to emergency ambulance service
+11424001,Ambulance-based care
+147046004,Ambulance birth
+153587004,Ambulance request for patient
+169817006,Ambulance birth
+185406000,Ambulance request for patient
+198261000000104,Referred by ambulance service
+213171000000106,Referred by ambulance service
+213181000000108,Referred by ambulance service
+239441000000103,Emergency ambulance call
+239471000000109,Urgent ambulance call
+242251000000108,Transportation by air ambulance
+242261000000106,Transportation by ambulance
+242411000000108,Discharge from ambulance clinical care
+242417008,Fall from ambulance stretcher
+242741000000104,Cardiac arrest witnessed by ambulance clinician
+243041000000109,Patient not transported by ambulance
+243061000000105,Patient transported by ambulance
+297151000000109,Extrication by air ambulance crew
+297161000000107,Extrication by ambulance crew
+312351000000101,Ambulance service care setting
+312711000000101,Ambulance Service Patient Summary Report - FocusActOrEvent
+354221000000104,Seen by ambulance crew
+354231000000102,Seen by ambulance crew 
+354241000000106,Seen by ambulance crew 
+376301000000108,Ambulance transport to hospital declined
+376311000000105,Declined ambulance transport to hospital 
+376321000000104,Declined ambulance transport to hospital 
+425001009,Reason for unscheduled ambulance service
+439811001,Seen by ambulance crew
+442392002,Ambulance transport to hospital declined
+473389001,Born in ambulance
+702878005,Land ambulance
+707798001,Discharge from ambulance clinical care
+711106004,Air ambulance
+714342001,Died in ambulance
+715537001,Transportation by ambulance
+715540001,Transportation by helicopter air ambulance
+715541002,Transportation by fixed wing air ambulance
+715542009,Transportation by emergency ambulance
+715543004,Transportation by ambulance with assistance of two people
+715544005,Transportation by ambulance with assistance of one person
+716732003,Provision of emergency ambulance
+716733008,Provision of ambulance with stretcher facility
+716734002,Provision of helicopter air ambulance
+716735001,Provision of fixed wing air ambulance
+722041000000107,Ambulance service
+792847005,Emergency ambulance service
+816581000000104,Transportation by ambulance
+824861000000106,Ambulance service patient report form
+827631000000105,Emergency ambulance service
+828791000000100,National Health Service 111 Interim Ambulance Request
+828801000000101,National Health Service 111 Final Ambulance Request
+834161000000101,Transportation by ambulance
+927461000000106,Died in ambulance
+927471000000104,Died in ambulance 
+968541000000102,Transportation by helicopter air ambulance
+968551000000104,Transportation by fixed wing air ambulance
+973311000000108,Transportation by emergency ambulance
+973351000000107,Transportation by ambulance with assistance of one person
+973361000000105,Transportation by ambulance with assistance of two people
+973731000000104,Provision of emergency ambulance
+973751000000106,Provision of helicopter air ambulance
+973761000000109,Provision of fixed wing air ambulance
+982331000000102,Transportation by ambulance with stretcher facility
+982461000000104,Provision of ambulance with stretcher facility
+984501000000107,Provision of ambulance with two person team
+984511000000109,Provision of ambulance with one person team
+999000301000000102,Ambulance request type simple reference set

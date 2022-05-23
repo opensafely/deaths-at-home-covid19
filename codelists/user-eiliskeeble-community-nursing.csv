@@ -1,0 +1,79 @@
+code,term
+102401000000104,District nurse initial visit
+102411000000102,District nurse follow up
+105461000000109,District nurse follow up
+1077191000000103,Referred by community nurse
+1079381000000109,Medication review by community nurse
+1090351000000102,Referral to community nursing service
+138129004,District nurse attends
+148160002,Shared care: district nurse and GP
+151811006,Referral to district nurse
+153469000,Seen by district nurse
+153650002,District nurse visit
+153654006,First annual visit by district nurse
+160761000,District nurse attends
+163291000000104,District Nurse Event - FocusActOrEvent
+170937000,Shared care: district nurse and general practitioner
+183574002,Referral to district nurse
+185281005,Seen by district nurse
+185469009,District nurse visit
+185473007,First annual visit by district nurse
+188241000000104,Referral to community matron
+191741000000102,Referral to community matron
+201161000000102,Under care of community matron
+219521000000103,Under care of community matron
+219531000000101,Under care of community matron
+24571000000102,Community nursing report
+247711000000103,Seen by community matron
+248091000000108,Shared care: practice nurse and district nurse
+250451000000109,Shared care: practice nurse and district nurse 
+251121000000100,Seen by community matron 
+253081000000104,Shared care: practice nurse and district nurse 
+274101000000105,Seen by community matron 
+276911000000100,Referral to community nurse for older people
+276921000000106,Referral to community nurse for older people 
+276931000000108,Referral to community nurse for older people 
+283191000000108,Seen by community nurse for older people
+283201000000105,Seen by community nurse for older people 
+283211000000107,Seen by community nurse for older people 
+305574004,Under care of community-based nurse
+305578001,Under care of district nurse
+305751001,Seen by community-based nurse
+306045005,Referral by community-based nurse
+306048007,Referral by district nurse
+306335000,Referral to community-based nurse
+308436005,Referral to district nurse
+310587004,First annual visit by district nurse
+35011000000101,Community nursing report
+35021000000107,Community nursing report
+37321000000102,Community nursing note
+37591000000109,Community nursing note
+37601000000103,Community nursing note
+38081000000104,Referral by district nurse
+38411000000100,Referral by district nurse
+393045001,Discussed with district nurse
+393208000,Community nursing note
+394001009,Discussed with district nurse
+394158007,Community nursing note
+394694005,Discussed with district nurse
+408482001,District nurse follow up
+408483006,District nurse initial visit
+40891000000109,Referral by district nurse
+416851006,Referral to community matron
+43251000000107,Referral by district nurse
+493921000000107,Needs community nurse to administer medication
+493931000000109,Needs community nurse to administer medication 
+493941000000100,Needs community nurse to administer medication 
+516511000000107,Referral to community nursing out of hours service
+516521000000101,Referral to community nursing out of hours service 
+720521000000108,Community nursing
+822151000000109,Liaison with community nurse
+835221000000101,Referred by community matron
+841681000000103,Community nurse first visit
+87201000000106,District nurse initial visit
+874881000000103,Under care of district nurse
+910281000000105,Home visit request by district nurse
+910291000000107,Home visit request by district nurse 
+931801000000101,Community nursing service
+986711000000108,Wound dressing requested by community nursing service
+986721000000102,Wound dressing requested by community nursing service 

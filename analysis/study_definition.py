@@ -57,8 +57,7 @@ study = StudyDefinition(
 
     ## Study population
     # Everyone who died between March 2019 and February 2021
-    # Registered with TPP on date of death - could make this more/less flexible
-    # Not sure if this is doing what I want around registered
+    # Registered with TPP on date of death
     population = patients.satisfying(
         """
         has_died 
@@ -76,10 +75,6 @@ study = StudyDefinition(
             return_expectations = {"incidence": 0.98}
         )
     ),  
-    #population = patients.died_from_any_cause(
-    #    between = [EARLIEST, LATEST],
-    #    return_expectations = {"incidence": 1.0}
-    #),
 
     ## CREATE VARIABLES ##
 
@@ -172,7 +167,30 @@ study = StudyDefinition(
         }
     ),
 
-    ## Index of multiple deprivation based on patient address
+    ## Geography ##
+
+    ## MSOA of patient address 
+    msoa = patients.address_as_of(
+        "dod_ons",
+        returning = "msoa",
+        return_expectations = {
+            "rate": "universal",
+            "category": {"ratios": {"E02000001": 0.5, "E02000002": 0.5}}
+        }
+    ),
+
+    ## Rural/urban class of patient address
+    ## MSOA of patient address 
+    rural_urban = patients.address_as_of(
+        "dod_ons",
+        returning = "rural_urban_classification",
+        return_expectations = {
+            "rate": "universal",
+            "category": {"ratios": {"rural": 0.3, "urban": 0.7}}
+            }
+    ),
+
+        ## Index of multiple deprivation based on patient address
     imd_quintile = patients.categorised_as(
         {
             "0": "DEFAULT",
@@ -233,28 +251,35 @@ study = StudyDefinition(
             }
     ),
 
-    ## Household size - TPP algorithm - as of Feb 2020
-    hhold_size = patients.household_as_of(
-        "2020-02-01",
-        returning = "household_size",
-        return_expectations = {
-            "int": {"distribution": "normal", "mean": 2, "stddev": 1}, 
-            "incidence": 0.8
-            }
-    ),
-
-    ## Geography ##
-
-    ## MSOA of address 
-    # As of Feb 2020 
-    # Need to think about how we would link info to this
-    msoa = patients.household_as_of(
-        "2020-02-01",
+    ## MSOA of gp
+    # As an alternative to MSOA from patient address
+    msoa_gp = patients.registered_practice_as_of(
+        "dod_ons",
         returning = "msoa",
         return_expectations = {
             "rate": "universal",
             "category": {"ratios": {"E02000001": 0.5, "E02000002": 0.5}}
         }
+    ),
+
+    ## Region of gp
+    # As an alternative to region from patient address
+    region_gp = patients.registered_practice_as_of(
+        "dod_ons",
+        returning = "nuts1_region_name",
+        return_expectations={
+        "rate": "universal",
+        "category": {
+            "ratios": {
+                "North East": 0.1,
+                "North West": 0.1,
+                "Yorkshire and the Humber": 0.1,
+                "East Midlands": 0.1,
+                "West Midlands": 0.1,
+                "East of England": 0.1,
+                "London": 0.2,
+                "South East": 0.2,}}
+                }
     ),
 
     ## Health ##
@@ -263,13 +288,6 @@ study = StudyDefinition(
     covid_pos = patients.with_test_result_in_sgss(
         pathogen = "SARS-CoV-2",
         test_result = "positive",
-        returning = "binary_flag"
-    ),
-
-    ## Frailty
-    frailty = patients.with_these_decision_support_values(
-        algorithm = "electronic_frailty_index",
-        between = ["dod_ons - 1825 days", "dod_ons"],
         returning = "binary_flag"
     ),
 
@@ -391,11 +409,11 @@ study = StudyDefinition(
 
     **loop_over_codes(palcare_codes1),
 
-    #ltc_palcare2 = patients.with_these_clinical_events(
-    #    palcare_codes2,
-    #    between = ["dod_ons - 1825 days", "dod_ons"],
-    #    returning = "binary_flag"
-    #),
+    ltc_palcare2 = patients.with_these_clinical_events(
+        palcare_codes2,
+        between = ["dod_ons - 1825 days", "dod_ons"],
+        returning = "binary_flag"
+    ),
 
     # Epilepsy
     ltc_epil = patients.with_these_clinical_events(
@@ -456,7 +474,6 @@ study = StudyDefinition(
     ## SERVICE USE ##
 
     ## Hospital activity in 1 month, 3 months and 1 year prior to death
-
     aevis_1m = patients.attended_emergency_care(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 30 days", "dod_ons"],
@@ -598,7 +615,7 @@ study = StudyDefinition(
             }
     ),
 
-    beddays_emadm_1m = patients.admitted_to_hospital(
+    embeddays_1m = patients.admitted_to_hospital(
         returning = "total_bed_days_in_period",
         between = ["dod_ons - 30 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -608,7 +625,7 @@ study = StudyDefinition(
             }
     ),
 
-    beddays_emadm_3m = patients.admitted_to_hospital(
+    embeddays_3m = patients.admitted_to_hospital(
         returning = "total_bed_days_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -618,7 +635,7 @@ study = StudyDefinition(
             }
     ),
 
-    beddays_emadm_1y = patients.admitted_to_hospital(
+    embeddays_1y = patients.admitted_to_hospital(
         returning = "total_bed_days_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -628,7 +645,7 @@ study = StudyDefinition(
             }
     ),
 
-    beddays_eladm_1m = patients.admitted_to_hospital(
+    elbeddays_1m = patients.admitted_to_hospital(
         returning = "total_bed_days_in_period",
         between = ["dod_ons - 30 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
@@ -638,7 +655,7 @@ study = StudyDefinition(
             }
     ),
 
-    beddays_eladm_3m = patients.admitted_to_hospital(
+    elbeddays_3m = patients.admitted_to_hospital(
         returning = "total_bed_days_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
@@ -648,7 +665,7 @@ study = StudyDefinition(
             }
     ),
 
-    beddays_eladm_1y = patients.admitted_to_hospital(
+    elbeddays_1y = patients.admitted_to_hospital(
         returning = "total_bed_days_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
@@ -685,7 +702,7 @@ study = StudyDefinition(
             }
     ),
 
-    crit_beddays_emadm_1m = patients.admitted_to_hospital(
+    crit_embeddays_1m = patients.admitted_to_hospital(
         returning = "total_critical_care_days_in_period",
         between = ["dod_ons - 30 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -695,7 +712,7 @@ study = StudyDefinition(
             }
     ),
 
-    crit_beddays_emadm_3m = patients.admitted_to_hospital(
+    crit_embeddays_3m = patients.admitted_to_hospital(
         returning = "total_critical_care_days_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -705,7 +722,7 @@ study = StudyDefinition(
             }
     ),
 
-    crit_beddays_emadm_1y = patients.admitted_to_hospital(
+    crit_embeddays_1y = patients.admitted_to_hospital(
         returning = "total_critical_care_days_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         with_admission_method = ['21', '2A', '22', '23', '24', '25', '2D'],
@@ -715,7 +732,7 @@ study = StudyDefinition(
             }
     ),
 
-    crit_beddays_eladm_1m = patients.admitted_to_hospital(
+    crit_elbeddays_1m = patients.admitted_to_hospital(
         returning = "total_critical_care_days_in_period",
         between = ["dod_ons - 30 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
@@ -725,7 +742,7 @@ study = StudyDefinition(
             }
     ),
 
-    crit_beddays_eladm_3m = patients.admitted_to_hospital(
+    crit_elbeddays_3m = patients.admitted_to_hospital(
         returning = "total_critical_care_days_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
@@ -735,7 +752,7 @@ study = StudyDefinition(
             }
     ),
 
-    crit_beddays_eladm_1y = patients.admitted_to_hospital(
+    crit_elbeddays_1y = patients.admitted_to_hospital(
         returning = "total_critical_care_days_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         with_admission_method = ['11', '12', '13'],
@@ -804,7 +821,6 @@ study = StudyDefinition(
 
     ## Flag for people with complete gp history
     # Some measures of activity drawn from GP record will be affected if people change practices/switch to TPP
-
     gp_hist_1m = patients.with_complete_gp_consultation_history_between(
        "dod_ons - 30 days", "dod_ons", return_expectations={"incidence": 0.9}
     ),
@@ -818,8 +834,7 @@ study = StudyDefinition(
     ),
 
     ## GP consultations
-    # Consultation can include things like phone number update
-    
+    # Consultation can include things like phone number update  
     gp_1m = patients.with_gp_consultations(
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 30 days", "dod_ons"],
@@ -880,7 +895,6 @@ study = StudyDefinition(
     ),
 
     ## Palliative care
-
     palliative_1m = patients.with_these_clinical_events(
         palcare_codes1,
         returning = "number_of_matches_in_period",
@@ -971,10 +985,193 @@ study = StudyDefinition(
             "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
             "incidence": 0.8
             }
-    )
+    ),
 
+    ## Ambulance incidents
+    ambulance_1m = patients.with_these_clinical_events(
+        ambulance_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    ambulance_3m = patients.with_these_clinical_events(
+        ambulance_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    ambulance_1y = patients.with_these_clinical_events(
+        ambulance_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
 
-    #**loop_over_codes(palcare_codes1),
+    ## Community nursing
+    nursing_1m = patients.with_these_clinical_events(
+        community_nursing_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    nursing_3m = patients.with_these_clinical_events(
+        community_nursing_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    nursing_1y = patients.with_these_clinical_events(
+        community_nursing_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    ## MDT
+    mdt_1m = patients.with_these_clinical_events(
+        mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    mdt_3m = patients.with_these_clinical_events(
+        mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    mdt_1y = patients.with_these_clinical_events(
+        mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    ## Cancer MDT
+    cancer_mdt_1m = patients.with_these_clinical_events(
+        cancer_mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    cancer_mdt_3m = patients.with_these_clinical_events(
+        cancer_mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    cancer_mdt_1y = patients.with_these_clinical_events(
+        cancer_mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    ## MDT care
+    all_mdt_1m = patients.with_these_clinical_events(
+        all_mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    all_mdt_3m = patients.with_these_clinical_events(
+        all_mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    all_mdt_1y = patients.with_these_clinical_events(
+        all_mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    ## Community care
+    community_1m = patients.with_these_clinical_events(
+        community_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    community_3m = patients.with_these_clinical_events(
+        community_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    community_1y = patients.with_these_clinical_events(
+        community_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    )              
 
 )
 

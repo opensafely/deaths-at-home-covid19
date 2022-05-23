@@ -138,6 +138,12 @@
       "downloaded_at": "2022-02-15 11:36:26.557473Z",
       "sha": "777b61f976301db98e5da0c5b9ceebe48222558f"
     },
+    "nhsd-primary-care-domain-refsets-palcareni_cod.csv": {
+      "id": "nhsd-primary-care-domain-refsets/palcareni_cod/20200812",
+      "url": "https://codelists.opensafely.org/codelist/nhsd-primary-care-domain-refsets/palcareni_cod/20200812/",
+      "downloaded_at": "2022-05-06 14:14:28.069368Z",
+      "sha": "37e012b9c2a339b1ae2199c36e575e7d325a3f0c"
+    },
     "opensafely-midazolam-end-of-life.csv": {
       "id": "opensafely/midazolam-end-of-life/4c1b3c89",
       "url": "https://codelists.opensafely.org/codelist/opensafely/midazolam-end-of-life/4c1b3c89/",
@@ -155,6 +161,30 @@
       "url": "https://codelists.opensafely.org/codelist/user/tgeorghiou/hospice-mentions/0aa5e74b/",
       "downloaded_at": "2022-04-20 13:49:10.462132Z",
       "sha": "d79e92799aaabffbea141a6e28431c952d3b227c"
+    },
+    "user-eiliskeeble-ambulance-incidents.csv": {
+      "id": "user/eiliskeeble/ambulance-incidents/532180f4",
+      "url": "https://codelists.opensafely.org/codelist/user/eiliskeeble/ambulance-incidents/532180f4/",
+      "downloaded_at": "2022-05-20 10:41:30.657675Z",
+      "sha": "ceee568f7987c7156202305eb4d509e8f237c4f5"
+    },
+    "user-eiliskeeble-community-nursing.csv": {
+      "id": "user/eiliskeeble/community-nursing/5e41bd18",
+      "url": "https://codelists.opensafely.org/codelist/user/eiliskeeble/community-nursing/5e41bd18/",
+      "downloaded_at": "2022-05-23 09:59:51.818104Z",
+      "sha": "b2118dedbcb1675f4b9da7d21a6093a4382b6119"
+    },
+    "user-eiliskeeble-multidisciplinary-team.csv": {
+      "id": "user/eiliskeeble/multidisciplinary-team/7cb6b039",
+      "url": "https://codelists.opensafely.org/codelist/user/eiliskeeble/multidisciplinary-team/7cb6b039/",
+      "downloaded_at": "2022-05-23 10:44:58.679978Z",
+      "sha": "93a72592171fe99f06b94a003e796ea76b574bcf"
+    },
+    "user-eiliskeeble-cancer-multidisciplinary-team.csv": {
+      "id": "user/eiliskeeble/cancer-multidisciplinary-team/15c6236f",
+      "url": "https://codelists.opensafely.org/codelist/user/eiliskeeble/cancer-multidisciplinary-team/15c6236f/",
+      "downloaded_at": "2022-05-23 10:44:58.911466Z",
+      "sha": "fc1dce71b17bcc1d28073d53e02a1c4aafb7897a"
     }
   }
 }
