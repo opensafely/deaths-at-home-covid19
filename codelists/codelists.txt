@@ -29,5 +29,6 @@ opensafely/midazolam-end-of-life/4c1b3c89
 user/eiliskeeble/respite-care/5a0aff01
 user/tgeorghiou/hospice-mentions/0aa5e74b
 user/eiliskeeble/ambulance-incidents/532180f4
+user/eiliskeeble/community-nursing/5e41bd18
 
 # opensafely codelists update

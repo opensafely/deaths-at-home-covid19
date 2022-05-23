@@ -167,6 +167,12 @@
       "url": "https://codelists.opensafely.org/codelist/user/eiliskeeble/ambulance-incidents/532180f4/",
       "downloaded_at": "2022-05-20 10:41:30.657675Z",
       "sha": "ceee568f7987c7156202305eb4d509e8f237c4f5"
+    },
+    "user-eiliskeeble-community-nursing.csv": {
+      "id": "user/eiliskeeble/community-nursing/5e41bd18",
+      "url": "https://codelists.opensafely.org/codelist/user/eiliskeeble/community-nursing/5e41bd18/",
+      "downloaded_at": "2022-05-23 09:59:51.818104Z",
+      "sha": "b2118dedbcb1675f4b9da7d21a6093a4382b6119"
     }
   }
 }
