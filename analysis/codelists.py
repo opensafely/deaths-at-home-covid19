@@ -1,4 +1,5 @@
 from dis import code_info
+from math import comb
 from cohortextractor import (codelist_from_csv, combine_codelists)
 
 ## DEMOGRAPHICS ##
@@ -113,3 +114,16 @@ respite_codes = codelist_from_csv("codelists/user-eiliskeeble-respite-care.csv",
 hospice_codes = codelist_from_csv("codelists/user-tgeorghiou-hospice-mentions.csv", system = "snomed", column = "code")
 ambulance_codes = codelist_from_csv("codelists/user-eiliskeeble-ambulance-incidents.csv", system = "snomed", column = "code")
 community_nursing_codes = codelist_from_csv("codelists/user-eiliskeeble-community-nursing.csv", system = "snomed", column = "code")
+mdt_codes = codelist_from_csv("codelists/user-eiliskeeble-multidisciplinary-team.csv", system = "snomed", column = "code")
+cancer_mdt_codes = codelist_from_csv("codelists/user-eiliskeeble-cancer-multidisciplinary-team.csv", system = "snomed", column = "code")
+
+community_codes = combine_codelists(
+    community_nursing_codes,
+    mdt_codes,
+    cancer_mdt_codes
+)
+
+all_mdt_codes = combine_codelists(
+    mdt_codes,
+    cancer_mdt_codes
+)

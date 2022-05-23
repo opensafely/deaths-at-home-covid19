@@ -1020,7 +1020,131 @@ study = StudyDefinition(
             "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
             "incidence": 0.8
             }
-    )     
+    ),
+
+    ## MDT
+    mdt_1m = patients.with_these_clinical_events(
+        mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    mdt_3m = patients.with_these_clinical_events(
+        mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    mdt_1y = patients.with_these_clinical_events(
+        mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    ## Cancer MDT
+    cancer_mdt_1m = patients.with_these_clinical_events(
+        cancer_mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    cancer_mdt_3m = patients.with_these_clinical_events(
+        cancer_mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    cancer_mdt_1y = patients.with_these_clinical_events(
+        cancer_mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    ## MDT care
+    all_mdt_1m = patients.with_these_clinical_events(
+        all_mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    all_mdt_3m = patients.with_these_clinical_events(
+        all_mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    all_mdt_1y = patients.with_these_clinical_events(
+        all_mdt_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    ## Community care
+    community_1m = patients.with_these_clinical_events(
+        community_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    community_3m = patients.with_these_clinical_events(
+        community_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+    
+    community_1y = patients.with_these_clinical_events(
+        community_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    )              
 
 )
 
