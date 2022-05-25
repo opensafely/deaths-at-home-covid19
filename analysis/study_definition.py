@@ -2,8 +2,7 @@
 
 from cohortextractor import (
     StudyDefinition,
-    patients,
-    codelist)
+    patients)
 
 ## CODELISTS ##
 

@@ -2,7 +2,8 @@
 
 from cohortextractor import (
     StudyDefinition, 
-    Measure, 
+    Measure,
+#    codelist, 
     patients)
 
 ## CODELISTS ##
@@ -20,9 +21,9 @@ from codelists import *
 #        f"snomed_{code}": (
 #            patients.with_these_clinical_events(
 #                codelist([code], system="snomed"),
-#                between = ["dod_ons - 365 days", "dod_ons"],
-#                returning="number_of_matches_in_period",
-#                return_expectations={
+#                between = ["index_date", "last_day_of_month(index_date)"],
+#                returning = "number_of_matches_in_period",
+#                return_expectations = {
 #                    "incidence": 0.1,
 #                    "int": {"distribution": "normal", "mean": 3, "stddev": 1},
 #                },
