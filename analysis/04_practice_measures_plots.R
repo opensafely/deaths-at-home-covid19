@@ -1,11 +1,11 @@
 ################################################################################
 
-########## PRACTICE MEASURES CHARTS ##########
+########## PRACTICE MEASURES PLOTS ##########
 
 ################################################################################
 
-# Create decile charts to show distribution of practice measures by month
-# Funnel plots?
+# Create decile plots to show distribution of practice measures by month
+# Binary flag and number of matches
 
 ################################################################################
 
@@ -18,7 +18,7 @@ library("lubridate")
 
 ########## Save location ##########
 
-fs::dir_create(here::here("output", "practice_measures", "charts"))
+fs::dir_create(here::here("output", "practice_measures", "plots"))
 
 ################################################################################
 
@@ -240,32 +240,54 @@ NT_style <- function(){
 
 ################################################################################
 
-########## Decile charts ########## 
+########## Decile plots ########## 
 
-plots <- tibble(file_list = list.files(here::here("output", "practice_measures"))) %>%
-  filter(str_detect(file_list, "^measure") & str_detect(file_list, "by_practice.csv$")) %>%
+decile_plots_binary <- tibble(file_list = list.files(here::here("output", "practice_measures"))) %>%
+  filter(str_detect(file_list, "^measure") & str_detect(file_list, "by_practice_binary.csv$")) %>%
   mutate(input_table = map(file_list, function(file_list) read_csv(here::here("output", "practice_measures", file_list)) %>%
-                         group_by(date) %>%
-                         summarise(value = quantile(value, seq(0.1, 0.9, 0.1), na.rm = TRUE)
-                                   , decile = seq(0.1, 0.9, 0.1)))
+                              group_by(date) %>%
+                              summarise(value = round(quantile(value, seq(0.1, 0.9, 0.1), na.rm = TRUE), 2)
+                                        , decile = seq(10, 90, 10)))
          , input_label = str_sub(file_list, 9, -5)
-         , plot = map2(input_table, input_label, function(input_table, input_label) ggsave(ggplot() +
-                         geom_line(input_table
-                                   , mapping = aes(x = date, y = value, group = factor(decile)), colour = "#556370", linetype = "dashed") +
-                         geom_line(data = input_table %>% filter(decile == 0.5)
-                                   , mapping = aes(x = date, y = value, group = factor(decile)), colour = "#9F67FF", lwd = 1) +
-                         guides() +
-                         labs(title = input_label, x = "Study month", y = "Decile value") +
-                         scale_x_date(expand = c(0, 0), date_breaks = "month", date_labels = "%b %Y") +
-                         scale_y_continuous(limits = c(0, NA), expand = c(0, 0)) +
-                         NT_style() +
-                         theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
-                         , filename = paste0("deciles_", input_label, ".png"), path = here::here("output", "practice_measures", "charts"))))
+         , binary_plot = map2(input_table, input_label, function(input_table, input_label) ggsave(ggplot() +
+                                                                                                    geom_line(input_table
+                                                                                                              , mapping = aes(x = date, y = value, group = factor(decile), colour = "#556370", linetype = "dashed", size = "0.5")) +
+                                                                                                    geom_line(data = input_table %>% filter(decile == 50)
+                                                                                                              , mapping = aes(x = date, y = value, group = factor(decile), colour = "#9F67FF", linetype = "solid", size = "1")) +
+                                                                                                    guides(colour = guide_legend(), shape = guide_legend(), size = guide_legend()) +
+                                                                                                    labs(title = input_label, x = "Study month", y = "Decile value") +
+                                                                                                    scale_colour_manual("Value", values = c("#556370"= "#556370", "#9F67FF" = "#9F67FF"), labels = c("Deciles", "Median")) +
+                                                                                                    scale_linetype_manual("Value", values = c("dashed" = "dashed", "solid" = "solid"), labels = c("Deciles", "Median")) +
+                                                                                                    scale_size_manual("Value", values = c("0.5" = 0.5, "1" = 1), labels = c("Deciles", "Median")) +
+                                                                                                    scale_x_date(expand = c(0, 0), date_breaks = "month", date_labels = "%b %Y") +
+                                                                                                    scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
+                                                                                                    NT_style() +
+                                                                                                    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+                                                                                                  , filename = paste0("deciles_", input_label, ".png"), path = here::here("output", "practice_measures", "plots"), height = 10, width = 13.7, units = "cm", dpi = 600))
+  )
 
-################################################################################
-
-##########  ########## 
-
-
+decile_plots_number <- tibble(file_list = list.files(here::here("output", "practice_measures"))) %>%
+  filter(str_detect(file_list, "^measure") & str_detect(file_list, "by_practice_rate.csv$")) %>%
+  mutate(input_table = map(file_list, function(file_list) read_csv(here::here("output", "practice_measures", file_list)) %>%
+                                group_by(date) %>%
+                                summarise(value = round(quantile(value, seq(0.1, 0.9, 0.1), na.rm = TRUE), 2)
+                                          , decile = seq(10, 90, 10)))
+         , input_label = str_sub(file_list, 9, -5)
+         , number_plot = map2(input_table, input_label, function(input_table, input_label) ggsave(ggplot() +
+                                                                                                    geom_line(input_table
+                                                                                                              , mapping = aes(x = date, y = value, group = factor(decile), colour = "#556370", linetype = "dashed", size = "0.5")) +
+                                                                                                    geom_line(data = input_table %>% filter(decile == 50)
+                                                                                                              , mapping = aes(x = date, y = value, group = factor(decile), colour = "#9F67FF", linetype = "solid", size = "1")) +
+                                                                                                    guides(colour = guide_legend(), shape = guide_legend(), size = guide_legend()) +
+                                                                                                    labs(title = input_label, x = "Study month", y = "Decile value") +
+                                                                                                    scale_colour_manual("Value", values = c("#556370"= "#556370", "#9F67FF" = "#9F67FF"), labels = c("Deciles", "Median")) +
+                                                                                                    scale_linetype_manual("Value", values = c("dashed" = "dashed", "solid" = "solid"), labels = c("Deciles", "Median")) +
+                                                                                                    scale_size_manual("Value", values = c("0.5" = 0.5, "1" = 1), labels = c("Deciles", "Median")) +
+                                                                                                    scale_x_date(expand = c(0, 0), date_breaks = "month", date_labels = "%b %Y") +
+                                                                                                    scale_y_continuous(limits = c(0, NA), expand = c(0, 0)) +
+                                                                                                    NT_style() +
+                                                                                                    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+                                                                                                  , filename = paste0("deciles_", input_label, ".png"), path = here::here("output", "practice_measures", "plots"), height = 10, width = 13.7, units = "cm", dpi = 600))
+  )
 
 ################################################################################

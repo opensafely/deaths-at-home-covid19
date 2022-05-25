@@ -22,7 +22,8 @@ actions:
       needs: [generate_study_population_measures]
       outputs:
         moderately_sensitive:
-          measure_csv: output/practice_measures/measure_*.csv
+          measure_binary_csv: output/practice_measures/measure_*_binary.csv
+          measure_csv: output/practice_measures/measure_*_rate.csv
 
   generate_report:
     run: cohort-report:v3.0.0 output/input.feather
@@ -67,7 +68,6 @@ actions:
         service_use_means: output/describe_service_use/service_use_mean*.csv
         service_use_means_plots: output/describe_service_use/plots/service_use_mean*.pdf
         gp_complete_service_use_means: output/describe_service_use/complete_gp_history/gp_service_use_mean*.csv
-        service_use_ratios: output/describe_service_use/service_use_ratio*.csv
         gp_complete_service_use_plots: output/describe_service_use/complete_gp_history/plots/gp_service_use_mean*.pdf
 
   describe_service_use_home: 
@@ -88,9 +88,9 @@ actions:
         gp_complete_service_use_quarter_plots: output/describe_service_use_home/complete_gp_history/plots/gp_service_use_quart_home_*.pdf
         gp_complete_service_use_quarter_prop_plots: output/describe_service_use_home/complete_gp_history/plots/gp_service_prop_quart_home_*.pdf
 
-  practice_measures_charts:
-    run: r:latest analysis/04_practice_measures_charts.R
-    needs: [generate_study_population_measures, generate_practice_measures]
+  practice_measures_plots:
+    run: r:latest analysis/04_practice_measures_plots.R
+    needs: [generate_practice_measures]
     outputs:
       moderately_sensitive:
-        deciles_charts: output/practice_measures/charts/deciles_*.png
+        deciles_plots: output/practice_measures/plots/deciles_*.png

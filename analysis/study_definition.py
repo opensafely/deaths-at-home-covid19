@@ -16,31 +16,6 @@ from codelists import *
 EARLIEST = "2019-03-01"
 LATEST = "2021-02-28"
 
-## LOOP FUNCTIONS ##
-# To loop through and find matches for individual snomed codes within a codelist
-# Will potentially need to update period to look in
-
-def make_variable(code):
-    return {
-        f"snomed_{code}": (
-            patients.with_these_clinical_events(
-                codelist([code], system="snomed"),
-                between = ["dod_ons - 365 days", "dod_ons"],
-                returning="number_of_matches_in_period",
-                return_expectations={
-                    "incidence": 0.1,
-                    "int": {"distribution": "normal", "mean": 3, "stddev": 1},
-                },
-            )
-        )
-    }
-
-def loop_over_codes(code_list):
-    variables = {}
-    for code in code_list:
-        variables.update(make_variable(code))
-    return variables
-
 ## STUDY DEFINITION ##
 
 study = StudyDefinition(
@@ -401,8 +376,6 @@ study = StudyDefinition(
         between = ["dod_ons - 1825 days", "dod_ons"],
         returning = "binary_flag"
     ),
-
-    **loop_over_codes(palcare_codes1),
 
     ltc_palcare2 = patients.with_these_clinical_events(
         palcare_codes2,
