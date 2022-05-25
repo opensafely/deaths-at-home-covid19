@@ -181,16 +181,16 @@ study = StudyDefinition(
 
     ## Rural/urban class of patient address
     ## MSOA of patient address 
-    rural_urban = patients.address_as_of(
+    rural_class = patients.address_as_of(
         "dod_ons",
         returning = "rural_urban_classification",
         return_expectations = {
             "rate": "universal",
-            "category": {"ratios": {"rural": 0.3, "urban": 0.7}}
-            }
+            "category": {"ratios": {1: 0.125, 2: 0.125, 3: 0.125, 4: 0.125, 5: 0.125, 6: 0.125, 7: 0.125, 8: 0.125}}
+        }
     ),
 
-        ## Index of multiple deprivation based on patient address
+    ## Index of multiple deprivation based on patient address
     imd_quintile = patients.categorised_as(
         {
             "0": "DEFAULT",
@@ -220,13 +220,8 @@ study = StudyDefinition(
         }
     ),
 
-    ## Care home - TPP assigned if address is care home
-    carehome = patients.care_home_status_as_of(
-        "dod_ons"
-    ),
-
     ## Care home type - TPP assigned 
-    carehome_type = patients.care_home_status_as_of(
+    carehome = patients.care_home_status_as_of(
         "dod_ons",
         categorised_as = {
             "PC":
