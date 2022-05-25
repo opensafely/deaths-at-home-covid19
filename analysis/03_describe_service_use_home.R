@@ -7,6 +7,7 @@
 # Describe service use for home deaths - focus on inequalities
 
 # Service use for home deaths by cohort and characteristic
+# Plots of service use by cohort and characteristic
 # Service use for home deaths by quarter and characteristic
 # Plots of service use by quarter and characteristic
 
@@ -299,7 +300,10 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
                                    , cod_ons_3 >= "C00" & cod_ons_3 <= "C99" ~ "Cancer"
                                    , TRUE ~ "All other causes")
          , palcare = ltc_palcare1
-         , nopalcare = ltc_palcare2) %>%
+         , nopalcare = ltc_palcare2
+         , rural_urban = case_when(rural_class %in% c(1, 2, 3, 4)  ~ "Rural"
+                                   , rural_class %in% c(5, 6, 7, 8) ~ "Urban"
+                                   , TRUE ~ NA_character_)) %>%
   left_join(read_csv(here::here("docs", "lookups", "msoa_lad_rgn_2020.csv")) %>% 
               select(msoa11cd, lad20cd, rgn20cd) %>% 
               rename(region = rgn20cd)
@@ -324,7 +328,7 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
 
 ########## Service use of home deaths by cohort and characteristics ##########
 
-characteristic <- c("sex", "agegrp", "ethnicity", "ltcgrp", "palcare", "nopalcare", "region", "imd_quintile", "imd_quintile_la"
+characteristic <- c("sex", "agegrp", "ethnicity", "ltcgrp", "palcare", "nopalcare", "carehome", "region", "imd_quintile", "imd_quintile_la"
                     , "rural_urban", "region_gp", "imd_quintile_la_gp", "codgrp")
 
 save_cohort <- function(var) {
@@ -343,14 +347,14 @@ save_cohort <- function(var) {
     mutate(n = plyr::round_any(n, 10)
            , n_atleast1 = plyr::round_any(n_atleast1, 10)
            , mean = case_when(n_atleast1 == 0 ~ 0
-                              , TRUE ~ mean)
+                              , TRUE ~ round(mean, 2))
            , sd = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ sd)) %>%   
+                            , TRUE ~ round(sd, 2))) %>%   
     pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
     mutate(activity = str_sub(measure, 1, -4)
            , period = str_sub(measure, -2, -1)) %>%
     arrange(factor(period, levels = c("1m", "3m", "1y")), variable, activity) %>%
-    mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
+    mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0), 2))
   
   filename <- paste0("service_use_cohort_home_", var, ".csv")
   
@@ -382,9 +386,9 @@ save_gp_cohort <- function(var) {
     mutate(n = plyr::round_any(n, 10)
            , n_atleast1 = plyr::round_any(n_atleast1, 10)
            , mean = case_when(n_atleast1 == 0 ~ 0
-                              , TRUE ~ mean)
+                              , TRUE ~ round(mean, 2))
            , sd = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ sd)) %>%   
+                            , TRUE ~ round(sd, 2))) %>% 
     pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
     bind_rows(df_input %>%
                 filter(!is.na(study_cohort) & gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
@@ -400,9 +404,9 @@ save_gp_cohort <- function(var) {
                 mutate(n = plyr::round_any(n, 10)
                        , n_atleast1 = plyr::round_any(n_atleast1, 10)
                        , mean = case_when(n_atleast1 == 0 ~ 0
-                                          , TRUE ~ mean)
+                                          , TRUE ~ round(mean, 2))
                        , sd = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ sd)) %>%   
+                                        , TRUE ~ round(sd, 2))) %>% 
                 pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
     bind_rows(df_input %>%
                 filter(!is.na(study_cohort) & gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
@@ -418,14 +422,14 @@ save_gp_cohort <- function(var) {
                 mutate(n = plyr::round_any(n, 10)
                        , n_atleast1 = plyr::round_any(n_atleast1, 10)
                        , mean = case_when(n_atleast1 == 0 ~ 0
-                                          , TRUE ~ mean)
+                                          , TRUE ~ round(mean, 2))
                        , sd = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ sd)) %>%  
                 pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
     mutate(activity = str_sub(measure, 1, -4)
            , period = str_sub(measure, -2, -1)) %>%
     arrange(factor(period, levels = c("1m", "3m", "1y")), variable, activity) %>%
-    mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
+    mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0), 2))
   
   filename <- paste0("gp_service_use_cohort_home_", var, ".csv")
   
@@ -435,6 +439,356 @@ save_gp_cohort <- function(var) {
 }
 
 lapply(characteristic, save_gp_cohort)
+
+################################################################################
+
+########## Plot service use by cohort and characteristic ##########
+
+activity <- unique(read_csv(here::here("output", "describe_service_use_home", "service_use_cohort_home_sex.csv"))$activity)
+
+plots_service_use_cohort_char <- tidyr::expand_grid(characteristic, activity) %>%
+  mutate(dataset = map2(characteristic, activity, function(var, service) df_input %>%
+                          filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
+                          rename(variable = var) %>% 
+                          select(cohort, variable, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                          select(-contains("gp_hist")) %>% 
+                          pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
+                          group_by(cohort, variable, measure) %>%
+                          summarise(n = n()
+                                    , mean = mean(value, na.rm = TRUE)
+                                    , sd = sd(value, na.rm = TRUE)
+                                    , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                          mutate(n = plyr::round_any(n, 10)
+                                 , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                                 , mean = case_when(n_atleast1 == 0 ~ 0
+                                                    , TRUE ~ round(mean, 2))
+                                 , sd = case_when(n_atleast1 == 0 ~ 0
+                                                  , TRUE ~ round(sd, 2))) %>% 
+                          mutate(activity = str_sub(measure, 1, -4)
+                                 , period = str_sub(measure, -2, -1)))
+         , plot_1m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1m")
+                                                                              , aes(x = variable, y = mean
+                                                                                    , colour = factor(cohort), fill = factor(cohort))) +
+                            geom_bar(stat = "identity", position = "dodge") +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_fill_NT(palette = NT_palette()) +
+                            scale_x_discrete() +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+                            NT_style())
+         , plot_3m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "3m")
+                                                                              , aes(x = variable, y = mean
+                                                                                    , colour = factor(cohort), fill = factor(cohort))) +
+                            geom_bar(stat = "identity", position = "dodge") +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_fill_NT(palette = NT_palette()) +
+                            scale_x_discrete() +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+                            NT_style())
+         , plot_1y = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1y")
+                                                                              , aes(x = variable, y = mean
+                                                                                    , colour = factor(cohort), fill = factor(cohort))) +
+                            geom_bar(stat = "identity", position = "dodge") +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_fill_NT(palette = NT_palette()) +
+                            scale_x_discrete() +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+                            NT_style())
+         , plot_prop_1m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1m")
+                                                                              , aes(x = variable, y = n_atleast1/n
+                                                                                    , colour = factor(cohort), fill = factor(cohort))) +
+                            geom_bar(stat = "identity", position = "dodge") +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_fill_NT(palette = NT_palette()) +
+                            scale_x_discrete() +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+                            NT_style())
+         , plot_prop_3m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "3m")
+                                                                              , aes(x = variable, y = n_atleast1/n
+                                                                                    , colour = factor(cohort), fill = factor(cohort))) +
+                            geom_bar(stat = "identity", position = "dodge") +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_fill_NT(palette = NT_palette()) +
+                            scale_x_discrete() +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+                            NT_style())
+         , plot_prop_1y = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1y")
+                                                                              , aes(x = variable, y = n_atleast1/n
+                                                                                    , colour = factor(cohort), fill = factor(cohort))) +
+                            geom_bar(stat = "identity", position = "dodge") +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_fill_NT(palette = NT_palette()) +
+                            scale_x_discrete() +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+                            NT_style())
+         )
+
+save_cohort_plots <- function(service) { 
+  
+  filename_1m <- paste0("output/describe_service_use_home/plots/service_use_cohort_home_", service, "_1m.pdf")
+  
+  pdf(filename_1m)
+  
+  print((plots_service_use_cohort_char %>% filter(activity == service))$plot_1m)  
+  
+  dev.off()
+  
+  
+  filename_3m <- paste0("output/describe_service_use_home/plots/service_use_cohort_home_", service, "_3m.pdf")
+  
+  pdf(filename_3m)
+  
+  print((plots_service_use_cohort_char %>% filter(activity == service))$plot_3m)  
+  
+  dev.off()
+  
+  
+  filename_1y <- paste0("output/describe_service_use_home/plots/service_use_cohort_home_", service, "_1y.pdf")
+  
+  pdf(filename_1y)
+  
+  print((plots_service_use_cohort_char %>% filter(activity == service))$plot_1y)  
+  
+  dev.off()
+  
+  
+  filename_prop_1m <- paste0("output/describe_service_use_home/plots/service_prop_cohort_home_", service, "_1m.pdf")
+  
+  pdf(filename_prop_1m)
+  
+  print((plots_service_use_cohort_char %>% filter(activity == service))$plot_prop_1m)  
+  
+  dev.off()
+  
+  
+  filename_prop_3m <- paste0("output/describe_service_use_home/plots/service_prop_cohort_home_", service, "_3m.pdf")
+  
+  pdf(filename_prop_3m)
+  
+  print((plots_service_use_cohort_char %>% filter(activity == service))$plot_prop_3m)  
+  
+  dev.off()
+  
+  
+  filename_prop_1y <- paste0("output/describe_service_use_home/plots/service_prop_cohort_home_", service, "_1y.pdf")
+  
+  pdf(filename_prop_1y)
+  
+  print((plots_service_use_cohort_char %>% filter(activity == service))$plot_prop_1y)  
+  
+  dev.off()
+  
+}
+
+lapply(activity, save_cohort_plots)
+
+##############################
+
+## Plot the same just for people with complete gp history
+
+plots_gp_service_use_cohort_char <- tidyr::expand_grid(characteristic, activity) %>%
+  mutate(dataset = map2(characteristic, activity, function(var, service) df_input %>%
+                          filter(!is.na(study_cohort) & gp_hist_1m == TRUE & pod_ons_new == "Home") %>% 
+                          rename(variable = var) %>% 
+                          select(cohort, variable, ends_with("_1m")) %>%
+                          select(-contains("gp_hist")) %>% 
+                          pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
+                          group_by(cohort, variable, measure) %>%
+                          summarise(n = n()
+                                    , mean = mean(value, na.rm = TRUE)
+                                    , sd = sd(value, na.rm = TRUE)
+                                    , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                          mutate(n = plyr::round_any(n, 10)
+                                 , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                                 , mean = case_when(n_atleast1 == 0 ~ 0
+                                                    , TRUE ~ round(mean, 2))
+                                 , sd = case_when(n_atleast1 == 0 ~ 0
+                                                  , TRUE ~ round(sd, 2))) %>% 
+                          bind_rows(df_input %>%
+                                      filter(!is.na(study_cohort) & gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
+                                      rename(variable = var) %>% 
+                                      select(cohort, variable, ends_with("_3m")) %>%
+                                      select(-contains("gp_hist")) %>% 
+                                      pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
+                                      group_by(cohort, variable, measure) %>%
+                                      summarise(n = n()
+                                                , mean = mean(value, na.rm = TRUE)
+                                                , sd = sd(value, na.rm = TRUE)
+                                                , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                                      mutate(n = plyr::round_any(n, 10)
+                                             , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                                             , mean = case_when(n_atleast1 == 0 ~ 0
+                                                                , TRUE ~ round(mean, 2))
+                                             , sd = case_when(n_atleast1 == 0 ~ 0
+                                                              , TRUE ~ sd))) %>%    
+                          bind_rows(df_input %>%
+                                      filter(!is.na(study_cohort) & gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
+                                      rename(variable = var) %>% 
+                                      select(cohort, variable, ends_with("_1y")) %>%
+                                      select(-contains("gp_hist")) %>% 
+                                      pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
+                                      group_by(cohort, variable, measure) %>%
+                                      summarise(n = n()
+                                                , mean = mean(value, na.rm = TRUE)
+                                                , sd = sd(value, na.rm = TRUE)
+                                                , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                                      mutate(n = plyr::round_any(n, 10)
+                                             , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                                             , mean = case_when(n_atleast1 == 0 ~ 0
+                                                                , TRUE ~ round(mean, 2))
+                                             , sd = case_when(n_atleast1 == 0 ~ 0
+                                                              , TRUE ~ sd))) %>%   
+                          mutate(activity = str_sub(measure, 1, -4)
+                                 , period = str_sub(measure, -2, -1)))
+         , plot_1m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1m")
+                                                                              , aes(x = variable, y = mean
+                                                                                    , colour = factor(cohort), fill = factor(cohort))) +
+                            geom_bar(stat = "identity", position = "dodge") +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_fill_NT(palette = NT_palette()) +
+                            scale_x_discrete() +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+                            NT_style())
+         , plot_3m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "3m")
+                                                                              , aes(x = variable, y = mean
+                                                                                    , colour = factor(cohort), fill = factor(cohort))) +
+                            geom_bar(stat = "identity", position = "dodge") +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_fill_NT(palette = NT_palette()) +
+                            scale_x_discrete() +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+                            NT_style())
+         , plot_1y = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1y")
+                                                                              , aes(x = variable, y = mean
+                                                                                    , colour = factor(cohort), fill = factor(cohort))) +
+                            geom_bar(stat = "identity", position = "dodge") +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_fill_NT(palette = NT_palette()) +
+                            scale_x_discrete() +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+                            NT_style())
+         , plot_prop_1m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1m")
+                                                                                   , aes(x = variable, y = n_atleast1/n
+                                                                                         , colour = factor(cohort), fill = factor(cohort))) +
+                                 geom_bar(stat = "identity", position = "dodge") +
+                                 labs(x = "Study quarter", y = "Events per person"
+                                      , title = var) +
+                                 guides(colour = guide_legend(byrow = TRUE)) +
+                                 scale_colour_NT(palette = NT_palette()) +
+                                 scale_fill_NT(palette = NT_palette()) +
+                                 scale_x_discrete() +
+                                 scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+                                 NT_style())
+         , plot_prop_3m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "3m")
+                                                                                   , aes(x = variable, y = n_atleast1/n
+                                                                                         , colour = factor(cohort), fill = factor(cohort))) +
+                                 geom_bar(stat = "identity", position = "dodge") +
+                                 labs(x = "Study quarter", y = "Events per person"
+                                      , title = var) +
+                                 guides(colour = guide_legend(byrow = TRUE)) +
+                                 scale_colour_NT(palette = NT_palette()) +
+                                 scale_fill_NT(palette = NT_palette()) +
+                                 scale_x_discrete() +
+                                 scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+                                 NT_style())
+         , plot_prop_1y = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1y")
+                                                                                   , aes(x = variable, y = n_atleast1/n
+                                                                                         , colour = factor(cohort), fill = factor(cohort))) +
+                                 geom_bar(stat = "identity", position = "dodge") +
+                                 labs(x = "Study quarter", y = "Events per person"
+                                      , title = var) +
+                                 guides(colour = guide_legend(byrow = TRUE)) +
+                                 scale_colour_NT(palette = NT_palette()) +
+                                 scale_fill_NT(palette = NT_palette()) +
+                                 scale_x_discrete() +
+                                 scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+                                 NT_style())
+  )
+
+save_gp_cohort_plots <- function(service) { 
+  
+  filename_1m <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_use_cohort_home_", service, "_1m.pdf")
+  
+  pdf(filename_1m)
+  
+  print((plots_service_use_cohort_char %>% filter(activity == service))$plot_1m)  
+  
+  dev.off()
+  
+  
+  filename_3m <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_use_cohort_home_", service, "_3m.pdf")
+  
+  pdf(filename_3m)
+  
+  print((plots_service_use_cohort_char %>% filter(activity == service))$plot_3m)  
+  
+  dev.off()
+  
+  
+  filename_1y <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_use_cohort_home_", service, "_1y.pdf")
+  
+  pdf(filename_1y)
+  
+  print((plots_service_use_cohort_char %>% filter(activity == service))$plot_1y)  
+  
+  dev.off()
+  
+  
+  filename_prop_1m <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_prop_cohort_home_", service, "_1m.pdf")
+  
+  pdf(filename_prop_1m)
+  
+  print((plots_service_use_cohort_char %>% filter(activity == service))$plot_prop_1m)  
+  
+  dev.off()
+  
+  
+  filename_prop_3m <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_prop_cohort_home_", service, "_3m.pdf")
+  
+  pdf(filename_prop_3m)
+  
+  print((plots_service_use_cohort_char %>% filter(activity == service))$plot_prop_3m)  
+  
+  dev.off()
+  
+  
+  filename_prop_1y <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_prop_cohort_home_", service, "_1y.pdf")
+  
+  pdf(filename_prop_1y)
+  
+  print((plots_service_use_cohort_char %>% filter(activity == service))$plot_prop_1y)  
+  
+  dev.off()
+  
+}
+
+lapply(activity, save_gp_cohort_plots)
 
 ################################################################################
 
@@ -456,9 +810,9 @@ save_quarter <- function(var) {
     mutate(n = plyr::round_any(n, 10)
            , n_atleast1 = plyr::round_any(n_atleast1, 10)
            , mean = case_when(n_atleast1 == 0 ~ 0
-                              , TRUE ~ mean)
+                              , TRUE ~ round(mean, 2))
            , sd = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ sd)) %>%   
+                            , TRUE ~ round(sd, 2))) %>% 
     mutate(activity = str_sub(measure, 1, -4)
            , period = str_sub(measure, -2, -1)) %>%
     arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), variable, activity)
@@ -491,7 +845,7 @@ save_gp_quarter <- function(var) {
     mutate(n = plyr::round_any(n, 10)
            , n_atleast1 = plyr::round_any(n_atleast1, 10)
            , mean = case_when(n_atleast1 == 0 ~ 0
-                              , TRUE ~ mean)
+                              , TRUE ~ round(mean, 2))
            , sd = case_when(n_atleast1 == 0 ~ 0
                             , TRUE ~ sd)) %>% 
     bind_rows(df_input %>%
@@ -508,7 +862,7 @@ save_gp_quarter <- function(var) {
                 mutate(n = plyr::round_any(n, 10)
                        , n_atleast1 = plyr::round_any(n_atleast1, 10)
                        , mean = case_when(n_atleast1 == 0 ~ 0
-                                          , TRUE ~ mean)
+                                          , TRUE ~ round(mean, 2))
                        , sd = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ sd))) %>% 
     bind_rows(df_input %>%
@@ -525,7 +879,7 @@ save_gp_quarter <- function(var) {
                 mutate(n = plyr::round_any(n, 10)
                        , n_atleast1 = plyr::round_any(n_atleast1, 10)
                        , mean = case_when(n_atleast1 == 0 ~ 0
-                                          , TRUE ~ mean)
+                                          , TRUE ~ round(mean, 2))
                        , sd = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ sd))) %>%  
     mutate(activity = str_sub(measure, 1, -4)
@@ -551,6 +905,7 @@ plots_service_use_quarter_char <- tidyr::expand_grid(characteristic, activity) %
                           rename(variable = var) %>%
                           filter(pod_ons_new == "Home") %>% 
                           select(study_quarter, variable, starts_with(service)) %>%
+                          select(-contains("gp_hist")) %>% 
                           pivot_longer(cols = -c(study_quarter, variable), names_to = "measure", values_to = "value") %>%
                           group_by(study_quarter, variable, measure) %>%
                           summarise(n = n()
@@ -560,9 +915,9 @@ plots_service_use_quarter_char <- tidyr::expand_grid(characteristic, activity) %
                           mutate(n = plyr::round_any(n, 10)
                                  , n_atleast1 = plyr::round_any(n_atleast1, 10)
                                  , mean = case_when(n_atleast1 == 0 ~ 0
-                                                    , TRUE ~ mean)
+                                                    , TRUE ~ round(mean, 2))
                                  , sd = case_when(n_atleast1 == 0 ~ 0
-                                                  , TRUE ~ sd)) %>%   
+                                                  , TRUE ~ round(sd, 2))) %>% 
                           mutate(activity = str_sub(measure, 1, -4)
                                  , period = str_sub(measure, -2, -1)) %>%
                           arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), variable, activity))
@@ -599,6 +954,42 @@ plots_service_use_quarter_char <- tidyr::expand_grid(characteristic, activity) %
                             scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
                             scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
                             NT_style())
+         , plot_prop_1m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1m")
+                                                                                   , aes(x = study_quarter, y = n_atleast1/n
+                                                                                         , colour = factor(variable))) +
+                                 geom_line(size = 1) +
+                                 geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+                                 labs(x = "Study quarter", y = "Events per person"
+                                      , title = var) +
+                                 guides(colour = guide_legend(byrow = TRUE)) +
+                                 scale_colour_NT(palette = NT_palette()) +
+                                 scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+                                 scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+                                 NT_style())
+         , plot_prop_3m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "3m")
+                                                                              , aes(x = study_quarter, y = n_atleast1/n
+                                                                                    , colour = factor(variable))) +
+                            geom_line(size = 1) +
+                            geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+                            NT_style())
+         , plot_prop_1y = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1y")
+                                                                              , aes(x = study_quarter, y = n_atleast1/n
+                                                                                    , colour = factor(variable))) +
+                            geom_line(size = 1) +
+                            geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+                            labs(x = "Study quarter", y = "Events per person"
+                                 , title = var) +
+                            guides(colour = guide_legend(byrow = TRUE)) +
+                            scale_colour_NT(palette = NT_palette()) +
+                            scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+                            scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+                            NT_style())
   )
 
 save_plots <- function(service) { 
@@ -629,6 +1020,33 @@ save_plots <- function(service) {
   
   dev.off()
   
+  
+  filename_prop_1m <- paste0("output/describe_service_use_home/plots/service_prop_quart_home_", service, "_1m.pdf")
+  
+  pdf(filename_prop_1m)
+  
+  print((plots_service_use_quarter_char %>% filter(activity == service))$plot_prop_1m)  
+  
+  dev.off()
+  
+  
+  filename_prop_3m <- paste0("output/describe_service_use_home/plots/service_prop_quart_home_", service, "_3m.pdf")
+  
+  pdf(filename_prop_3m)
+  
+  print((plots_service_use_quarter_char %>% filter(activity == service))$plot_prop_3m)  
+  
+  dev.off()
+  
+  
+  filename_prop_1y <- paste0("output/describe_service_use_home/plots/service_prop_quart_home_", service, "_1y.pdf")
+  
+  pdf(filename_prop_1y)
+  
+  print((plots_service_use_quarter_char %>% filter(activity == service))$plot_prop_1y)  
+  
+  dev.off()
+  
 }
 
 lapply(activity, save_plots)
@@ -653,7 +1071,7 @@ plots_gp_service_use_quarter_char <- tidyr::expand_grid(characteristic, activity
                           mutate(n = plyr::round_any(n, 10)
                                  , n_atleast1 = plyr::round_any(n_atleast1, 10)
                                  , mean = case_when(n_atleast1 == 0 ~ 0
-                                                    , TRUE ~ mean)
+                                                    , TRUE ~ round(mean, 2))
                                  , sd = case_when(n_atleast1 == 0 ~ 0
                                                   , TRUE ~ sd)) %>% 
                           bind_rows(df_input %>%
@@ -671,7 +1089,7 @@ plots_gp_service_use_quarter_char <- tidyr::expand_grid(characteristic, activity
                                       mutate(n = plyr::round_any(n, 10)
                                              , n_atleast1 = plyr::round_any(n_atleast1, 10)
                                              , mean = case_when(n_atleast1 == 0 ~ 0
-                                                                , TRUE ~ mean)
+                                                                , TRUE ~ round(mean, 2))
                                              , sd = case_when(n_atleast1 == 0 ~ 0
                                                               , TRUE ~ sd))) %>% 
                           bind_rows(df_input %>%
@@ -689,7 +1107,7 @@ plots_gp_service_use_quarter_char <- tidyr::expand_grid(characteristic, activity
                                       mutate(n = plyr::round_any(n, 10)
                                              , n_atleast1 = plyr::round_any(n_atleast1, 10)
                                              , mean = case_when(n_atleast1 == 0 ~ 0
-                                                                , TRUE ~ mean)
+                                                                , TRUE ~ round(mean, 2))
                                              , sd = case_when(n_atleast1 == 0 ~ 0
                                                               , TRUE ~ sd))) %>%  
                           mutate(activity = str_sub(measure, 1, -4)
@@ -728,6 +1146,42 @@ plots_gp_service_use_quarter_char <- tidyr::expand_grid(characteristic, activity
                             scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
                             scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
                             NT_style())
+         , plot_prop_1m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1m")
+                                                                                   , aes(x = study_quarter, y = n_atleast1/n
+                                                                                         , colour = factor(variable))) +
+                                 geom_line(size = 1) +
+                                 geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+                                 labs(x = "Study quarter", y = "Events per person"
+                                      , title = var) +
+                                 guides(colour = guide_legend(byrow = TRUE)) +
+                                 scale_colour_NT(palette = NT_palette()) +
+                                 scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+                                 scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+                                 NT_style())
+         , plot_prop_3m = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "3m")
+                                                                                   , aes(x = study_quarter, y = n_atleast1/n
+                                                                                         , colour = factor(variable))) +
+                                 geom_line(size = 1) +
+                                 geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+                                 labs(x = "Study quarter", y = "Events per person"
+                                      , title = var) +
+                                 guides(colour = guide_legend(byrow = TRUE)) +
+                                 scale_colour_NT(palette = NT_palette()) +
+                                 scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+                                 scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+                                 NT_style())
+         , plot_prop_1y = map2(characteristic, dataset, function(var, dset) ggplot(dset %>% filter(period == "1y")
+                                                                                   , aes(x = study_quarter, y = n_atleast1/n
+                                                                                         , colour = factor(variable))) +
+                                 geom_line(size = 1) +
+                                 geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+                                 labs(x = "Study quarter", y = "Events per person"
+                                      , title = var) +
+                                 guides(colour = guide_legend(byrow = TRUE)) +
+                                 scale_colour_NT(palette = NT_palette()) +
+                                 scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+                                 scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+                                 NT_style())
   )
 
 save_plots_gp <- function(service) { 
@@ -755,6 +1209,33 @@ save_plots_gp <- function(service) {
   pdf(filename_1y)
   
   print((plots_gp_service_use_quarter_char %>% filter(activity == service))$plot_1y)  
+  
+  dev.off()
+  
+  
+  filename_prop_1m <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_prop_quart_home_", service, "_1m.pdf")
+  
+  pdf(filename_prop_1m)
+  
+  print((plots_service_use_quarter_char %>% filter(activity == service))$plot_prop_1m)  
+  
+  dev.off()
+  
+  
+  filename_prop_3m <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_prop_quart_home_", service, "_3m.pdf")
+  
+  pdf(filename_prop_3m)
+  
+  print((plots_service_use_quarter_char %>% filter(activity == service))$plot_prop_3m)  
+  
+  dev.off()
+  
+  
+  filename_prop_1y <- paste0("output/describe_service_use_home/complete_gp_history/plots/gp_service_prop_quart_home_", service, "_1y.pdf")
+  
+  pdf(filename_prop_1y)
+  
+  print((plots_service_use_quarter_char %>% filter(activity == service))$plot_prop_1y)  
   
   dev.off()
   

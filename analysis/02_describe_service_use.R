@@ -6,13 +6,13 @@
 
 # Time periods: 1 month, 3 months, 1 year
 # Versions for people with complete GP record
-# Build in significance testing
-# Round to two decimal places
 # Convert stats to zero if n_atleast1 is zero
 
 # Service use by cohort
+# Significance test difference in service use means by cohort
 # Service use by quarter
 # Service use by cohort and place of death
+# Significance test difference in service use means by cohort for each place of death
 # Service use by quarter and place of death
 
 ################################################################################
@@ -304,7 +304,10 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
                               , cod_ons_3 >= "C00" & cod_ons_3 <= "C99" ~ "Cancer"
                               , TRUE ~ "All other causes")
          , palcare = ltc_palcare1
-         , nopalcare = ltc_palcare2) %>%
+         , nopalcare = ltc_palcare2
+         , rural_urban = case_when(rural_class %in% c(1, 2, 3, 4)  ~ "Rural"
+                                   , rural_class %in% c(5, 6, 7, 8) ~ "Urban"
+                                   , TRUE ~ NA_character_)) %>%
   left_join(read_csv(here::here("docs", "lookups", "msoa_lad_rgn_2020.csv")) %>% 
               select(msoa11cd, lad20cd, rgn20cd) %>% 
               rename(region = rgn20cd)
@@ -324,6 +327,7 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
                                      , TRUE ~ imd_quintile_la)
          , imd_quintile_la_gp = case_when(is.na(imd_quintile_la_gp) ~ 0
                                           , TRUE ~ imd_quintile_la_gp))
+
 ################################################################################
 
 ########## Descriptive stats service use by cohort ##########
@@ -343,14 +347,14 @@ service_use_mean_cohort <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
+                            , TRUE ~ round(mean, 2))
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>% 
+                          , TRUE ~ round(sd, 2))) %>% 
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
+  mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0),2))
 
 write_csv(service_use_mean_cohort, here::here("output", "describe_service_use", "service_use_mean_cohort.csv"))
 
@@ -369,9 +373,9 @@ gp_service_use_mean_cohort <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
+                            , TRUE ~ round(mean, 2))
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%  
+                          , TRUE ~ round(sd, 2))) %>%  
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   bind_rows(df_input %>%
               filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
@@ -386,9 +390,9 @@ gp_service_use_mean_cohort <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
+                                        , TRUE ~ round(mean, 2))
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>% 
+                                      , TRUE ~ round(sd, 2))) %>% 
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
   bind_rows(df_input %>%
               filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
@@ -403,16 +407,86 @@ gp_service_use_mean_cohort <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
+                                        , TRUE ~ round(mean, 2))
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%  
+                                      , TRUE ~ round(sd, 2))) %>%  
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
+  mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0),2))
 
 write_csv(gp_service_use_mean_cohort, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort.csv"))
+
+################################################################################
+
+########## Significance test cohorts mean difference ##########
+
+service_use_mean_cohort_sigtest <- tibble(measure = unique(service_use_mean_cohort$measure)) %>%
+  mutate(dataset_0 = map(measure, function(var) df_input %>%
+                           filter(!is.na(study_cohort)) %>% 
+                           select(cohort, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                           select(-contains("gp_hist")) %>% 
+                           pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>% 
+                           filter(cohort == 0 & measure == var))
+         , dataset_1 = map(measure, function(var) df_input %>%
+                             filter(!is.na(study_cohort)) %>% 
+                             select(cohort, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                             select(-contains("gp_hist")) %>% 
+                             pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>% 
+                             filter(cohort == 1 & measure == var))
+         , normality_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(ks.test(dset0$value, dset1$value)$p.value, 4))
+         , equal_variance_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(var.test(dset0$value, dset1$value)$p.value, 4))
+         , ttest_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = TRUE)$p.value, 4))
+         , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
+         , wilcox_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(wilcox.test(dset0$value, dset1$value, exact = FALSE)$p.value, 4))) %>% 
+  select(-dataset_0, -dataset_1)
+
+write_csv(service_use_mean_cohort_sigtest, here::here("output", "describe_service_use", "service_use_mean_cohort_sigtest.csv"))
+
+# Calculate the same just for people with complete gp history
+
+gp_service_use_mean_cohort_sigtest <- tibble(measure = unique(gp_service_use_mean_cohort$measure)) %>%
+  mutate(dataset_0 = map(measure, function(var) df_input %>%
+                           filter(!is.na(study_cohort) & gp_hist_1m == TRUE) %>% 
+                           select(cohort, ends_with("_1m")) %>%
+                           select(-contains("gp_hist")) %>% 
+                           pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
+                           bind_rows(df_input %>%
+                                       filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
+                                       select(cohort, ends_with("_3m")) %>%
+                                       select(-contains("gp_hist")) %>% 
+                                       pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>%
+                           bind_rows(df_input %>%
+                                       filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
+                                       select(cohort, ends_with("_1y")) %>%
+                                       select(-contains("gp_hist")) %>% 
+                                       pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>% 
+                           filter(cohort == 0 & measure == var))
+         , dataset_1 = map(measure, function(var) df_input %>%
+                             filter(!is.na(study_cohort) & gp_hist_1m == TRUE) %>% 
+                             select(cohort, ends_with("_1m")) %>%
+                             select(-contains("gp_hist")) %>% 
+                             pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
+                             bind_rows(df_input %>%
+                                         filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
+                                         select(cohort, ends_with("_3m")) %>%
+                                         select(-contains("gp_hist")) %>% 
+                                         pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>%
+                             bind_rows(df_input %>%
+                                         filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
+                                         select(cohort, ends_with("_1y")) %>%
+                                         select(-contains("gp_hist")) %>% 
+                                         pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>% 
+                             filter(cohort == 1 & measure == var))
+         , normality_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(ks.test(dset0$value, dset1$value)$p.value, 4))
+         , equal_variance_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(var.test(dset0$value, dset1$value)$p.value, 4))
+         , ttest_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = TRUE)$p.value, 4))
+         , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
+         , wilcox_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(wilcox.test(dset0$value, dset1$value, exact = FALSE)$p.value, 4))) %>% 
+  select(-dataset_0, -dataset_1)
+
+write_csv(gp_service_use_mean_cohort_sigtest, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort_sigtest.csv"))
 
 ################################################################################
 
@@ -430,7 +504,7 @@ service_use_mean_quarter <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
+                            , TRUE ~ round(mean, 2))
          , sd = case_when(n_atleast1 == 0 ~ 0
                           , TRUE ~ sd)
          , activity = str_sub(measure, 1, -4)
@@ -454,9 +528,9 @@ gp_service_use_mean_quarter <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
+                            , TRUE ~ round(mean, 2))
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%  
+                          , TRUE ~ round(sd, 2))) %>%  
   bind_rows(df_input %>%
               filter(gp_hist_3m == TRUE) %>% 
               select(study_quarter, ends_with("_3m")) %>%
@@ -470,7 +544,7 @@ gp_service_use_mean_quarter <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
+                                        , TRUE ~ round(mean, 2))
                      , sd = case_when(n_atleast1 == 0 ~ 0
                                       , TRUE ~ sd))) %>% 
   bind_rows(df_input %>%
@@ -486,7 +560,7 @@ gp_service_use_mean_quarter <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
+                                        , TRUE ~ round(mean, 2))
                      , sd = case_when(n_atleast1 == 0 ~ 0
                                       , TRUE ~ sd))) %>% 
   mutate(activity = str_sub(measure, 1, -4)
@@ -512,14 +586,14 @@ service_use_mean_cohort_pod <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
+                            , TRUE ~ round(mean, 2))
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
+                          , TRUE ~ round(sd, 2))) %>%   
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(factor(period, levels = c("1m", "3m", "1y")), pod_ons_new, activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
+  mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0),2))
 
 write_csv(service_use_mean_cohort_pod, here::here("output", "describe_service_use", "service_use_mean_cohort_pod.csv"))
 
@@ -538,9 +612,9 @@ gp_service_use_mean_cohort_pod <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
+                            , TRUE ~ round(mean, 2))
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%   
+                          , TRUE ~ round(sd, 2))) %>%   
   pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
   bind_rows(df_input %>%
               filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
@@ -555,9 +629,9 @@ gp_service_use_mean_cohort_pod <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
+                                        , TRUE ~ round(mean, 2))
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
+                                      , TRUE ~ round(sd, 2))) %>%   
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
   bind_rows(df_input %>%
               filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
@@ -572,16 +646,89 @@ gp_service_use_mean_cohort_pod <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
+                                        , TRUE ~ round(mean, 2))
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd)) %>%   
+                                      , TRUE ~ round(sd, 2))) %>%   
               pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(pod_ons_new, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = mean_cohort_1/mean_cohort_0)
+  mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0),2))
 
 write_csv(gp_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort_pod.csv"))
+
+################################################################################
+
+########## Significance test service use means by cohort for each place of death ##########
+
+# Difference in means between cohorts for each measure and place of death
+service_use_mean_cohort_pod_sigtest <- tidyr::expand_grid(measure = unique(service_use_mean_cohort_pod$measure)
+                                                          , pod_ons_new = unique(service_use_mean_cohort_pod$pod_ons_new)) %>%
+  mutate(dataset_0 = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
+                           filter(!is.na(study_cohort)) %>% 
+                           select(cohort, pod_ons_new, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                           select(-contains("gp_hist")) %>% 
+                           pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>% 
+                           filter(cohort == 0 & measure == var & pod_ons_new == pod))
+         , dataset_1 = map2(measure, pod_ons_new, function(var, pod) df_input %>%
+                             filter(!is.na(study_cohort)) %>% 
+                             select(cohort, pod_ons_new, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                             select(-contains("gp_hist")) %>% 
+                             pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value")%>% 
+                             filter(cohort == 1 & measure == var & pod_ons_new == pod))
+         , normality_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(ks.test(dset0$value, dset1$value)$p.value, 4))
+         , equal_variance_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(var.test(dset0$value, dset1$value)$p.value, 4))
+         , ttest_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = TRUE)$p.value, 4))
+         , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
+         , wilcox_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(wilcox.test(dset0$value, dset1$value, exact = FALSE)$p.value, 4))) %>% 
+  select(-dataset_0, -dataset_1)
+
+write_csv(service_use_mean_cohort_pod_sigtest, here::here("output", "describe_service_use", "service_use_mean_cohort_pod_sigtest.csv"))
+
+# Calculate the same just for people with complete gp history
+
+gp_service_use_mean_cohort_pod_sigtest <- tidyr::expand_grid(measure = unique(service_use_mean_cohort_pod$measure)
+                                                             , pod_ons_new = unique(service_use_mean_cohort_pod$pod_ons_new)) %>%
+  mutate(dataset_0 = map2(measure, pod_ons_new, function(var, pod) df_input %>%
+                           filter(!is.na(study_cohort) & gp_hist_1m == TRUE) %>% 
+                           select(cohort, ends_with("_1m")) %>%
+                           select(-contains("gp_hist")) %>% 
+                           pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
+                           bind_rows(df_input %>%
+                                       filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
+                                       select(cohort, ends_with("_3m")) %>%
+                                       select(-contains("gp_hist")) %>% 
+                                       pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>%
+                           bind_rows(df_input %>%
+                                       filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
+                                       select(cohort, ends_with("_1y")) %>%
+                                       select(-contains("gp_hist")) %>% 
+                                       pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>% 
+                           filter(cohort == 0 & measure == var & pod_ons_new == pod))
+         , dataset_1 = map2(measure, pod_ons_new, function(var, pod) df_input %>%
+                             filter(!is.na(study_cohort) & gp_hist_1m == TRUE) %>% 
+                             select(cohort, ends_with("_1m")) %>%
+                             select(-contains("gp_hist")) %>% 
+                             pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
+                             bind_rows(df_input %>%
+                                         filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
+                                         select(cohort, ends_with("_3m")) %>%
+                                         select(-contains("gp_hist")) %>% 
+                                         pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>%
+                             bind_rows(df_input %>%
+                                         filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
+                                         select(cohort, ends_with("_1y")) %>%
+                                         select(-contains("gp_hist")) %>% 
+                                         pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>% 
+                             filter(cohort == 1 & measure == var & pod_ons_new == pod))
+         , normality_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(ks.test(dset0$value, dset1$value)$p.value, 4))
+         , equal_variance_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(var.test(dset0$value, dset1$value)$p.value, 4))
+         , ttest_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = TRUE)$p.value, 4))
+         , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
+         , wilcox_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(wilcox.test(dset0$value, dset1$value, exact = FALSE)$p.value, 4))) %>% 
+  select(-dataset_0, -dataset_1)
+
+write_csv(gp_service_use_mean_cohort_pod_sigtest, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort_pod_sigtest.csv"))
 
 ################################################################################
 
@@ -599,7 +746,7 @@ service_use_mean_quarter_pod <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
+                            , TRUE ~ round(mean, 2))
          , sd = case_when(n_atleast1 == 0 ~ 0
                           , TRUE ~ sd)
          , activity = str_sub(measure, 1, -4)
@@ -623,9 +770,9 @@ gp_service_use_mean_quarter_pod <- df_input %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ mean)
+                            , TRUE ~ round(mean, 2))
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)) %>%  
+                          , TRUE ~ round(sd, 2))) %>%  
   bind_rows(df_input %>%
               filter(gp_hist_3m == TRUE) %>% 
             select(study_quarter, pod_ons_new, ends_with("_3m")) %>%
@@ -639,7 +786,7 @@ gp_service_use_mean_quarter_pod <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
+                                        , TRUE ~ round(mean, 2))
                      , sd = case_when(n_atleast1 == 0 ~ 0
                                       , TRUE ~ sd))) %>% 
   bind_rows(df_input %>%
@@ -655,7 +802,7 @@ gp_service_use_mean_quarter_pod <- df_input %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
-                                        , TRUE ~ mean)
+                                        , TRUE ~ round(mean, 2))
                      , sd = case_when(n_atleast1 == 0 ~ 0
                                       , TRUE ~ sd))) %>%
   mutate(activity = str_sub(measure, 1, -4)
@@ -666,7 +813,7 @@ write_csv(gp_service_use_mean_quarter_pod, here::here("output", "describe_servic
 
 ################################################################################
 
-########## Plots service use by study quarter and place of death ##########
+########## Plots means by study quarter and place of death ##########
 
 service <- unique(service_use_mean_quarter_pod$activity)
 
@@ -833,6 +980,180 @@ for (i in service) {
       scale_colour_NT(palette = NT_palette()) +
       scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
       scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
+      NT_style()
+  )
+  
+}
+
+dev.off()
+
+################################################################################
+
+########## Plots proportion at least 1 by study quarter and place of death ##########
+
+pdf("output/describe_service_use/plots/service_use_prop_quarter_pod_1m.pdf")
+
+for (i in service) {   
+  
+  print(
+    ggplot(service_use_mean_quarter_pod %>%
+             mutate(pod_ons_new = case_when(pod_ons_new == "Elsewhere/other" ~ "Other"
+                                            , TRUE ~ pod_ons_new)
+                    , activity = str_sub(measure, 1, -4)
+                    , period = str_sub(measure, -2, -1)) %>%
+             filter(activity == i & period == "1m")
+           , aes(x = study_quarter, y = n_atleast1/n
+                 , colour = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital", "Hospice", "Other")))) +
+      geom_line(size = 1) +
+      geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+      labs(x = "Study quarter", y = "Events per person"
+           , title = i) +
+      guides(colour = guide_legend(nrow = 1)) +
+      scale_colour_NT(palette = NT_palette()) +
+      scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+      NT_style()
+  )
+  
+}
+
+dev.off()
+
+pdf("output/describe_service_use/plots/service_use_prop_quarter_pod_3m.pdf")
+
+for (i in service) {   
+  
+  print(
+    ggplot(service_use_mean_quarter_pod %>%
+             mutate(pod_ons_new = case_when(pod_ons_new == "Elsewhere/other" ~ "Other"
+                                            , TRUE ~ pod_ons_new)
+                    , activity = str_sub(measure, 1, -4)
+                    , period = str_sub(measure, -2, -1)) %>%
+             filter(activity == i & period == "3m")
+           , aes(x = study_quarter, y = n_atleast1/n
+                 , colour = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital", "Hospice", "Other")))) +
+      geom_line(size = 1) +
+      geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+      labs(x = "Study quarter", y = "Events per person"
+           , title = i) +
+      guides(colour = guide_legend(nrow = 1)) +
+      scale_colour_NT(palette = NT_palette()) +
+      scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+      NT_style()
+  )
+  
+}
+
+dev.off()
+
+pdf("output/describe_service_use/plots/service_use_prop_quarter_pod_1y.pdf")
+
+for (i in service) {   
+  
+  print(
+    ggplot(service_use_mean_quarter_pod %>%
+             mutate(pod_ons_new = case_when(pod_ons_new == "Elsewhere/other" ~ "Other"
+                                            , TRUE ~ pod_ons_new)
+                    , activity = str_sub(measure, 1, -4)
+                    , period = str_sub(measure, -2, -1)) %>%
+             filter(activity == i & period == "1y")
+           , aes(x = study_quarter, y = n_atleast1/n
+                 , colour = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital", "Hospice", "Other")))) +
+      geom_line(size = 1) +
+      geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+      labs(x = "Study quarter", y = "Events per person"
+           , title = i) +
+      guides(colour = guide_legend(nrow = 1)) +
+      scale_colour_NT(palette = NT_palette()) +
+      scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+      NT_style()
+  )
+  
+}
+
+dev.off()
+
+# Plot the same for complete GP history
+
+pdf("output/describe_service_use/complete_gp_history/plots/gp_service_use_prop_quarter_pod_1m.pdf")
+
+for (i in service) {   
+  
+  print(
+    ggplot(gp_service_use_mean_quarter_pod %>%
+             mutate(pod_ons_new = case_when(pod_ons_new == "Elsewhere/other" ~ "Other"
+                                            , TRUE ~ pod_ons_new)
+                    , activity = str_sub(measure, 1, -4)
+                    , period = str_sub(measure, -2, -1)) %>%
+             filter(activity == i & period == "1m")
+           , aes(x = study_quarter, y = n_atleast1/n
+                 , colour = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital", "Hospice", "Other")))) +
+      geom_line(size = 1) +
+      geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+      labs(x = "Study quarter", y = "Events per person"
+           , title = i) +
+      guides(colour = guide_legend(nrow = 1)) +
+      scale_colour_NT(palette = NT_palette()) +
+      scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+      NT_style()
+  )
+  
+}
+
+dev.off()
+
+pdf("output/describe_service_use/complete_gp_history/plots/gp_service_use_prop_quarter_pod_3m.pdf")
+
+for (i in service) {   
+  
+  print(
+    ggplot(gp_service_use_mean_quarter_pod %>%
+             mutate(pod_ons_new = case_when(pod_ons_new == "Elsewhere/other" ~ "Other"
+                                            , TRUE ~ pod_ons_new)
+                    , activity = str_sub(measure, 1, -4)
+                    , period = str_sub(measure, -2, -1)) %>%
+             filter(activity == i & period == "3m")
+           , aes(x = study_quarter, y = n_atleast1/n
+                 , colour = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital", "Hospice", "Other")))) +
+      geom_line(size = 1) +
+      geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+      labs(x = "Study quarter", y = "Events per person"
+           , title = i) +
+      guides(colour = guide_legend(nrow = 1)) +
+      scale_colour_NT(palette = NT_palette()) +
+      scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+      NT_style()
+  )
+  
+}
+
+dev.off()
+
+pdf("output/describe_service_use/complete_gp_history/plots/gp_service_use_prop_quarter_pod_1y.pdf")
+
+for (i in service) {   
+  
+  print(
+    ggplot(gp_service_use_mean_quarter_pod %>%
+             mutate(pod_ons_new = case_when(pod_ons_new == "Elsewhere/other" ~ "Other"
+                                            , TRUE ~ pod_ons_new)
+                    , activity = str_sub(measure, 1, -4)
+                    , period = str_sub(measure, -2, -1)) %>%
+             filter(activity == i & period == "1y")
+           , aes(x = study_quarter, y = n_atleast1/n
+                 , colour = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital", "Hospice", "Other")))) +
+      geom_line(size = 1) +
+      geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
+      labs(x = "Study quarter", y = "Events per person"
+           , title = i) +
+      guides(colour = guide_legend(nrow = 1)) +
+      scale_colour_NT(palette = NT_palette()) +
+      scale_x_continuous(expand = c(0, 0.5), breaks = seq(1, 8, 1)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
       NT_style()
   )
   
