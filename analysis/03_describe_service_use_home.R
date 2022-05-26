@@ -393,7 +393,7 @@ gp_service_use_cohort_home <- tidyr::expand_grid(measure = unique(df_input %>%
                                                                     pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
                                                                     select(measure))$measure
                                                  , char_category = unique(df_input %>%
-                                                                            select(all_of(characteristic)) %>%
+                                                                            select(all_of(characteristics)) %>%
                                                                             mutate(across(everything(), as_factor)) %>%
                                                                             pivot_longer(cols = everything(), names_to = "characteristic", values_to = "category") %>%
                                                                             mutate(char_category = paste0(characteristic, "_", category)) %>%
@@ -454,7 +454,7 @@ service_use_cohort_home_sigtest <- service_use_cohort_home %>%
          , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
          , wilcox_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(wilcox.test(dset0$value, dset1$value, exact = FALSE)$p.value, 4))) %>% 
   select(-dataset_0, -dataset_1) %>%
-  arrange(category, characteristic, activity, period)
+  arrange(char_category, activity, period)
 
 write_csv(service_use_cohort_home_sigtest, here::here("output", "describe_service_use_home", "service_use_cohort_home_sigtest.csv")) 
 
@@ -470,7 +470,7 @@ gp_service_use_cohort_home_sigtest <- gp_service_use_cohort_home %>%
          , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
          , wilcox_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(wilcox.test(dset0$value, dset1$value, exact = FALSE)$p.value, 4))) %>% 
   select(-dataset_0, -dataset_1) %>%
-  arrange(category, characteristic, activity, period) 
+  arrange(char_category, activity, period) 
 
 write_csv(gp_service_use_cohort_home_sigtest, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_sigtest.csv"))  
 
@@ -868,6 +868,8 @@ service_use_quart_home <- tidyr::expand_grid(measure = unique(df_input %>%
 
 write_csv(service_use_quart_home %>% select(-dataset), here::here("output", "describe_service_use_home", "service_use_quart_home.csv"))
 
+
+
 ##############################
 
 ## Calculate the same just for people with complete gp history
@@ -904,7 +906,7 @@ gp_service_use_quart_home <- tidyr::expand_grid(measure = unique(df_input %>%
                             , TRUE ~ round(mean, 2))
          , sd = case_when(n_atleast1 == 0 ~ 0
                           , TRUE ~ round(sd, 2))) %>%
-  arrange(study_quarter, category, characteristic, activity, period) 
+  arrange(study_quarter, char_category, activity, period) 
 
 write_csv(gp_service_use_quart_home %>% select(-dataset), here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_quart_home.csv"))
 
