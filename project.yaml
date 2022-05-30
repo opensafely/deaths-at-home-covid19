@@ -111,4 +111,5 @@ actions:
     needs: [generate_practice_measures]
     outputs:
       moderately_sensitive:
+        deciles_data: output/practice_measures/plots/deciles_*.csv
         deciles_plots: output/practice_measures/plots/deciles_*.png

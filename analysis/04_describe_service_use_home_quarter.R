@@ -330,7 +330,7 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
 ##########  Service use of home deaths by quarter and characteristic  ##########
 
 characteristics <- c("sex", "agegrp", "ethnicity", "ltcgrp", "palcare", "nopalcare", "carehome", "region", "imd_quintile", "imd_quintile_la"
-                     , "rural_urban", "region_gp", "imd_quintile_la_gp", "codgrp")
+                     , "rural_urban", "codgrp")
 
 activity <- unique(df_input %>%
                      select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
@@ -363,13 +363,13 @@ service_use_quart_home <- tidyr::expand_grid(measure = unique(df_input %>%
          , activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)
          , n = map_dbl(dataset, function(dset) plyr::round_any(nrow(dset), 10))
-         , mean = map_dbl(dataset, function(dset) round(mean(dset$value, na.rm = TRUE), 2))
-         , sd = map_dbl(dataset, function(dset) round(sd(dset$value, na.rm = TRUE), 2))
+         , mean = map_dbl(dataset, function(dset) round(mean(dset$value, na.rm = TRUE), 3))
+         , sd = map_dbl(dataset, function(dset) round(sd(dset$value, na.rm = TRUE), 3))
          , n_atleast1 = map_dbl(dataset, function(dset) plyr::round_any(sum(dset$value >= 1, na.rm = TRUE), 10))
          , mean = case_when(n_atleast1 == 0 ~ 0
-                            , TRUE ~ round(mean, 2))
+                            , TRUE ~ round(mean, 3))
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ round(sd, 2))
+                          , TRUE ~ round(sd, 3))
          , characteristic = str_sub(str_extract(char_category, "^[:graph:]+[_a-z$]"), 1, nchar(str_extract(char_category, "^[:graph:]+[_a-z$]"))-1)
          , category = str_extract(char_category, "[^_]+$")) %>%
   arrange(study_quarter, category, characteristic, activity, period)
@@ -395,9 +395,9 @@ plots_service_use_quarter_char <- tidyr::expand_grid(characteristics, activity) 
                           mutate(n = plyr::round_any(n, 10)
                                  , n_atleast1 = plyr::round_any(n_atleast1, 10)
                                  , mean = case_when(n_atleast1 == 0 ~ 0
-                                                    , TRUE ~ round(mean, 2))
+                                                    , TRUE ~ round(mean, 3))
                                  , sd = case_when(n_atleast1 == 0 ~ 0
-                                                  , TRUE ~ round(sd, 2))) %>% 
+                                                  , TRUE ~ round(sd, 3))) %>% 
                           mutate(activity = str_sub(measure, 1, -4)
                                  , period = str_sub(measure, -2, -1)) %>%
                           arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), variable, activity))

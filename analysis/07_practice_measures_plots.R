@@ -246,10 +246,10 @@ decile_plots_binary <- tibble(file_list = list.files(here::here("output", "pract
   filter(str_detect(file_list, "^measure") & str_detect(file_list, "by_practice_binary.csv$")) %>%
   mutate(input_table = map(file_list, function(file_list) read_csv(here::here("output", "practice_measures", file_list)) %>%
                               group_by(date) %>%
-                              summarise(value = round(quantile(value, seq(0.1, 0.9, 0.1), na.rm = TRUE), 2)
-                                        , decile = seq(10, 90, 10)))
+                              summarise(value = round(quantile(value, seq(0, 1, 0.1), na.rm = TRUE), 4)
+                                        , decile = seq(0, 100, 10)))
          , input_label = str_sub(file_list, 9, -5)
-         , output_table = map2(input_table, input_label, function(input_table, input_label) write_csv(input_table, here::here("output", "practice_measures", "plots", paste0(input_label, ".csv"))))
+         , output_table = map2(input_table, input_label, function(input_table, input_label) write_csv(input_table, here::here("output", "practice_measures", "plots", paste0("deciles_", input_label, ".csv"))))
          , binary_plot = map2(input_table, input_label, function(input_table, input_label) ggsave(ggplot() +
                                                                                                     geom_line(input_table
                                                                                                               , mapping = aes(x = date, y = value, group = factor(decile), colour = "#556370", linetype = "dashed", size = "0.5")) +
@@ -271,10 +271,10 @@ decile_plots_number <- tibble(file_list = list.files(here::here("output", "pract
   filter(str_detect(file_list, "^measure") & str_detect(file_list, "by_practice_rate.csv$")) %>%
   mutate(input_table = map(file_list, function(file_list) read_csv(here::here("output", "practice_measures", file_list)) %>%
                                 group_by(date) %>%
-                                summarise(value = round(quantile(value, seq(0.1, 0.9, 0.1), na.rm = TRUE), 2)
-                                          , decile = seq(10, 90, 10)))
+                                summarise(value = round(quantile(value, seq(0, 1, 0.1), na.rm = TRUE), 4)
+                                          , decile = seq(0, 100, 10)))
          , input_label = str_sub(file_list, 9, -5)
-         , output_table = map2(input_table, input_label, function(input_table, input_label) write_csv(input_table, here::here("output", "practice_measures", "plots", paste0(input_label, ".csv"))))
+         , output_table = map2(input_table, input_label, function(input_table, input_label) write_csv(input_table, here::here("output", "practice_measures", "plots", paste0("deciles_", input_label, ".csv"))))
          , number_plot = map2(input_table, input_label, function(input_table, input_label) ggsave(ggplot() +
                                                                                                     geom_line(input_table
                                                                                                               , mapping = aes(x = date, y = value, group = factor(decile), colour = "#556370", linetype = "dashed", size = "0.5")) +

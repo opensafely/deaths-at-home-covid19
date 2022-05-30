@@ -332,7 +332,7 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
 ########## Service use of home deaths by cohort and characteristics ##########
 
 characteristics <- c("sex", "agegrp", "ethnicity", "ltcgrp", "palcare", "nopalcare", "carehome", "region", "imd_quintile", "imd_quintile_la"
-                     , "rural_urban", "region_gp", "imd_quintile_la_gp", "codgrp")
+                     , "rural_urban", "codgrp")
 
 gp_service_use_cohort_home <- tidyr::expand_grid(measure = unique(df_input %>%
                                                                     select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
@@ -369,20 +369,20 @@ gp_service_use_cohort_home <- tidyr::expand_grid(measure = unique(df_input %>%
          , period = str_sub(measure, -2, -1)
          , n_cohort_0 = map_dbl(dataset_0, function(dset0) plyr::round_any(nrow(dset0), 10))
          , n_cohort_1 = map_dbl(dataset_1, function(dset1) plyr::round_any(nrow(dset1), 10))
-         , mean_cohort_0 = map_dbl(dataset_0, function(dset0) round(mean(dset0$value, na.rm = TRUE), 2))
-         , mean_cohort_1 = map_dbl(dataset_1, function(dset1) round(mean(dset1$value, na.rm = TRUE), 2))
-         , sd_cohort_0 = map_dbl(dataset_0, function(dset0) round(sd(dset0$value, na.rm = TRUE), 2))
-         , sd_cohort_1 = map_dbl(dataset_1, function(dset1) round(sd(dset1$value, na.rm = TRUE), 2))
+         , mean_cohort_0 = map_dbl(dataset_0, function(dset0) round(mean(dset0$value, na.rm = TRUE), 3))
+         , mean_cohort_1 = map_dbl(dataset_1, function(dset1) round(mean(dset1$value, na.rm = TRUE), 3))
+         , sd_cohort_0 = map_dbl(dataset_0, function(dset0) round(sd(dset0$value, na.rm = TRUE), 3))
+         , sd_cohort_1 = map_dbl(dataset_1, function(dset1) round(sd(dset1$value, na.rm = TRUE), 3))
          , n_atleast1_cohort_0 = map_dbl(dataset_0, function(dset0) plyr::round_any(sum(dset0$value >= 1, na.rm = TRUE), 10))
          , n_atleast1_cohort_1 = map_dbl(dataset_1, function(dset1) plyr::round_any(sum(dset1$value >= 1, na.rm = TRUE), 10)) 
          , mean_cohort_0 = case_when(n_atleast1_cohort_0 == 0 ~ 0
-                                     , TRUE ~ round(mean_cohort_0, 2))
+                                     , TRUE ~ round(mean_cohort_0, 3))
          , mean_cohort_1 = case_when(n_atleast1_cohort_1 == 0 ~ 0
-                                     , TRUE ~ round(mean_cohort_1, 2))
+                                     , TRUE ~ round(mean_cohort_1, 3))
          , sd_cohort_0 = case_when(n_atleast1_cohort_0 == 0 ~ 0
-                                   , TRUE ~ round(sd_cohort_0, 2))
+                                   , TRUE ~ round(sd_cohort_0, 3))
          , sd_cohort_1 = case_when(n_atleast1_cohort_1 == 0 ~ 0
-                                   , TRUE ~ round(sd_cohort_1, 2))
+                                   , TRUE ~ round(sd_cohort_1, 3))
          , characteristic = str_sub(str_extract(char_category, "^[:graph:]+[_a-z$]"), 1, nchar(str_extract(char_category, "^[:graph:]+[_a-z$]"))-1)
          , category = str_extract(char_category, "[^_]+$")) %>%
   arrange(category, characteristic, activity, period)
@@ -426,6 +426,7 @@ plots_gp_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity
                           rename(variable = var) %>% 
                           select(cohort, variable, ends_with("_1m")) %>%
                           select(-contains("gp_hist")) %>% 
+                          select(cohort, variable, starts_with(service)) %>%
                           pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
                           group_by(cohort, variable, measure) %>%
                           summarise(n = n()
@@ -435,14 +436,15 @@ plots_gp_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity
                           mutate(n = plyr::round_any(n, 10)
                                  , n_atleast1 = plyr::round_any(n_atleast1, 10)
                                  , mean = case_when(n_atleast1 == 0 ~ 0
-                                                    , TRUE ~ round(mean, 2))
+                                                    , TRUE ~ round(mean, 3))
                                  , sd = case_when(n_atleast1 == 0 ~ 0
-                                                  , TRUE ~ round(sd, 2))) %>% 
+                                                  , TRUE ~ round(sd, 3))) %>% 
                           bind_rows(df_input %>%
                                       filter(!is.na(study_cohort) & gp_hist_3m == TRUE & pod_ons_new == "Home") %>% 
                                       rename(variable = var) %>% 
                                       select(cohort, variable, ends_with("_3m")) %>%
                                       select(-contains("gp_hist")) %>% 
+                                      select(cohort, variable, starts_with(service)) %>%
                                       pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
                                       group_by(cohort, variable, measure) %>%
                                       summarise(n = n()
@@ -452,14 +454,15 @@ plots_gp_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity
                                       mutate(n = plyr::round_any(n, 10)
                                              , n_atleast1 = plyr::round_any(n_atleast1, 10)
                                              , mean = case_when(n_atleast1 == 0 ~ 0
-                                                                , TRUE ~ round(mean, 2))
+                                                                , TRUE ~ round(mean, 3))
                                              , sd = case_when(n_atleast1 == 0 ~ 0
-                                                              , TRUE ~ sd))) %>%    
+                                                              , TRUE ~ round(sd, 3)))) %>%    
                           bind_rows(df_input %>%
                                       filter(!is.na(study_cohort) & gp_hist_1y == TRUE & pod_ons_new == "Home") %>% 
                                       rename(variable = var) %>% 
                                       select(cohort, variable, ends_with("_1y")) %>%
                                       select(-contains("gp_hist")) %>% 
+                                      select(cohort, variable, starts_with(service)) %>%
                                       pivot_longer(cols = -c(cohort, variable), names_to = "measure", values_to = "value") %>%
                                       group_by(cohort, variable, measure) %>%
                                       summarise(n = n()
@@ -469,16 +472,16 @@ plots_gp_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity
                                       mutate(n = plyr::round_any(n, 10)
                                              , n_atleast1 = plyr::round_any(n_atleast1, 10)
                                              , mean = case_when(n_atleast1 == 0 ~ 0
-                                                                , TRUE ~ round(mean, 2))
+                                                                , TRUE ~ round(mean, 3))
                                              , sd = case_when(n_atleast1 == 0 ~ 0
-                                                              , TRUE ~ sd))) %>%   
+                                                              , TRUE ~ round(sd,3)))) %>%   
                           mutate(activity = str_sub(measure, 1, -4)
                                  , period = str_sub(measure, -2, -1)))
          , plot_1m = map2(characteristics, dataset, function(var, dset) ggplot(dset %>% filter(period == "1m")
                                                                                , aes(x = factor(variable), y = mean
                                                                                      , colour = factor(cohort), fill = factor(cohort))) +
                             geom_bar(stat = "identity", position = "dodge") +
-                            labs(x = "Study quarter", y = "Events per person"
+                            labs(x = "Category", y = "Events per person"
                                  , title = var) +
                             guides(colour = guide_legend(byrow = TRUE)) +
                             scale_colour_NT(palette = NT_palette()) +
@@ -490,7 +493,7 @@ plots_gp_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity
                                                                                , aes(x = factor(variable), y = mean
                                                                                      , colour = factor(cohort), fill = factor(cohort))) +
                             geom_bar(stat = "identity", position = "dodge") +
-                            labs(x = "Study quarter", y = "Events per person"
+                            labs(x = "Category", y = "Events per person"
                                  , title = var) +
                             guides(colour = guide_legend(byrow = TRUE)) +
                             scale_colour_NT(palette = NT_palette()) +
@@ -502,7 +505,7 @@ plots_gp_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity
                                                                                , aes(x = factor(variable), y = mean
                                                                                      , colour = factor(cohort), fill = factor(cohort))) +
                             geom_bar(stat = "identity", position = "dodge") +
-                            labs(x = "Study quarter", y = "Events per person"
+                            labs(x = "Category", y = "Events per person"
                                  , title = var) +
                             guides(colour = guide_legend(byrow = TRUE)) +
                             scale_colour_NT(palette = NT_palette()) +
@@ -514,7 +517,7 @@ plots_gp_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity
                                                                                     , aes(x = factor(variable), y = n_atleast1/n
                                                                                           , colour = factor(cohort), fill = factor(cohort))) +
                                  geom_bar(stat = "identity", position = "dodge") +
-                                 labs(x = "Study quarter", y = "Events per person"
+                                 labs(x = "Category", y = "Events per person"
                                       , title = var) +
                                  guides(colour = guide_legend(byrow = TRUE)) +
                                  scale_colour_NT(palette = NT_palette()) +
@@ -526,7 +529,7 @@ plots_gp_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity
                                                                                     , aes(x = factor(variable), y = n_atleast1/n
                                                                                           , colour = factor(cohort), fill = factor(cohort))) +
                                  geom_bar(stat = "identity", position = "dodge") +
-                                 labs(x = "Study quarter", y = "Events per person"
+                                 labs(x = "Category", y = "Events per person"
                                       , title = var) +
                                  guides(colour = guide_legend(byrow = TRUE)) +
                                  scale_colour_NT(palette = NT_palette()) +
@@ -538,7 +541,7 @@ plots_gp_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity
                                                                                     , aes(x = factor(variable), y = n_atleast1/n
                                                                                           , colour = factor(cohort), fill = factor(cohort))) +
                                  geom_bar(stat = "identity", position = "dodge") +
-                                 labs(x = "Study quarter", y = "Events per person"
+                                 labs(x = "Category", y = "Events per person"
                                       , title = var) +
                                  guides(colour = guide_legend(byrow = TRUE)) +
                                  scale_colour_NT(palette = NT_palette()) +
