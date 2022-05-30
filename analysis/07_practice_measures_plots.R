@@ -249,6 +249,7 @@ decile_plots_binary <- tibble(file_list = list.files(here::here("output", "pract
                               summarise(value = round(quantile(value, seq(0.1, 0.9, 0.1), na.rm = TRUE), 2)
                                         , decile = seq(10, 90, 10)))
          , input_label = str_sub(file_list, 9, -5)
+         , output_table = map2(input_table, input_label, function(input_table, input_label) write_csv(input_table, here::here("output", "practice_measures", "plots", paste0(input_label, ".csv"))))
          , binary_plot = map2(input_table, input_label, function(input_table, input_label) ggsave(ggplot() +
                                                                                                     geom_line(input_table
                                                                                                               , mapping = aes(x = date, y = value, group = factor(decile), colour = "#556370", linetype = "dashed", size = "0.5")) +
@@ -260,7 +261,7 @@ decile_plots_binary <- tibble(file_list = list.files(here::here("output", "pract
                                                                                                     scale_linetype_manual("Value", values = c("dashed" = "dashed", "solid" = "solid"), labels = c("Deciles", "Median")) +
                                                                                                     scale_size_manual("Value", values = c("0.5" = 0.5, "1" = 1), labels = c("Deciles", "Median")) +
                                                                                                     scale_x_date(expand = c(0, 0), date_breaks = "month", date_labels = "%b %Y") +
-                                                                                                    scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
+                                                                                                    scale_y_continuous(limits = c(0, NA), expand = c(0, 0)) +
                                                                                                     NT_style() +
                                                                                                     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
                                                                                                   , filename = paste0("deciles_", input_label, ".png"), path = here::here("output", "practice_measures", "plots"), height = 10, width = 13.7, units = "cm", dpi = 600))
@@ -273,6 +274,7 @@ decile_plots_number <- tibble(file_list = list.files(here::here("output", "pract
                                 summarise(value = round(quantile(value, seq(0.1, 0.9, 0.1), na.rm = TRUE), 2)
                                           , decile = seq(10, 90, 10)))
          , input_label = str_sub(file_list, 9, -5)
+         , output_table = map2(input_table, input_label, function(input_table, input_label) write_csv(input_table, here::here("output", "practice_measures", "plots", paste0(input_label, ".csv"))))
          , number_plot = map2(input_table, input_label, function(input_table, input_label) ggsave(ggplot() +
                                                                                                     geom_line(input_table
                                                                                                               , mapping = aes(x = date, y = value, group = factor(decile), colour = "#556370", linetype = "dashed", size = "0.5")) +

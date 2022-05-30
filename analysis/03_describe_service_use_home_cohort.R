@@ -1,6 +1,6 @@
 ################################################################################
 
-########## DESCRIBE SERVICE USE HOME ##########
+########## DESCRIBE SERVICE USE HOME COHORT ##########
 
 ################################################################################
 
@@ -302,8 +302,8 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
                               , TRUE ~ "All other causes")
          , palcare = ltc_palcare1
          , nopalcare = ltc_palcare2
-         , rural_urban = case_when(rural_class %in% c(1, 2, 3, 4)  ~ "Rural"
-                                   , rural_class %in% c(5, 6, 7, 8) ~ "Urban"
+         , rural_urban = case_when(rural_class %in% c(1, 2, 3, 4)  ~ "Urban"
+                                   , rural_class %in% c(5, 6, 7, 8) ~ "Rural"
                                    , TRUE ~ NA_character_)) %>%
   left_join(read_csv(here::here("docs", "lookups", "msoa_lad_rgn_2020.csv")) %>% 
               select(msoa11cd, lad20cd, rgn20cd) %>% 
@@ -437,7 +437,7 @@ plots_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity) %
                           mutate(activity = str_sub(measure, 1, -4)
                                  , period = str_sub(measure, -2, -1)))
          , plot_1m = map2(characteristics, dataset, function(var, dset) ggplot(dset %>% filter(period == "1m")
-                                                                               , aes(x = variable, y = mean
+                                                                               , aes(x = factor(variable), y = mean
                                                                                      , colour = factor(cohort), fill = factor(cohort))) +
                             geom_bar(stat = "identity", position = "dodge") +
                             labs(x = "Study quarter", y = "Events per person"
@@ -449,7 +449,7 @@ plots_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity) %
                             scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
                             NT_style())
          , plot_3m = map2(characteristics, dataset, function(var, dset) ggplot(dset %>% filter(period == "3m")
-                                                                               , aes(x = variable, y = mean
+                                                                               , aes(x = factor(variable), y = mean
                                                                                      , colour = factor(cohort), fill = factor(cohort))) +
                             geom_bar(stat = "identity", position = "dodge") +
                             labs(x = "Study quarter", y = "Events per person"
@@ -461,7 +461,7 @@ plots_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity) %
                             scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
                             NT_style())
          , plot_1y = map2(characteristics, dataset, function(var, dset) ggplot(dset %>% filter(period == "1y")
-                                                                               , aes(x = variable, y = mean
+                                                                               , aes(x = factor(variable), y = mean
                                                                                      , colour = factor(cohort), fill = factor(cohort))) +
                             geom_bar(stat = "identity", position = "dodge") +
                             labs(x = "Study quarter", y = "Events per person"
@@ -473,7 +473,7 @@ plots_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity) %
                             scale_y_continuous(expand = c(0, 0), limits = c(0, NA)) +
                             NT_style())
          , plot_prop_1m = map2(characteristics, dataset, function(var, dset) ggplot(dset %>% filter(period == "1m")
-                                                                                    , aes(x = variable, y = n_atleast1/n
+                                                                                    , aes(x = factor(variable), y = n_atleast1/n
                                                                                           , colour = factor(cohort), fill = factor(cohort))) +
                                  geom_bar(stat = "identity", position = "dodge") +
                                  labs(x = "Study quarter", y = "Events per person"
@@ -485,7 +485,7 @@ plots_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity) %
                                  scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
                                  NT_style())
          , plot_prop_3m = map2(characteristics, dataset, function(var, dset) ggplot(dset %>% filter(period == "3m")
-                                                                                    , aes(x = variable, y = n_atleast1/n
+                                                                                    , aes(x = factor(variable), y = n_atleast1/n
                                                                                           , colour = factor(cohort), fill = factor(cohort))) +
                                  geom_bar(stat = "identity", position = "dodge") +
                                  labs(x = "Study quarter", y = "Events per person"
@@ -497,7 +497,7 @@ plots_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity) %
                                  scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
                                  NT_style())
          , plot_prop_1y = map2(characteristics, dataset, function(var, dset) ggplot(dset %>% filter(period == "1y")
-                                                                                    , aes(x = variable, y = n_atleast1/n
+                                                                                    , aes(x = factor(variable), y = n_atleast1/n
                                                                                           , colour = factor(cohort), fill = factor(cohort))) +
                                  geom_bar(stat = "identity", position = "dodge") +
                                  labs(x = "Study quarter", y = "Events per person"

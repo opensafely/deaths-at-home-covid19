@@ -1,6 +1,6 @@
 ################################################################################
 
-########## DESCRIBE SERVICE USE HOME ##########
+########## DESCRIBE SERVICE USE HOME QUARTER ##########
 
 ################################################################################
 
@@ -302,8 +302,8 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
                               , TRUE ~ "All other causes")
          , palcare = ltc_palcare1
          , nopalcare = ltc_palcare2
-         , rural_urban = case_when(rural_class %in% c(1, 2, 3, 4)  ~ "Rural"
-                                   , rural_class %in% c(5, 6, 7, 8) ~ "Urban"
+         , rural_urban = case_when(rural_class %in% c(1, 2, 3, 4)  ~ "Urban"
+                                   , rural_class %in% c(5, 6, 7, 8) ~ "Rural"
                                    , TRUE ~ NA_character_)) %>%
   left_join(read_csv(here::here("docs", "lookups", "msoa_lad_rgn_2020.csv")) %>% 
               select(msoa11cd, lad20cd, rgn20cd) %>% 
