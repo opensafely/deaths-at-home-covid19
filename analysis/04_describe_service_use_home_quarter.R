@@ -439,7 +439,7 @@ plots_service_use_quarter_char <- tidyr::expand_grid(characteristics, activity) 
                                                                                           , colour = factor(variable))) +
                                  geom_line(size = 1) +
                                  geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
-                                 labs(x = "Study quarter", y = "Events per person"
+                                 labs(x = "Study quarter", y = "Proportion with event"
                                       , title = var) +
                                  guides(colour = guide_legend(byrow = TRUE)) +
                                  scale_colour_NT(palette = NT_palette()) +
@@ -451,7 +451,7 @@ plots_service_use_quarter_char <- tidyr::expand_grid(characteristics, activity) 
                                                                                           , colour = factor(variable))) +
                                  geom_line(size = 1) +
                                  geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
-                                 labs(x = "Study quarter", y = "Events per person"
+                                 labs(x = "Study quarter", y = "Proportion with event"
                                       , title = var) +
                                  guides(colour = guide_legend(byrow = TRUE)) +
                                  scale_colour_NT(palette = NT_palette()) +
@@ -463,7 +463,7 @@ plots_service_use_quarter_char <- tidyr::expand_grid(characteristics, activity) 
                                                                                           , colour = factor(variable))) +
                                  geom_line(size = 1) +
                                  geom_point(fill = "#F4F4F4", shape = 21, size = 1.5, stroke = 1.3) +
-                                 labs(x = "Study quarter", y = "Events per person"
+                                 labs(x = "Study quarter", y = "Proportion with event"
                                       , title = var) +
                                  guides(colour = guide_legend(byrow = TRUE)) +
                                  scale_colour_NT(palette = NT_palette()) +

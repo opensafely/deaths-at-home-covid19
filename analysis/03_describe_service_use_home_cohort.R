@@ -476,7 +476,7 @@ plots_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity) %
                                                                                     , aes(x = factor(variable), y = n_atleast1/n
                                                                                           , colour = factor(cohort), fill = factor(cohort))) +
                                  geom_bar(stat = "identity", position = "dodge") +
-                                 labs(x = "Category", y = "Events per person"
+                                 labs(x = "Category", y = "Proportion with event"
                                       , title = var) +
                                  guides(colour = guide_legend(byrow = TRUE)) +
                                  scale_colour_NT(palette = NT_palette()) +
@@ -488,7 +488,7 @@ plots_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity) %
                                                                                     , aes(x = factor(variable), y = n_atleast1/n
                                                                                           , colour = factor(cohort), fill = factor(cohort))) +
                                  geom_bar(stat = "identity", position = "dodge") +
-                                 labs(x = "Category", y = "Events per person"
+                                 labs(x = "Category", y = "Proportion with event"
                                       , title = var) +
                                  guides(colour = guide_legend(byrow = TRUE)) +
                                  scale_colour_NT(palette = NT_palette()) +
@@ -500,7 +500,7 @@ plots_service_use_cohort_char <- tidyr::expand_grid(characteristics, activity) %
                                                                                     , aes(x = factor(variable), y = n_atleast1/n
                                                                                           , colour = factor(cohort), fill = factor(cohort))) +
                                  geom_bar(stat = "identity", position = "dodge") +
-                                 labs(x = "Category", y = "Events per person"
+                                 labs(x = "Category", y = "Proportion with event"
                                       , title = var) +
                                  guides(colour = guide_legend(byrow = TRUE)) +
                                  scale_colour_NT(palette = NT_palette()) +
