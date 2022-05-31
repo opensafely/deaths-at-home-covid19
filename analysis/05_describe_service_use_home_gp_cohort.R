@@ -396,7 +396,7 @@ write_csv(gp_service_use_cohort_home %>% select(-dataset_0, -dataset_1), here::h
 # At least one of the cohorts has to have values for these to work
 
 gp_service_use_cohort_home_sigtest <- gp_service_use_cohort_home %>%
-  filter(n_cohort_0 > 0 | n_cohort_1 > 0) %>%
+  filter(n_atleast1_cohort_0 > 0 | n_atleast1_cohort_1 > 0) %>%
   mutate(normality_pvalue =  map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(ks.test(dset0$value, dset1$value)$p.value, 4))
          , equal_variance_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(var.test(dset0$value, dset1$value)$p.value, 4))
          , ttest_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = TRUE)$p.value, 4))
