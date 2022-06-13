@@ -8,9 +8,6 @@
 
 # Describe service use for home deaths - focus on inequalities
 
-# Service use for home deaths by cohort and characteristic
-# Plots of service use by cohort and characteristic
-# Significance test mean difference between cohorts for each characteristic
 # Service use for home deaths by quarter and characteristic
 # Plots of service use by quarter and characteristic
 
@@ -26,7 +23,6 @@ library("lubridate")
 ########## Save location ##########
 
 fs::dir_create(here::here("output", "describe_service_use_home"))
-fs::dir_create(here::here("output", "describe_service_use_home", "plots"))
 fs::dir_create(here::here("output", "describe_service_use_home", "complete_gp_history"))
 fs::dir_create(here::here("output", "describe_service_use_home", "complete_gp_history", "plots"))
 

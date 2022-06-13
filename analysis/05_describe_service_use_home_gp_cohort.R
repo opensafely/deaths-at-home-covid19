@@ -11,8 +11,6 @@
 # Service use for home deaths by cohort and characteristic
 # Plots of service use by cohort and characteristic
 # Significance test mean difference between cohorts for each characteristic
-# Service use for home deaths by quarter and characteristic
-# Plots of service use by quarter and characteristic
 
 ################################################################################
 
@@ -26,7 +24,6 @@ library("lubridate")
 ########## Save location ##########
 
 fs::dir_create(here::here("output", "describe_service_use_home"))
-fs::dir_create(here::here("output", "describe_service_use_home", "plots"))
 fs::dir_create(here::here("output", "describe_service_use_home", "complete_gp_history"))
 fs::dir_create(here::here("output", "describe_service_use_home", "complete_gp_history", "plots"))
 
@@ -387,17 +384,14 @@ gp_service_use_cohort_home <- tidyr::expand_grid(measure = unique(df_input %>%
          , category = str_extract(char_category, "[^_]+$")) %>%
   arrange(category, characteristic, activity, period)
 
-write_csv(gp_service_use_cohort_home %>% select(-dataset_0, -dataset_1), here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home.csv"))
-
-################################################################################
-
 ########## Significance test cohorts mean difference ##########
 
 # At least one of the cohorts has to have values for these to work
 
 gp_service_use_cohort_home_sigtest <- gp_service_use_cohort_home %>%
   filter(n_atleast1_cohort_0 > 0 | n_atleast1_cohort_1 > 0) %>%
-  mutate(normality_pvalue =  map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(ks.test(dset0$value, dset1$value)$p.value, 4))
+  mutate(normality_pvalue_0 = map_dbl(dataset_0, function(dset0) round(ks.test(dset0$value, "pnorm")$p.value, 4))
+         , normality_pvalue_1 = map_dbl(dataset_1, function(dset1) round(ks.test(dset1$value, "pnorm")$p.value, 4))
          , equal_variance_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(var.test(dset0$value, dset1$value)$p.value, 4))
          , ttest_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = TRUE)$p.value, 4))
          , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
@@ -407,7 +401,14 @@ gp_service_use_cohort_home_sigtest <- gp_service_use_cohort_home %>%
   arrange(category, characteristic, activity, period) %>%
   select(-dataset_0, -dataset_1)
 
-write_csv(gp_service_use_cohort_home_sigtest, here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home_sigtest.csv"))  
+write_csv(gp_service_use_cohort_home %>% 
+            select(-dataset_0, -dataset_1) %>%
+            left_join(gp_service_use_cohort_home_sigtest %>%
+                        select(category, characteristic, activity, period, 
+                               normality_pvalue_0, normality_pvalue_1, equal_variance_pvalue, 
+                               ttest_pvalue, welch_pvalue, wilcox_pvalue)
+                      , by = c("category", "characteristic", "activity", "period"))
+          , here::here("output", "describe_service_use_home", "complete_gp_history", "gp_service_use_cohort_home.csv"))
 
 ################################################################################
 

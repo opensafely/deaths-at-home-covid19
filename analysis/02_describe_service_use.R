@@ -354,7 +354,26 @@ service_use_mean_cohort <- df_input %>%
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0),2))
+  mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0),2)
+         , dataset_0 = map(measure, function(var) df_input %>%
+                             filter(!is.na(study_cohort)) %>% 
+                             select(cohort, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                             select(-contains("gp_hist")) %>% 
+                             pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>% 
+                             filter(cohort == 0 & measure == var))
+         , dataset_1 = map(measure, function(var) df_input %>%
+                             filter(!is.na(study_cohort)) %>% 
+                             select(cohort, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                             select(-contains("gp_hist")) %>% 
+                             pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>% 
+                             filter(cohort == 1 & measure == var))
+         , normality_pvalue_0 = map_dbl(dataset_0, function(dset0) round(ks.test(dset0$value, "pnorm")$p.value, 4))
+         , normality_pvalue_1 = map_dbl(dataset_1, function(dset1) round(ks.test(dset1$value, "pnorm")$p.value, 4))
+         , equal_variance_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(var.test(dset0$value, dset1$value)$p.value, 4))
+         , ttest_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = TRUE)$p.value, 4))
+         , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
+         , wilcox_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(wilcox.test(dset0$value, dset1$value, exact = FALSE)$p.value, 4))) %>% 
+  select(-dataset_0, -dataset_1)
 
 write_csv(service_use_mean_cohort, here::here("output", "describe_service_use", "service_use_mean_cohort.csv"))
 
@@ -414,55 +433,23 @@ gp_service_use_mean_cohort <- df_input %>%
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0),2))
-
-write_csv(gp_service_use_mean_cohort, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort.csv"))
-
-################################################################################
-
-########## Significance test cohorts mean difference ##########
-
-service_use_mean_cohort_sigtest <- tibble(measure = unique(service_use_mean_cohort$measure)) %>%
-  mutate(dataset_0 = map(measure, function(var) df_input %>%
-                           filter(!is.na(study_cohort)) %>% 
-                           select(cohort, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-                           select(-contains("gp_hist")) %>% 
-                           pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>% 
-                           filter(cohort == 0 & measure == var))
-         , dataset_1 = map(measure, function(var) df_input %>%
-                             filter(!is.na(study_cohort)) %>% 
-                             select(cohort, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+  mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0),2)
+         , dataset_0 = map(measure, function(var) df_input %>%
+                             filter(!is.na(study_cohort) & gp_hist_1m == TRUE) %>% 
+                             select(cohort, ends_with("_1m")) %>%
                              select(-contains("gp_hist")) %>% 
-                             pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>% 
-                             filter(cohort == 1 & measure == var))
-         , normality_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(ks.test(dset0$value, dset1$value)$p.value, 4))
-         , equal_variance_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(var.test(dset0$value, dset1$value)$p.value, 4))
-         , ttest_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = TRUE)$p.value, 4))
-         , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
-         , wilcox_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(wilcox.test(dset0$value, dset1$value, exact = FALSE)$p.value, 4))) %>% 
-  select(-dataset_0, -dataset_1)
-
-write_csv(service_use_mean_cohort_sigtest, here::here("output", "describe_service_use", "service_use_mean_cohort_sigtest.csv"))
-
-# Calculate the same just for people with complete gp history
-
-gp_service_use_mean_cohort_sigtest <- tibble(measure = unique(gp_service_use_mean_cohort$measure)) %>%
-  mutate(dataset_0 = map(measure, function(var) df_input %>%
-                           filter(!is.na(study_cohort) & gp_hist_1m == TRUE) %>% 
-                           select(cohort, ends_with("_1m")) %>%
-                           select(-contains("gp_hist")) %>% 
-                           pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
-                           bind_rows(df_input %>%
-                                       filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
-                                       select(cohort, ends_with("_3m")) %>%
-                                       select(-contains("gp_hist")) %>% 
-                                       pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>%
-                           bind_rows(df_input %>%
-                                       filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
-                                       select(cohort, ends_with("_1y")) %>%
-                                       select(-contains("gp_hist")) %>% 
-                                       pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>% 
-                           filter(cohort == 0 & measure == var))
+                             pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
+                             bind_rows(df_input %>%
+                                         filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
+                                         select(cohort, ends_with("_3m")) %>%
+                                         select(-contains("gp_hist")) %>% 
+                                         pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>%
+                             bind_rows(df_input %>%
+                                         filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
+                                         select(cohort, ends_with("_1y")) %>%
+                                         select(-contains("gp_hist")) %>% 
+                                         pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>% 
+                             filter(cohort == 0 & measure == var))
          , dataset_1 = map(measure, function(var) df_input %>%
                              filter(!is.na(study_cohort) & gp_hist_1m == TRUE) %>% 
                              select(cohort, ends_with("_1m")) %>%
@@ -479,14 +466,15 @@ gp_service_use_mean_cohort_sigtest <- tibble(measure = unique(gp_service_use_mea
                                          select(-contains("gp_hist")) %>% 
                                          pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>% 
                              filter(cohort == 1 & measure == var))
-         , normality_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(ks.test(dset0$value, dset1$value)$p.value, 4))
+         , normality_pvalue_0 = map_dbl(dataset_0, function(dset0) round(ks.test(dset0$value, "pnorm")$p.value, 4))
+         , normality_pvalue_1 = map_dbl(dataset_1, function(dset1) round(ks.test(dset1$value, "pnorm")$p.value, 4))
          , equal_variance_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(var.test(dset0$value, dset1$value)$p.value, 4))
          , ttest_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = TRUE)$p.value, 4))
          , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
          , wilcox_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(wilcox.test(dset0$value, dset1$value, exact = FALSE)$p.value, 4))) %>% 
   select(-dataset_0, -dataset_1)
 
-write_csv(gp_service_use_mean_cohort_sigtest, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort_sigtest.csv"))
+write_csv(gp_service_use_mean_cohort, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort.csv"))
 
 ################################################################################
 
@@ -593,7 +581,26 @@ service_use_mean_cohort_pod <- df_input %>%
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(factor(period, levels = c("1m", "3m", "1y")), pod_ons_new, activity) %>%
-  mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0),2))
+  mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0),2)
+         , dataset_0 = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
+                              filter(!is.na(study_cohort)) %>% 
+                              select(cohort, pod_ons_new, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                              select(-contains("gp_hist")) %>% 
+                              pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>% 
+                              filter(cohort == 0 & measure == var & pod_ons_new == pod))
+         , dataset_1 = map2(measure, pod_ons_new, function(var, pod) df_input %>%
+                              filter(!is.na(study_cohort)) %>% 
+                              select(cohort, pod_ons_new, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                              select(-contains("gp_hist")) %>% 
+                              pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value")%>% 
+                              filter(cohort == 1 & measure == var & pod_ons_new == pod))
+         , normality_pvalue_0 = map_dbl(dataset_0, function(dset0) round(ks.test(dset0$value, "pnorm")$p.value, 4))
+         , normality_pvalue_1 = map_dbl(dataset_1, function(dset1) round(ks.test(dset1$value, "pnorm")$p.value, 4))
+         , equal_variance_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(var.test(dset0$value, dset1$value)$p.value, 4))
+         , ttest_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = TRUE)$p.value, 4))
+         , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
+         , wilcox_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(wilcox.test(dset0$value, dset1$value, exact = FALSE)$p.value, 4))) %>% 
+  select(-dataset_0, -dataset_1)
 
 write_csv(service_use_mean_cohort_pod, here::here("output", "describe_service_use", "service_use_mean_cohort_pod.csv"))
 
@@ -653,82 +660,48 @@ gp_service_use_mean_cohort_pod <- df_input %>%
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(pod_ons_new, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
-  mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0),2))
+  mutate(mean_ratio = round((mean_cohort_1/mean_cohort_0),2)
+         , dataset_0 = map2(measure, pod_ons_new, function(var, pod) df_input %>%
+                              filter(!is.na(study_cohort) & gp_hist_1m == TRUE) %>% 
+                              select(cohort, ends_with("_1m")) %>%
+                              select(-contains("gp_hist")) %>% 
+                              pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
+                              bind_rows(df_input %>%
+                                          filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
+                                          select(cohort, ends_with("_3m")) %>%
+                                          select(-contains("gp_hist")) %>% 
+                                          pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>%
+                              bind_rows(df_input %>%
+                                          filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
+                                          select(cohort, ends_with("_1y")) %>%
+                                          select(-contains("gp_hist")) %>% 
+                                          pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>% 
+                              filter(cohort == 0 & measure == var & pod_ons_new == pod))
+         , dataset_1 = map2(measure, pod_ons_new, function(var, pod) df_input %>%
+                              filter(!is.na(study_cohort) & gp_hist_1m == TRUE) %>% 
+                              select(cohort, ends_with("_1m")) %>%
+                              select(-contains("gp_hist")) %>% 
+                              pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
+                              bind_rows(df_input %>%
+                                          filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
+                                          select(cohort, ends_with("_3m")) %>%
+                                          select(-contains("gp_hist")) %>% 
+                                          pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>%
+                              bind_rows(df_input %>%
+                                          filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
+                                          select(cohort, ends_with("_1y")) %>%
+                                          select(-contains("gp_hist")) %>% 
+                                          pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>% 
+                              filter(cohort == 1 & measure == var & pod_ons_new == pod))
+         , normality_pvalue_0 = map_dbl(dataset_0, function(dset0) round(ks.test(dset0$value, "pnorm")$p.value, 4))
+         , normality_pvalue_1 = map_dbl(dataset_1, function(dset1) round(ks.test(dset1$value, "pnorm")$p.value, 4))
+         , equal_variance_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(var.test(dset0$value, dset1$value)$p.value, 4))
+         , ttest_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = TRUE)$p.value, 4))
+         , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
+         , wilcox_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(wilcox.test(dset0$value, dset1$value, exact = FALSE)$p.value, 4))) %>% 
+  select(-dataset_0, -dataset_1)
 
 write_csv(gp_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort_pod.csv"))
-
-################################################################################
-
-########## Significance test service use means by cohort for each place of death ##########
-
-# Difference in means between cohorts for each measure and place of death
-service_use_mean_cohort_pod_sigtest <- tidyr::expand_grid(measure = unique(service_use_mean_cohort_pod$measure)
-                                                          , pod_ons_new = unique(service_use_mean_cohort_pod$pod_ons_new)) %>%
-  mutate(dataset_0 = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
-                           filter(!is.na(study_cohort)) %>% 
-                           select(cohort, pod_ons_new, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-                           select(-contains("gp_hist")) %>% 
-                           pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>% 
-                           filter(cohort == 0 & measure == var & pod_ons_new == pod))
-         , dataset_1 = map2(measure, pod_ons_new, function(var, pod) df_input %>%
-                             filter(!is.na(study_cohort)) %>% 
-                             select(cohort, pod_ons_new, ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-                             select(-contains("gp_hist")) %>% 
-                             pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value")%>% 
-                             filter(cohort == 1 & measure == var & pod_ons_new == pod))
-         , normality_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(ks.test(dset0$value, dset1$value)$p.value, 4))
-         , equal_variance_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(var.test(dset0$value, dset1$value)$p.value, 4))
-         , ttest_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = TRUE)$p.value, 4))
-         , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
-         , wilcox_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(wilcox.test(dset0$value, dset1$value, exact = FALSE)$p.value, 4))) %>% 
-  select(-dataset_0, -dataset_1)
-
-write_csv(service_use_mean_cohort_pod_sigtest, here::here("output", "describe_service_use", "service_use_mean_cohort_pod_sigtest.csv"))
-
-# Calculate the same just for people with complete gp history
-
-gp_service_use_mean_cohort_pod_sigtest <- tidyr::expand_grid(measure = unique(service_use_mean_cohort_pod$measure)
-                                                             , pod_ons_new = unique(service_use_mean_cohort_pod$pod_ons_new)) %>%
-  mutate(dataset_0 = map2(measure, pod_ons_new, function(var, pod) df_input %>%
-                           filter(!is.na(study_cohort) & gp_hist_1m == TRUE) %>% 
-                           select(cohort, ends_with("_1m")) %>%
-                           select(-contains("gp_hist")) %>% 
-                           pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
-                           bind_rows(df_input %>%
-                                       filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
-                                       select(cohort, ends_with("_3m")) %>%
-                                       select(-contains("gp_hist")) %>% 
-                                       pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>%
-                           bind_rows(df_input %>%
-                                       filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
-                                       select(cohort, ends_with("_1y")) %>%
-                                       select(-contains("gp_hist")) %>% 
-                                       pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>% 
-                           filter(cohort == 0 & measure == var & pod_ons_new == pod))
-         , dataset_1 = map2(measure, pod_ons_new, function(var, pod) df_input %>%
-                             filter(!is.na(study_cohort) & gp_hist_1m == TRUE) %>% 
-                             select(cohort, ends_with("_1m")) %>%
-                             select(-contains("gp_hist")) %>% 
-                             pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
-                             bind_rows(df_input %>%
-                                         filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
-                                         select(cohort, ends_with("_3m")) %>%
-                                         select(-contains("gp_hist")) %>% 
-                                         pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>%
-                             bind_rows(df_input %>%
-                                         filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
-                                         select(cohort, ends_with("_1y")) %>%
-                                         select(-contains("gp_hist")) %>% 
-                                         pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value")) %>% 
-                             filter(cohort == 1 & measure == var & pod_ons_new == pod))
-         , normality_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(ks.test(dset0$value, dset1$value)$p.value, 4))
-         , equal_variance_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(var.test(dset0$value, dset1$value)$p.value, 4))
-         , ttest_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = TRUE)$p.value, 4))
-         , welch_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(t.test(dset0$value, dset1$value, var.equal = FALSE)$p.value, 4))
-         , wilcox_pvalue = map2_dbl(dataset_0, dataset_1, function(dset0, dset1) round(wilcox.test(dset0$value, dset1$value, exact = FALSE)$p.value, 4))) %>% 
-  select(-dataset_0, -dataset_1)
-
-write_csv(gp_service_use_mean_cohort_pod_sigtest, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort_pod_sigtest.csv"))
 
 ################################################################################
 
