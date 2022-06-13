@@ -546,7 +546,7 @@ gp_service_use_mean_quarter <- df_input %>%
                      , mean = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ round(mean, 3))
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>% 
+                                      , TRUE ~ round(sd,3)))) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_1y == TRUE) %>% 
               select(study_quarter, ends_with("_1y")) %>%
@@ -562,7 +562,7 @@ gp_service_use_mean_quarter <- df_input %>%
                      , mean = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ round(mean, 3))
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>% 
+                                      , TRUE ~ round(sd, 3)))) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(study_quarter, factor(period, levels = c("1m", "3m", "1y")), activity)
@@ -748,7 +748,7 @@ service_use_mean_quarter_pod <- df_input %>%
          , mean = case_when(n_atleast1 == 0 ~ 0
                             , TRUE ~ round(mean, 3))
          , sd = case_when(n_atleast1 == 0 ~ 0
-                          , TRUE ~ sd)
+                          , TRUE ~ round(sd, 3))
          , activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(study_quarter, pod_ons_new, factor(period, levels = c("1m", "3m", "1y")), activity)
@@ -788,7 +788,7 @@ gp_service_use_mean_quarter_pod <- df_input %>%
                      , mean = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ round(mean, 3))
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>% 
+                                      , TRUE ~ round(sd, 3)))) %>% 
   bind_rows(df_input %>%
               filter(gp_hist_1y == TRUE) %>% 
             select(study_quarter, pod_ons_new, ends_with("_1y")) %>%
@@ -804,7 +804,7 @@ gp_service_use_mean_quarter_pod <- df_input %>%
                      , mean = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ round(mean, 3))
                      , sd = case_when(n_atleast1 == 0 ~ 0
-                                      , TRUE ~ sd))) %>%
+                                      , TRUE ~ round(sd, 3)))) %>%
   mutate(activity = str_sub(measure, 1, -4)
     , period = str_sub(measure, -2, -1)) %>%
   arrange(study_quarter, pod_ons_new, factor(period, levels = c("1m", "3m", "1y")), activity)
