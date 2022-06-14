@@ -273,9 +273,7 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
          , cod_ons_4 = str_sub(cod_ons, 1, 5)
          , pod_ons_new = case_when(pod_ons == "Elsewhere" | pod_ons == "Other communal establishment" ~ "Elsewhere/other"
                                    , TRUE ~ as.character(pod_ons))
-         , agegrp = case_when(age >= 0 & age <= 10 ~ "00-09"
-                              , age >= 10 & age <= 19 ~ "10-19"
-                              , age >= 20 & age <= 29 ~ "20-29"
+         , agegrp = case_when(age >= 0 & age <= 29 ~ "00-29"
                               , age >= 30 & age <= 39 ~ "30-39"
                               , age >= 40 & age <= 49 ~ "40-49"
                               , age >= 50 & age <= 59 ~ "50-59"
