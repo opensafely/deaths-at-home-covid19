@@ -24,7 +24,18 @@ nhsd-primary-care-domain-refsets/ndh_cod/20200812
 
 nhsd-primary-care-domain-refsets/palcare_cod/20200812
 nhsd-primary-care-domain-refsets/palcareni_cod/20200812
+
 opensafely/midazolam-end-of-life/4c1b3c89
+opensafely/glycopyrronium-subcutaneous-formulations/0c207c6f
+opensafely/haloperidol-subcutaneous-dmd/78768925
+opensafely/hyoscine-butylbromide-subcutaneous-formulations/252fefa4
+opensafely/levomepromazine-subcutaneous/40f222cf
+opensafely/morphine-subcutaneous-dmd/1185fc5b
+opensafely/oxycodone-subcutaneous-dmd/2a956f90
+
+opensafely/diamorphine-subcutaneous/1438bc51
+opensafely/hyoscine-hydrobromide-subcutaneous/6219d5e6
+opensafely/alfentanil-subcutaneous-dmd/7ddc0911
 
 user/eiliskeeble/respite-care/5a0aff01
 user/tgeorghiou/hospice-mentions/0aa5e74b

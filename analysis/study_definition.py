@@ -830,9 +830,8 @@ study = StudyDefinition(
     ),
 
     ## EOL medication
-    # Start with midazolam as existing codelist but update later with full list
     eol_med_1m = patients.with_these_medications(
-        midazolam_codes,
+        eol_med_codes,
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 30 days", "dod_ons"],
         return_expectations = {
@@ -842,7 +841,7 @@ study = StudyDefinition(
     ),
 
     eol_med_3m = patients.with_these_medications(
-        midazolam_codes,
+        eol_med_codes,
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 90 days", "dod_ons"],
         return_expectations = {
@@ -852,7 +851,338 @@ study = StudyDefinition(
     ),
 
     eol_med_1y = patients.with_these_medications(
+       eol_med_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    #Codelist with additional meds beyond priority list
+    eol_med_full_1m = patients.with_these_medications(
+        eol_med_full_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    eol_med_full_3m = patients.with_these_medications(
+        eol_med_full_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    eol_med_full_1y = patients.with_these_medications(
+       eol_med_full_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    midazolam_1m = patients.with_these_medications(
         midazolam_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    midazolam_3m = patients.with_these_medications(
+        midazolam_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    midazolam_1y = patients.with_these_medications(
+       midazolam_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    glycopyrronium_1m = patients.with_these_medications(
+        glycopyrronium_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    glycopyrronium_3m = patients.with_these_medications(
+        glycopyrronium_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    glycopyrronium_1y = patients.with_these_medications(
+       glycopyrronium_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    haloperidol_1m = patients.with_these_medications(
+        haloperidol_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    haloperidol_3m = patients.with_these_medications(
+        haloperidol_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    haloperidol_1y = patients.with_these_medications(
+       haloperidol_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    hyoscine_butyl_1m = patients.with_these_medications(
+        hyoscine_butylbromide_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    hyoscine_butyl_3m = patients.with_these_medications(
+        hyoscine_butylbromide_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    hyoscine_butyl_1y = patients.with_these_medications(
+       hyoscine_butylbromide_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    levomepromazine_1m = patients.with_these_medications(
+        levomepromazine_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    levomepromazine_3m = patients.with_these_medications(
+        levomepromazine_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    levomepromazine_1y = patients.with_these_medications(
+       levomepromazine_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    morphine_1m = patients.with_these_medications(
+        morphine_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    morphine_3m = patients.with_these_medications(
+        morphine_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    morphine_1y = patients.with_these_medications(
+       morphine_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    oxycodone_1m = patients.with_these_medications(
+        oxycodone_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    oxycodone_3m = patients.with_these_medications(
+        oxycodone_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    oxycodone_1y = patients.with_these_medications(
+       oxycodone_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    hyoscine_hydro_1m = patients.with_these_medications(
+        hyoscine_hydrobromide_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    hyoscine_hydro_3m = patients.with_these_medications(
+        hyoscine_hydrobromide_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    hyoscine_hydro_1y = patients.with_these_medications(
+       hyoscine_hydrobromide_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    alfentanil_1m = patients.with_these_medications(
+        alfentanil_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    alfentanil_3m = patients.with_these_medications(
+        alfentanil_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    alfentanil_1y = patients.with_these_medications(
+       alfentanil_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 365 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    diamorphine_1m = patients.with_these_medications(
+        diamorphine_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 30 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    diamorphine_3m = patients.with_these_medications(
+        diamorphine_codes,
+        returning = "number_of_matches_in_period",
+        between = ["dod_ons - 90 days", "dod_ons"],
+        return_expectations = {
+            "int": {"distribution": "normal", "mean": 5, "stddev": 1}, 
+            "incidence": 0.8
+            }
+    ),
+
+    diamorphine_1y = patients.with_these_medications(
+       diamorphine_codes,
         returning = "number_of_matches_in_period",
         between = ["dod_ons - 365 days", "dod_ons"],
         return_expectations = {

@@ -107,6 +107,39 @@ ltc_codes = combine_codelists(
 ## MEDICATION ##
 
 midazolam_codes = codelist_from_csv("codelists/opensafely-midazolam-end-of-life.csv", system = "snomed", column = "dmd_id") 
+glycopyrronium_codes = codelist_from_csv("codelists/opensafely-glycopyrronium-subcutaneous-formulations.csv", system = "snomed", column = "dmd_id") 
+haloperidol_codes = codelist_from_csv("codelists/opensafely-haloperidol-subcutaneous-dmd.csv", system = "snomed", column = "dmd_id") 
+hyoscine_butylbromide_codes = codelist_from_csv("codelists/opensafely-hyoscine-butylbromide-subcutaneous-formulations.csv", system = "snomed", column = "dmd_id") 
+levomepromazine_codes = codelist_from_csv("codelists/opensafely-levomepromazine-subcutaneous.csv", system = "snomed", column = "dmd_id") 
+morphine_codes = codelist_from_csv("codelists/opensafely-morphine-subcutaneous-dmd.csv", system = "snomed", column = "dmd_id") 
+oxycodone_codes = codelist_from_csv("codelists/opensafely-oxycodone-subcutaneous-dmd.csv", system = "snomed", column = "dmd_id") 
+
+hyoscine_hydrobromide_codes = codelist_from_csv("codelists/opensafely-hyoscine-hydrobromide-subcutaneous.csv", system = "snomed", column = "dmd_id") 
+alfentanil_codes = codelist_from_csv("codelists/opensafely-alfentanil-subcutaneous-dmd.csv", system = "snomed", column = "dmd_id") 
+diamorphine_codes = codelist_from_csv("codelists/opensafely-diamorphine-subcutaneous.csv", system = "snomed", column = "dmd_id") 
+
+eol_med_codes = combine_codelists(
+    midazolam_codes,
+    glycopyrronium_codes,
+    haloperidol_codes,
+    hyoscine_butylbromide_codes,
+    levomepromazine_codes,
+    morphine_codes,
+    oxycodone_codes
+)
+
+eol_med_full_codes = combine_codelists(
+    midazolam_codes,
+    glycopyrronium_codes,
+    haloperidol_codes,
+    hyoscine_butylbromide_codes,
+    levomepromazine_codes,
+    morphine_codes,
+    oxycodone_codes,
+    hyoscine_hydrobromide_codes,
+    alfentanil_codes,
+    diamorphine_codes
+)
 
 ## SERVICE USE ##
 

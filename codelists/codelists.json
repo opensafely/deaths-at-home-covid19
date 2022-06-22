@@ -150,6 +150,60 @@
       "downloaded_at": "2022-02-16 14:09:09.228625Z",
       "sha": "6478270c4b76768366bcf585622905154fb32d91"
     },
+    "opensafely-glycopyrronium-subcutaneous-formulations.csv": {
+      "id": "opensafely/glycopyrronium-subcutaneous-formulations/0c207c6f",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/glycopyrronium-subcutaneous-formulations/0c207c6f/",
+      "downloaded_at": "2022-06-17 15:50:18.978935Z",
+      "sha": "db876cbecff085f6754847a33fc43152d41c4061"
+    },
+    "opensafely-haloperidol-subcutaneous-dmd.csv": {
+      "id": "opensafely/haloperidol-subcutaneous-dmd/78768925",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/haloperidol-subcutaneous-dmd/78768925/",
+      "downloaded_at": "2022-06-17 15:50:19.199127Z",
+      "sha": "276c0ca435d4dc7053de87ab9cec7abcf8e929f3"
+    },
+    "opensafely-hyoscine-butylbromide-subcutaneous-formulations.csv": {
+      "id": "opensafely/hyoscine-butylbromide-subcutaneous-formulations/252fefa4",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/hyoscine-butylbromide-subcutaneous-formulations/252fefa4/",
+      "downloaded_at": "2022-06-17 15:50:19.413439Z",
+      "sha": "1af04b7a57f675e2196bd9c0ec41b1dff2abb29c"
+    },
+    "opensafely-levomepromazine-subcutaneous.csv": {
+      "id": "opensafely/levomepromazine-subcutaneous/40f222cf",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/levomepromazine-subcutaneous/40f222cf/",
+      "downloaded_at": "2022-06-17 15:50:19.678547Z",
+      "sha": "4af7357f39bc26d4c10c921399a0859ea1cbec59"
+    },
+    "opensafely-morphine-subcutaneous-dmd.csv": {
+      "id": "opensafely/morphine-subcutaneous-dmd/1185fc5b",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/morphine-subcutaneous-dmd/1185fc5b/",
+      "downloaded_at": "2022-06-17 15:50:19.894943Z",
+      "sha": "1f6b6ca26867189b219a7a8f6a20cf83d1a77f04"
+    },
+    "opensafely-oxycodone-subcutaneous-dmd.csv": {
+      "id": "opensafely/oxycodone-subcutaneous-dmd/2a956f90",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/oxycodone-subcutaneous-dmd/2a956f90/",
+      "downloaded_at": "2022-06-17 15:50:20.123539Z",
+      "sha": "b93cc2784a514fa4bb01092d1feb2e7e8a526ef6"
+    },
+    "opensafely-diamorphine-subcutaneous.csv": {
+      "id": "opensafely/diamorphine-subcutaneous/1438bc51",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/diamorphine-subcutaneous/1438bc51/",
+      "downloaded_at": "2022-06-17 15:50:20.350444Z",
+      "sha": "2c71c7591acab0b88096cbdea40c6582b56f728a"
+    },
+    "opensafely-hyoscine-hydrobromide-subcutaneous.csv": {
+      "id": "opensafely/hyoscine-hydrobromide-subcutaneous/6219d5e6",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/hyoscine-hydrobromide-subcutaneous/6219d5e6/",
+      "downloaded_at": "2022-06-17 15:50:20.595759Z",
+      "sha": "008496630738ffb23b40079ef7bb97f8d5887c12"
+    },
+    "opensafely-alfentanil-subcutaneous-dmd.csv": {
+      "id": "opensafely/alfentanil-subcutaneous-dmd/7ddc0911",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/alfentanil-subcutaneous-dmd/7ddc0911/",
+      "downloaded_at": "2022-06-17 15:50:20.794874Z",
+      "sha": "311efcc939681c50502730c120231da5a4666091"
+    },
     "user-eiliskeeble-respite-care.csv": {
       "id": "user/eiliskeeble/respite-care/5a0aff01",
       "url": "https://codelists.opensafely.org/codelist/user/eiliskeeble/respite-care/5a0aff01/",
