@@ -11,6 +11,13 @@ actions:
       highly_sensitive:
         cohort: output/input.feather
 
+  generate_flow_chart_population:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_flow_chart --output-format feather
+    outputs:
+      highly_sensitive:
+        cohort: output/input_flow_chart.feather
+
+
   generate_study_population_measures:
     run: cohortextractor:latest generate_cohort --study-definition study_definition_practice_measures --output-format feather --index-date-range "2019-03-01 to 2021-02-01 by month" --skip-existing --output-dir=output/practice_measures
     outputs:
@@ -34,6 +41,13 @@ actions:
       moderately_sensitive:
         report: output/cohort_reports_outputs/descriptives_input.html
         report_charts: output/cohort_reports_outputs/*.png
+
+  flow_chart:
+    run: r:latest analysis/00_flow_chart_data.R
+    needs: [generate_flow_chart_population]
+    outputs:
+      moderately_sensitive:
+        flow_data: output/flow_chart_data/flow_chart_data.csv
 
   describe_cohorts:
     run: r:latest analysis/01_describe_cohorts.R
