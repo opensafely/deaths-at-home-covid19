@@ -73,7 +73,7 @@ actions:
         death_ratios_cohort: output/describe_cohorts/death_ratios_cohort/death_ratio_cohort*.csv
         death_ratios_pod_cohort: output/describe_cohorts/death_ratios_pod_cohort/death_ratio_pod_cohort*.csv
         deaths_region_ethnicity: output/describe_cohorts/overall_death_counts/deaths_region*.csv
-        deaths_characteristic_crosstabs: output/describe_cohorts/overall_death_counts/deaths_characteristic_crosstabs.csv
+        deaths_characteristic_crosstabs: output/describe_cohorts/overall_death_counts/deaths_characteristic_crosstabs*.csv
 
   describe_service_use:
     run: r:latest analysis/02_describe_service_use.R

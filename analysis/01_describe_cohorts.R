@@ -2454,3 +2454,130 @@ deaths_characteristic_crosstabs <- df_input %>%
 write_csv(deaths_characteristic_crosstabs, here::here("output", "describe_cohorts", "overall_death_counts", "deaths_characteristic_crosstabs.csv"))
 
 ################################################################################
+
+########## Crosstabs of key characteristics for home deaths  ##########
+
+# sex, agegrp, ethnicity, imd_quintile, codgrp
+
+home_deaths_characteristic_crosstabs <- df_input %>%
+  filter(!is.na(study_cohort) & pod_ons_new == "Home") %>%
+  mutate(agegrp = case_when(age >= 0 & age <= 29 ~ "00-29"
+                            , age >= 30 & age <= 39 ~ "30-39"
+                            , age >= 40 & age <= 49 ~ "40-49"
+                            , age >= 50 & age <= 59 ~ "50-59"
+                            , age >= 60 & age <= 69 ~ "60-69"
+                            , age >= 70 & age <= 79 ~ "70-79"
+                            , age >= 80 & age <= 89 ~ "80-89"
+                            , age >= 90 ~ "90+"
+                            , TRUE ~ NA_character_)) %>%
+  group_by(cohort, sex, agegrp) %>%
+  summarise(deaths = n()) %>%
+  mutate(characteristic_1 = "sex"
+         , characteristic_2 = "agegrp") %>%
+  rename(category_1 = sex
+         , category_2 = agegrp) %>%
+  bind_rows(df_input %>%
+              filter(!is.na(study_cohort) & pod_ons_new == "Home") %>%
+              group_by(cohort, sex, ethnicity) %>%
+              summarise(deaths = n()) %>%
+              mutate(characteristic_1 = "sex"
+                     , characteristic_2 = "ethnicity") %>%
+              rename(category_1 = sex
+                     , category_2 = ethnicity)) %>%
+  bind_rows(df_input %>%
+              filter(!is.na(study_cohort) & pod_ons_new == "Home") %>%
+              group_by(cohort, sex, imd_quintile) %>%
+              summarise(deaths = n()) %>%
+              mutate(characteristic_1 = "sex"
+                     , characteristic_2 = "imd_quintile") %>%
+              rename(category_1 = sex
+                     , category_2 = imd_quintile)) %>%
+  bind_rows(df_input %>%
+              filter(!is.na(study_cohort) & pod_ons_new == "Home") %>%
+              group_by(cohort, sex, codgrp) %>%
+              summarise(deaths = n()) %>%
+              mutate(characteristic_1 = "sex"
+                     , characteristic_2 = "codgrp") %>%
+              rename(category_1 = sex
+                     , category_2 = codgrp)) %>%
+  bind_rows(df_input %>%
+              filter(!is.na(study_cohort) & pod_ons_new == "Home") %>%
+              mutate(agegrp = case_when(age >= 0 & age <= 29 ~ "00-29"
+                                        , age >= 30 & age <= 39 ~ "30-39"
+                                        , age >= 40 & age <= 49 ~ "40-49"
+                                        , age >= 50 & age <= 59 ~ "50-59"
+                                        , age >= 60 & age <= 69 ~ "60-69"
+                                        , age >= 70 & age <= 79 ~ "70-79"
+                                        , age >= 80 & age <= 89 ~ "80-89"
+                                        , age >= 90 ~ "90+"
+                                        , TRUE ~ NA_character_)) %>%
+              group_by(cohort, agegrp, ethnicity) %>%
+              summarise(deaths = n()) %>%
+              mutate(characteristic_1 = "agegrp"
+                     , characteristic_2 = "ethnicity") %>%
+              rename(category_1 = agegrp
+                     , category_2 = ethnicity)) %>%
+  bind_rows(df_input %>%
+              filter(!is.na(study_cohort) & pod_ons_new == "Home") %>%
+              mutate(agegrp = case_when(age >= 0 & age <= 29 ~ "00-29"
+                                        , age >= 30 & age <= 39 ~ "30-39"
+                                        , age >= 40 & age <= 49 ~ "40-49"
+                                        , age >= 50 & age <= 59 ~ "50-59"
+                                        , age >= 60 & age <= 69 ~ "60-69"
+                                        , age >= 70 & age <= 79 ~ "70-79"
+                                        , age >= 80 & age <= 89 ~ "80-89"
+                                        , age >= 90 ~ "90+"
+                                        , TRUE ~ NA_character_)) %>%
+              group_by(cohort, agegrp, imd_quintile) %>%
+              summarise(deaths = n()) %>%
+              mutate(characteristic_1 = "agegrp"
+                     , characteristic_2 = "imd_quintile") %>%
+              rename(category_1 = agegrp
+                     , category_2 = imd_quintile)) %>%
+  bind_rows(df_input %>%
+              filter(!is.na(study_cohort) & pod_ons_new == "Home") %>%
+              mutate(agegrp = case_when(age >= 0 & age <= 29 ~ "00-29"
+                                        , age >= 30 & age <= 39 ~ "30-39"
+                                        , age >= 40 & age <= 49 ~ "40-49"
+                                        , age >= 50 & age <= 59 ~ "50-59"
+                                        , age >= 60 & age <= 69 ~ "60-69"
+                                        , age >= 70 & age <= 79 ~ "70-79"
+                                        , age >= 80 & age <= 89 ~ "80-89"
+                                        , age >= 90 ~ "90+"
+                                        , TRUE ~ NA_character_)) %>%
+              group_by(cohort, agegrp, codgrp) %>%
+              summarise(deaths = n()) %>%
+              mutate(characteristic_1 = "agegrp"
+                     , characteristic_2 = "codgrp") %>%
+              rename(category_1 = agegrp
+                     , category_2 = codgrp)) %>%
+  bind_rows(df_input %>%
+              filter(!is.na(study_cohort) & pod_ons_new == "Home") %>%
+              group_by(cohort, ethnicity, imd_quintile) %>%
+              summarise(deaths = n()) %>%
+              mutate(characteristic_1 = "ethnicity"
+                     , characteristic_2 = "imd_quintile") %>%
+              rename(category_1 = ethnicity
+                     , category_2 = imd_quintile)) %>%
+  bind_rows(df_input %>%
+              filter(!is.na(study_cohort) & pod_ons_new == "Home") %>%
+              group_by(cohort, ethnicity, codgrp) %>%
+              summarise(deaths = n()) %>%
+              mutate(characteristic_1 = "ethnicity"
+                     , characteristic_2 = "codgrp") %>%
+              rename(category_1 = ethnicity
+                     , category_2 = codgrp)) %>%
+  bind_rows(df_input %>%
+              filter(!is.na(study_cohort) & pod_ons_new == "Home") %>%
+              group_by(cohort, imd_quintile, codgrp) %>%
+              summarise(deaths = n()) %>%
+              mutate(characteristic_1 = "imd_quintile"
+                     , characteristic_2 = "codgrp") %>%
+              rename(category_1 = imd_quintile
+                     , category_2 = codgrp)) %>%
+  mutate(deaths = plyr::round_any(deaths, 10)) %>%
+  select(cohort, characteristic_1, category_1, characteristic_2, category_2, deaths)
+
+write_csv(home_deaths_characteristic_crosstabs, here::here("output", "describe_cohorts", "overall_death_counts", "deaths_characteristic_crosstabs_home.csv"))
+
+################################################################################
