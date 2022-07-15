@@ -2459,7 +2459,64 @@ write_csv(deaths_characteristic_crosstabs, here::here("output", "describe_cohort
 
 # sex, agegrp, ethnicity, imd_quintile, codgrp
 
-home_deaths_characteristic_crosstabs <- df_input %>%
+categories_1 <- df_input %>%
+  distinct(sex) %>%
+  rename(category_1 = sex) %>%
+  mutate(characteristic_1 = "sex") %>%
+  bind_rows(df_input  %>%
+              mutate(agegrp = case_when(age >= 0 & age <= 29 ~ "00-29"
+                                        , age >= 30 & age <= 39 ~ "30-39"
+                                        , age >= 40 & age <= 49 ~ "40-49"
+                                        , age >= 50 & age <= 59 ~ "50-59"
+                                        , age >= 60 & age <= 69 ~ "60-69"
+                                        , age >= 70 & age <= 79 ~ "70-79"
+                                        , age >= 80 & age <= 89 ~ "80-89"
+                                        , age >= 90 ~ "90+"
+                                        , TRUE ~ NA_character_)) %>%
+              distinct(agegrp) %>%
+              rename(category_1 = agegrp) %>%
+              mutate(characteristic_1 = "agegrp")) %>%
+  bind_rows(df_input %>%
+              distinct(ethnicity)  %>%
+              rename(category_1 = ethnicity) %>%
+              mutate(characteristic_1 = "ethnicity")) %>%
+  bind_rows(df_input %>%
+              distinct(imd_quintile)  %>%
+              rename(category_1 = imd_quintile) %>%
+              mutate(characteristic_1 = "imd_quintile")) %>%
+  bind_rows(df_input %>%
+              distinct(codgrp)  %>%
+              rename(category_1 = codgrp) %>%
+              mutate(characteristic_1 = "codgrp")) 
+
+`%notin%` <- Negate(`%in%`)
+
+categories_2 <- merge(categories_1 %>%
+  filter(characteristic_1 == "sex"), categories_1 %>%
+              filter(characteristic_1 != "sex") %>%
+    rename(characteristic_2 = characteristic_1
+           , category_2 = category_1), all = TRUE) %>%
+  bind_rows(merge(categories_1 %>%
+                    filter(characteristic_1 == "agegrp"), categories_1 %>%
+                    filter(characteristic_1 %notin% c("sex", "agegrp")) %>%
+                    rename(characteristic_2 = characteristic_1
+                           , category_2 = category_1), all = TRUE)) %>%
+  bind_rows(merge(categories_1 %>%
+                    filter(characteristic_1 == "ethnicity"), categories_1 %>%
+                    filter(characteristic_1 %notin% c("sex", "agegrp", "ethnicity")) %>%
+                    rename(characteristic_2 = characteristic_1
+                           , category_2 = category_1), all = TRUE)) %>%
+  bind_rows(merge(categories_1 %>%
+                    filter(characteristic_1 == "imd_quintile"), categories_1 %>%
+                    filter(characteristic_1 %notin% c("sex", "agegrp", "ethnicity", "imd_quintile")) %>%
+                    rename(characteristic_2 = characteristic_1
+                           , category_2 = category_1), all = TRUE)) 
+
+home_deaths_characteristic_crosstabs <- categories_2 %>%
+  mutate(cohort = 0) %>%
+  bind_rows(categories_2 %>%
+              mutate(cohort = 1)) %>%
+  left_join(df_input %>%
   filter(!is.na(study_cohort) & pod_ons_new == "Home") %>%
   mutate(agegrp = case_when(age >= 0 & age <= 29 ~ "00-29"
                             , age >= 30 & age <= 39 ~ "30-39"
@@ -2577,6 +2634,9 @@ home_deaths_characteristic_crosstabs <- df_input %>%
                      , category_2 = codgrp)) %>%
   mutate(deaths = plyr::round_any(deaths, 10)) %>%
   select(cohort, characteristic_1, category_1, characteristic_2, category_2, deaths)
+  , by = c("cohort", "characteristic_1", "category_1", "characteristic_2", "category_2")) %>%
+  mutate(deaths = case_when(is.na(deaths) ~ 0
+                            , TRUE ~ deaths))
 
 write_csv(home_deaths_characteristic_crosstabs, here::here("output", "describe_cohorts", "overall_death_counts", "deaths_characteristic_crosstabs_home.csv"))
 
