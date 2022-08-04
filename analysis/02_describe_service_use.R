@@ -377,6 +377,62 @@ service_use_mean_cohort <- df_input %>%
 
 write_csv(service_use_mean_cohort, here::here("output", "describe_service_use", "service_use_mean_cohort.csv"))
 
+# Test differences in means with quasipoisson model
+
+model_service_use_mean_cohort <- tibble(activity = colnames(df_input)) %>%
+  filter(str_detect(activity, "_1m|_3m|_1y") & !str_detect(activity, "^gp_hist")) %>%
+  mutate(dataset = map(activity, function(var) df_input %>%
+                            filter(!is.na(study_cohort)) %>% 
+                            select(cohort, all_of(var)) %>%
+                            pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
+                            mutate(activity = str_sub(measure, 1, -4)
+                                   , period = str_sub(measure, -2, -1)
+                                   , cohort = as_factor(cohort)))
+         , model = map(dataset, function(dset) glm(value ~ cohort, data = dset, family = quasipoisson(link = "log")))
+         , observations     = map_dbl(model, nobs)
+         , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
+         , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
+         , intercept_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
+         , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
+         , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
+         , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
+         , cohort_0         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate))
+         , cohort_1         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate))
+  ) %>%
+  select(-dataset, -model)
+
+write_csv(model_service_use_mean_cohort, here::here("output", "describe_service_use", "model_service_use_mean_cohort.csv"))
+
+# Test differences proportion with at least 1 event with binomial model and identity link
+
+model_service_use_prop_cohort <- tibble(activity = colnames(df_input)) %>%
+  filter(str_detect(activity, "_1m|_3m|_1y") & !str_detect(activity, "^gp_hist")) %>%
+  mutate(dataset = map(activity, function(var) df_input %>%
+                         filter(!is.na(study_cohort)) %>% 
+                         select(cohort, all_of(var)) %>%
+                         pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
+                         mutate(activity = str_sub(measure, 1, -4)
+                                , period = str_sub(measure, -2, -1)
+                                , cohort = as_factor(cohort)
+                                , n_atleast1 = case_when(value >= 1 ~ 1
+                                                           , TRUE ~ 0)))
+         , model = map(dataset, function(dset) glm(n_atleast1 ~ cohort, data = dset, family = binomial(link = "identity")))
+         , observations     = map_dbl(model, nobs)
+         , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
+         , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
+         , intercept_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
+         , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
+         , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
+         , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
+         , cohort_0         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate)
+         , cohort_1         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate)
+  ) %>%
+  select(-dataset, -model)
+
+write_csv(model_service_use_prop_cohort, here::here("output", "describe_service_use", "model_service_use_prop_cohort.csv"))
+
+##############################
+
 # Calculate the same just for people with complete gp history
 
 gp_service_use_mean_cohort <- df_input %>%
@@ -475,6 +531,70 @@ gp_service_use_mean_cohort <- df_input %>%
   select(-dataset_0, -dataset_1)
 
 write_csv(gp_service_use_mean_cohort, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort.csv"))
+
+# Test differences in activity counts with quasipoisson model
+
+gp_model_service_use_mean_cohort <- tibble(measure = colnames(df_input)) %>%
+  filter(str_detect(measure, "_1m|_3m|_1y") & !str_detect(measure, "^gp_hist")) %>%
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+    , dataset = map2(activity, period, function(var, time) df_input %>%
+                         filter(!is.na(study_cohort)) %>% 
+                         select(cohort, starts_with(var), starts_with("gp_hist")) %>%
+                         select(cohort, ends_with(time)) %>%
+                         rename(gp_hist = paste0("gp_hist_", time)) %>%
+                         pivot_longer(cols = -c(cohort, starts_with("gp_hist")), names_to = "measure", values_to = "value") %>%
+                         mutate(activity = str_sub(measure, 1, -4)
+                                , period = str_sub(measure, -2, -1)
+                                , cohort = as_factor(cohort)) %>%
+                         filter(gp_hist == 1))
+         , model = map(dataset, function(dset) glm(value ~ cohort, data = dset, family = quasipoisson(link = "log")))
+         , observations     = map_dbl(model, nobs)
+         , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
+         , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
+         , intercept_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
+         , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
+         , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
+         , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
+         , cohort_0         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate))
+         , cohort_1         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate))
+  ) %>%
+  select(-dataset, -model)
+
+write_csv(gp_model_service_use_mean_cohort, here::here("output", "describe_service_use", "gp_model_service_use_mean_cohort.csv"))
+
+# Test differences proportion with at least 1 event with binomial model and identity link
+
+gp_model_service_use_prop_cohort <- tibble(measure = colnames(df_input)) %>%
+  filter(str_detect(measure, "_1m|_3m|_1y") & !str_detect(measure, "^gp_hist")) %>%
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , dataset = map(activity, function(var) df_input %>%
+                         filter(!is.na(study_cohort)) %>% 
+                         select(cohort, starts_with(var), starts_with("gp_hist")) %>%
+                         select(cohort, ends_with(time)) %>%
+                         rename(gp_hist = paste0("gp_hist_", time)) %>%
+                         pivot_longer(cols = -c(cohort, starts_with("gp_hist")), names_to = "measure", values_to = "value") %>%
+                         mutate(activity = str_sub(measure, 1, -4)
+                                , period = str_sub(measure, -2, -1)
+                                , cohort = as_factor(cohort)
+                                , n_atleast1 = case_when(value >= 1 ~ 1
+                                                         , TRUE ~ 0)) %>%
+                         filter(gp_hist == 1))
+         , model = map(dataset, function(dset) glm(n_atleast1 ~ cohort, data = dset, family = binomial(link = "identity")))
+         , observations     = map_dbl(model, nobs)
+         , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
+         , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
+         , intercept_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
+         , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
+         , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
+         , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
+         , cohort_0         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate)
+         , cohort_1         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate)
+  ) %>%
+  select(-dataset, -model)
+
+write_csv(gp_model_service_use_prop_cohort, here::here("output", "describe_service_use", "gp_model_service_use_prop_cohort.csv"))
 
 ################################################################################
 
