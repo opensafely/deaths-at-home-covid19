@@ -343,14 +343,16 @@ service_use_mean_cohort <- df_input %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+            , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+            , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
+         , n_atleast3 = plyr::round_any(n_atleast3, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
                             , TRUE ~ round(mean, 3))
          , sd = case_when(n_atleast1 == 0 ~ 0
                           , TRUE ~ round(sd, 3))) %>% 
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1, n_atleast3)) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(factor(period, levels = c("1m", "3m", "1y")), activity) %>%
@@ -379,7 +381,11 @@ write_csv(service_use_mean_cohort, here::here("output", "describe_service_use", 
 
 # Test differences in means with quasipoisson model
 
-model_service_use_mean_cohort <- tibble(measure = colnames(df_input)) %>%
+model_service_use_mean_cohort <- tibble(measure = unique(df_input %>%
+                                                           select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                                                           select(-contains("gp_hist")) %>% 
+                                                           pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                           select(measure))$measure) %>%
   filter(str_detect(measure, "_1m|_3m|_1y") & !str_detect(measure, "^gp_hist")) %>%
   mutate(dataset = map(measure, function(var) df_input %>%
                             filter(!is.na(study_cohort)) %>% 
@@ -405,9 +411,13 @@ write_csv(model_service_use_mean_cohort, here::here("output", "describe_service_
 
 # Test differences proportion with at least 1 event with binomial model and identity link
 
-model_service_use_prop_cohort <- tibble(activity = colnames(df_input)) %>%
-  filter(str_detect(activity, "_1m|_3m|_1y") & !str_detect(activity, "^gp_hist")) %>%
-  mutate(dataset = map(activity, function(var) df_input %>%
+model_service_use_prop_cohort <- tibble(measure = unique(df_input %>%
+                                                           select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                                                           select(-contains("gp_hist")) %>% 
+                                                           pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                           select(measure))$measure) %>%
+  filter(str_detect(measure, "_1m|_3m|_1y") & !str_detect(measure, "^gp_hist")) %>%
+  mutate(dataset = map(measure, function(var) df_input %>%
                          filter(!is.na(study_cohort)) %>% 
                          select(cohort, all_of(var)) %>%
                          pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
@@ -430,6 +440,36 @@ model_service_use_prop_cohort <- tibble(activity = colnames(df_input)) %>%
   select(-dataset, -model)
 
 write_csv(model_service_use_prop_cohort, here::here("output", "describe_service_use", "model_service_use_prop_cohort.csv"))
+
+model_emadm3_prop_cohort <- tibble(measure = unique(df_input %>%
+                                                      select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                                                      select(-contains("gp_hist")) %>% 
+                                                      pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                      select(measure))$measure) %>%
+  filter(str_detect(measure, "_1m|_3m|_1y") & !str_detect(measure, "^gp_hist")) %>%
+  mutate(dataset = map(measure, function(var) df_input %>%
+                         filter(!is.na(study_cohort)) %>% 
+                         select(cohort, all_of(var)) %>%
+                         pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
+                         mutate(activity = str_sub(measure, 1, -4)
+                                , period = str_sub(measure, -2, -1)
+                                , cohort = as_factor(cohort)
+                                , n_atleast1 = case_when(value >= 1 ~ 1
+                                                         , TRUE ~ 0)))
+         , model = map(dataset, function(dset) glm(n_atleast1 ~ cohort, data = dset, family = binomial(link = "identity")))
+         , observations     = map_dbl(model, nobs)
+         , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
+         , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
+         , intercept_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
+         , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
+         , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
+         , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
+         , cohort_0         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate)
+         , cohort_1         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate)
+  ) %>%
+  select(-dataset, -model)
+
+write_csv(model_emadm3_prop_cohort, here::here("output", "describe_service_use", "model_emadm3_prop_cohort.csv"))
 
 ##############################
 
@@ -534,7 +574,11 @@ write_csv(gp_service_use_mean_cohort, here::here("output", "describe_service_use
 
 # Test differences in activity counts with quasipoisson model
 
-gp_model_service_use_mean_cohort <- tibble(measure = colnames(df_input)) %>%
+gp_model_service_use_mean_cohort <- tibble(measure = unique(df_input %>%
+                                                              select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                                                              select(-contains("gp_hist")) %>% 
+                                                              pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                              select(measure))$measure) %>%
   filter(str_detect(measure, "_1m|_3m|_1y") & !str_detect(measure, "^gp_hist")) %>%
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)
@@ -565,7 +609,11 @@ write_csv(gp_model_service_use_mean_cohort, here::here("output", "describe_servi
 
 # Test differences proportion with at least 1 event with binomial model and identity link
 
-gp_model_service_use_prop_cohort <- tibble(measure = colnames(df_input)) %>%
+gp_model_service_use_prop_cohort <- tibble(measure = unique(df_input %>%
+                                                              select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                                                              select(-contains("gp_hist")) %>% 
+                                                              pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                              select(measure))$measure) %>%
   filter(str_detect(measure, "_1m|_3m|_1y") & !str_detect(measure, "^gp_hist")) %>%
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)
