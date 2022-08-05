@@ -724,6 +724,70 @@ service_use_mean_cohort_pod <- df_input %>%
 
 write_csv(service_use_mean_cohort_pod, here::here("output", "describe_service_use", "service_use_mean_cohort_pod.csv"))
 
+# Test differences in means with quasipoisson model
+
+model_service_use_mean_cohort_pod <- tidyr::expand_grid(measure = unique(df_input %>%
+                                                                           select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                                                                           select(-contains("gp_hist")) %>% 
+                                                                           pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                                           select(measure))$measure
+                                                        , pod_ons_new = unique(df_input$pod_ons_new)) %>%
+  mutate(dataset = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
+                          filter(!is.na(study_cohort) & pod_ons_new == pod) %>% 
+                          select(cohort, pod_ons_new, all_of(var)) %>%
+                          pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
+                          mutate(activity = str_sub(measure, 1, -4)
+                                 , period = str_sub(measure, -2, -1)
+                                 , cohort = as_factor(cohort)))         
+         , model = map(dataset, function(dset) glm(value ~ cohort, data = dset, family = quasipoisson(link = "log")))
+         , observations     = map_dbl(model, nobs)
+         , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
+         , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
+         , intercept_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
+         , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
+         , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
+         , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
+         , cohort_0         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate))
+         , cohort_1         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate))
+  ) %>%
+  select(-dataset, -model)
+
+write_csv(model_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "model_service_use_mean_cohort_pod.csv"))
+
+# Test differences proportion with at least 1 event with binomial model and identity link
+
+model_service_use_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_input %>%
+                                                                           select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                                                                           select(-contains("gp_hist")) %>% 
+                                                                           pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                                           select(measure))$measure
+                                                        , pod_ons_new = unique(df_input$pod_ons_new)) %>%
+  mutate(dataset = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
+                          filter(!is.na(study_cohort) & pod_ons_new == pod) %>% 
+                          select(cohort, pod_ons_new, all_of(var)) %>%
+                          pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
+                          mutate(activity = str_sub(measure, 1, -4)
+                                 , period = str_sub(measure, -2, -1)
+                                 , cohort = as_factor(cohort)
+                                 , n_atleast1 = case_when(value >= 1 ~ 1
+                                                 , TRUE ~ 0)))
+         , model = map(dataset, function(dset) glm(n_atleast1 ~ cohort, data = dset, family = binomial(link = "identity")))
+         , observations     = map_dbl(model, nobs)
+         , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
+         , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
+         , intercept_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
+         , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
+         , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
+         , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
+         , cohort_0         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate)
+         , cohort_1         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate)
+  ) %>%
+  select(-dataset, -model)
+
+write_csv(model_service_use_prop_cohort_pod, here::here("output", "describe_service_use", "model_service_use_prop_cohort_pod.csv"))
+
+##############################
+
 # Calculate the same just for people with complete gp history
 
 gp_service_use_mean_cohort_pod <- df_input %>%
@@ -822,6 +886,73 @@ gp_service_use_mean_cohort_pod <- df_input %>%
   select(-dataset_0, -dataset_1)
 
 write_csv(gp_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "complete_gp_history", "gp_service_use_mean_cohort_pod.csv"))
+
+# Test differences in means with quasipoisson model
+
+gp_model_service_use_mean_cohort_pod <- tidyr::expand_grid(measure = unique(df_input %>%
+                                                                              select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                                                                              select(-contains("gp_hist")) %>% 
+                                                                              pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                                              select(measure))$measure
+                                                           , pod_ons_new = unique(df_input$pod_ons_new)) %>%
+  mutate(dataset = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
+                          filter(!is.na(study_cohort) & pod_ons_new == pod) %>% 
+                          select(cohort, pod_ons_new, all_of(var), starts_with("gp_hist")) %>%
+                          select(cohort, pod_ons_new, ends_with(str_sub(var, -3))) %>%
+                          rename(gp_hist = paste0("gp_hist_", str_sub(var, -2))) %>%
+                          pivot_longer(cols = -c(cohort, pod_ons_new, gp_hist), names_to = "measure", values_to = "value") %>%
+                          mutate(activity = str_sub(measure, 1, -4)
+                                 , period = str_sub(measure, -2, -1)
+                                 , cohort = as_factor(cohort)) %>%
+                          filter(gp_hist == 1))         
+         , model = map(dataset, function(dset) glm(value ~ cohort, data = dset, family = quasipoisson(link = "log")))
+         , observations     = map_dbl(model, nobs)
+         , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
+         , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
+         , intercept_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
+         , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
+         , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
+         , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
+         , cohort_0         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate))
+         , cohort_1         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate))
+  ) %>%
+  select(-dataset, -model)
+
+write_csv(gp_model_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "gp_model_service_use_mean_cohort_pod.csv"))
+
+# Test differences proportion with at least 1 event with binomial model and identity link
+
+gp_model_service_use_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_input %>%
+                                                                              select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                                                                              select(-contains("gp_hist")) %>% 
+                                                                              pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                                              select(measure))$measure
+                                                           , pod_ons_new = unique(df_input$pod_ons_new)) %>%
+  mutate(dataset = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
+                          filter(!is.na(study_cohort) & pod_ons_new == pod) %>% 
+                          select(cohort, pod_ons_new, all_of(var), starts_with("gp_hist")) %>%
+                          select(cohort, pod_ons_new, ends_with(str_sub(var, -3))) %>%
+                          rename(gp_hist = paste0("gp_hist_", str_sub(var, -2))) %>%
+                          pivot_longer(cols = -c(cohort, pod_ons_new, gp_hist), names_to = "measure", values_to = "value") %>%
+                          mutate(activity = str_sub(measure, 1, -4)
+                                 , period = str_sub(measure, -2, -1)
+                                 , cohort = as_factor(cohort)
+                                 , n_atleast1 = case_when(value >= 1 ~ 1
+                                                          , TRUE ~ 0)))
+         , model = map(dataset, function(dset) glm(n_atleast1 ~ cohort, data = dset, family = binomial(link = "identity")))
+         , observations     = map_dbl(model, nobs)
+         , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
+         , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
+         , intercept_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
+         , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
+         , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
+         , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
+         , cohort_0         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate)
+         , cohort_1         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate)
+  ) %>%
+  select(-dataset, -model)
+
+write_csv(gp_model_service_use_prop_cohort_pod, here::here("output", "describe_service_use", "gp_model_service_use_prop_cohort_pod.csv"))
 
 ################################################################################
 
