@@ -442,11 +442,9 @@ model_service_use_prop_cohort <- tibble(measure = unique(df_input %>%
 write_csv(model_service_use_prop_cohort, here::here("output", "describe_service_use", "model_service_use_prop_cohort.csv"))
 
 model_emadm3_prop_cohort <- tibble(measure = unique(df_input %>%
-                                                      select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-                                                      select(-contains("gp_hist")) %>% 
+                                                      select(starts_with("emadm")) %>% 
                                                       pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
                                                       select(measure))$measure) %>%
-  filter(str_detect(measure, "_1m|_3m|_1y") & !str_detect(measure, "^gp_hist")) %>%
   mutate(dataset = map(measure, function(var) df_input %>%
                          filter(!is.na(study_cohort)) %>% 
                          select(cohort, all_of(var)) %>%
@@ -617,11 +615,11 @@ gp_model_service_use_prop_cohort <- tibble(measure = unique(df_input %>%
   filter(str_detect(measure, "_1m|_3m|_1y") & !str_detect(measure, "^gp_hist")) %>%
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)
-         , dataset = map(activity, function(var) df_input %>%
-                         filter(!is.na(study_cohort)) %>% 
-                         select(cohort, starts_with(var), starts_with("gp_hist")) %>%
-                         select(cohort, ends_with(time)) %>%
-                         rename(gp_hist = paste0("gp_hist_", time)) %>%
+         , dataset = map2(activity, period, function(var, time) df_input %>%
+                            filter(!is.na(study_cohort)) %>% 
+                            select(cohort, starts_with(var), starts_with("gp_hist")) %>%
+                            select(cohort, ends_with(time)) %>%
+                            rename(gp_hist = paste0("gp_hist_", time)) %>%
                          pivot_longer(cols = -c(cohort, starts_with("gp_hist")), names_to = "measure", values_to = "value") %>%
                          mutate(activity = str_sub(measure, 1, -4)
                                 , period = str_sub(measure, -2, -1)
