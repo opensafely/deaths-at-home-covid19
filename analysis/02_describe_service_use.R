@@ -441,6 +441,8 @@ model_service_use_prop_cohort <- tibble(measure = unique(df_input %>%
 
 write_csv(model_service_use_prop_cohort, here::here("output", "describe_service_use", "model_service_use_prop_cohort.csv"))
 
+# Test differences proportion with at least 3 emergency admissions with binomial model and identity link
+
 model_emadm3_prop_cohort <- tibble(measure = unique(df_input %>%
                                                       select(starts_with("emadm")) %>% 
                                                       pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
@@ -452,9 +454,9 @@ model_emadm3_prop_cohort <- tibble(measure = unique(df_input %>%
                          mutate(activity = str_sub(measure, 1, -4)
                                 , period = str_sub(measure, -2, -1)
                                 , cohort = as_factor(cohort)
-                                , n_atleast1 = case_when(value >= 1 ~ 1
+                                , n_atleast3 = case_when(value >= 3 ~ 1
                                                          , TRUE ~ 0)))
-         , model = map(dataset, function(dset) glm(n_atleast1 ~ cohort, data = dset, family = binomial(link = "identity")))
+         , model = map(dataset, function(dset) glm(n_atleast3 ~ cohort, data = dset, family = binomial(link = "identity")))
          , observations     = map_dbl(model, nobs)
          , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -482,14 +484,16 @@ gp_service_use_mean_cohort <- df_input %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+            , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+            , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
+         , n_atleast3 = plyr::round_any(n_atleast3, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
                             , TRUE ~ round(mean, 3))
          , sd = case_when(n_atleast1 == 0 ~ 0
                           , TRUE ~ round(sd, 3))) %>%  
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1, n_atleast3)) %>% 
   bind_rows(df_input %>%
               filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
               select(cohort, ends_with("_3m")) %>%
@@ -499,14 +503,16 @@ gp_service_use_mean_cohort <- df_input %>%
               summarise(n = n()
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+                        , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                     , n_atleast3 = plyr::round_any(n_atleast3, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ round(mean, 3))
                      , sd = case_when(n_atleast1 == 0 ~ 0
                                       , TRUE ~ round(sd, 3))) %>% 
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
+              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1, n_atleast3))) %>% 
   bind_rows(df_input %>%
               filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
               select(cohort, ends_with("_1y")) %>%
@@ -516,14 +522,16 @@ gp_service_use_mean_cohort <- df_input %>%
               summarise(n = n()
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+                        , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                     , n_atleast3 = plyr::round_any(n_atleast3, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ round(mean, 3))
                      , sd = case_when(n_atleast1 == 0 ~ 0
                                       , TRUE ~ round(sd, 3))) %>%  
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
+              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1, n_atleast3))) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(factor(period, levels = c("1m", "3m", "1y")), activity) %>%
@@ -642,6 +650,42 @@ gp_model_service_use_prop_cohort <- tibble(measure = unique(df_input %>%
 
 write_csv(gp_model_service_use_prop_cohort, here::here("output", "describe_service_use", "gp_model_service_use_prop_cohort.csv"))
 
+# Test differences proportion with at least 3 emergency admissions with binomial model and identity link
+
+gp_model_emadm3_prop_cohort <- tibble(measure = unique(df_input %>%
+                                                              select(starts_with("emadm")) %>% 
+                                                              pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                              select(measure))$measure) %>%
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , dataset = map2(activity, period, function(var, time) df_input %>%
+                            filter(!is.na(study_cohort)) %>% 
+                            select(cohort, starts_with(var), starts_with("gp_hist")) %>%
+                            select(cohort, ends_with(time)) %>%
+                            rename(gp_hist = paste0("gp_hist_", time)) %>%
+                            pivot_longer(cols = -c(cohort, starts_with("gp_hist")), names_to = "measure", values_to = "value") %>%
+                            mutate(activity = str_sub(measure, 1, -4)
+                                   , period = str_sub(measure, -2, -1)
+                                   , cohort = as_factor(cohort)
+                                   , n_atleast3 = case_when(value >= 3 ~ 1
+                                                            , TRUE ~ 0)) %>%
+                            filter(gp_hist == 1))
+         , model = map(dataset, function(dset) glm(n_atleast3 ~ cohort, data = dset, family = binomial(link = "identity")))
+         , observations     = map_dbl(model, nobs)
+         , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
+         , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
+         , intercept_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
+         , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
+         , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
+         , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
+         , cohort_0         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate)
+         , cohort_1         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate)
+  ) %>%
+  select(-dataset, -model)
+
+write_csv(gp_model_emadm3_prop_cohort, here::here("output", "describe_service_use", "gp_model_emadm3_prop_cohort.csv"))
+
+
 ################################################################################
 
 ########## Descriptive stats service use by quarter ##########
@@ -654,9 +698,11 @@ service_use_mean_quarter <- df_input %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+            , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+            , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
+         , n_atleast3 = plyr::round_any(n_atleast3, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
                             , TRUE ~ round(mean, 3))
          , sd = case_when(n_atleast1 == 0 ~ 0
@@ -678,9 +724,11 @@ gp_service_use_mean_quarter <- df_input %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+            , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+            , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
+         , n_atleast3 = plyr::round_any(n_atleast3, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
                             , TRUE ~ round(mean, 3))
          , sd = case_when(n_atleast1 == 0 ~ 0
@@ -694,9 +742,11 @@ gp_service_use_mean_quarter <- df_input %>%
               summarise(n = n()
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+                        , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                     , n_atleast3 = plyr::round_any(n_atleast3, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ round(mean, 3))
                      , sd = case_when(n_atleast1 == 0 ~ 0
@@ -710,9 +760,11 @@ gp_service_use_mean_quarter <- df_input %>%
               summarise(n = n()
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+                        , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                     , n_atleast3 = plyr::round_any(n_atleast3, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ round(mean, 3))
                      , sd = case_when(n_atleast1 == 0 ~ 0
@@ -736,14 +788,16 @@ service_use_mean_cohort_pod <- df_input %>%
     summarise(n = n()
               , mean = mean(value, na.rm = TRUE)
               , sd = sd(value, na.rm = TRUE)
-              , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+              , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+              , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
+         , n_atleast3 = plyr::round_any(n_atleast3, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
                             , TRUE ~ round(mean, 3))
          , sd = case_when(n_atleast1 == 0 ~ 0
                           , TRUE ~ round(sd, 3))) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1, n_atleast3)) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(factor(period, levels = c("1m", "3m", "1y")), pod_ons_new, activity) %>%
@@ -832,6 +886,37 @@ model_service_use_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_inpu
 
 write_csv(model_service_use_prop_cohort_pod, here::here("output", "describe_service_use", "model_service_use_prop_cohort_pod.csv"))
 
+# Test differences proportion with at least 3 emergency admissions  with binomial model and identity link
+
+model_emadm3_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_input %>%
+                                                                           select(starts_with("emadm")) %>% 
+                                                                           pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                                           select(measure))$measure
+                                                        , pod_ons_new = unique(df_input$pod_ons_new)) %>%
+  mutate(dataset = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
+                          filter(!is.na(study_cohort) & pod_ons_new == pod) %>% 
+                          select(cohort, pod_ons_new, all_of(var)) %>%
+                          pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
+                          mutate(activity = str_sub(measure, 1, -4)
+                                 , period = str_sub(measure, -2, -1)
+                                 , cohort = as_factor(cohort)
+                                 , n_atleast3 = case_when(value >= 3 ~ 1
+                                                          , TRUE ~ 0)))
+         , model = map(dataset, function(dset) glm(n_atleast3 ~ cohort, data = dset, family = binomial(link = "identity")))
+         , observations     = map_dbl(model, nobs)
+         , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
+         , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
+         , intercept_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
+         , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
+         , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
+         , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
+         , cohort_0         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate)
+         , cohort_1         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate)
+  ) %>%
+  select(-dataset, -model)
+
+write_csv(model_emadm3_prop_cohort_pod, here::here("output", "describe_service_use", "model_emadm3_prop_cohort_pod.csv"))
+
 ##############################
 
 # Calculate the same just for people with complete gp history
@@ -845,14 +930,16 @@ gp_service_use_mean_cohort_pod <- df_input %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+            , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+            , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
+         , n_atleast3 = plyr::round_any(n_atleast3, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
                             , TRUE ~ round(mean, 3))
          , sd = case_when(n_atleast1 == 0 ~ 0
                           , TRUE ~ round(sd, 3))) %>%   
-  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1)) %>% 
+  pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1, n_atleast3)) %>% 
   bind_rows(df_input %>%
               filter(!is.na(study_cohort) & gp_hist_3m == TRUE) %>% 
               select(cohort, pod_ons_new, ends_with("_3m")) %>%
@@ -862,14 +949,16 @@ gp_service_use_mean_cohort_pod <- df_input %>%
               summarise(n = n()
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+                        , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                     , n_atleast3 = plyr::round_any(n_atleast3, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ round(mean, 3))
                      , sd = case_when(n_atleast1 == 0 ~ 0
                                       , TRUE ~ round(sd, 3))) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
+              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1, n_atleast3))) %>% 
   bind_rows(df_input %>%
               filter(!is.na(study_cohort) & gp_hist_1y == TRUE) %>% 
               select(cohort, pod_ons_new, ends_with("_1y")) %>%
@@ -879,14 +968,16 @@ gp_service_use_mean_cohort_pod <- df_input %>%
               summarise(n = n()
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+                        , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                     , n_atleast3 = plyr::round_any(n_atleast3, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ round(mean, 3))
                      , sd = case_when(n_atleast1 == 0 ~ 0
                                       , TRUE ~ round(sd, 3))) %>%   
-              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1))) %>% 
+              pivot_wider(names_from = cohort, names_prefix = "cohort_", values_from = c(n, mean, sd, n_atleast1, n_atleast3))) %>% 
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)) %>%
   arrange(pod_ons_new, factor(period, levels = c("1m", "3m", "1y")), activity) %>%
@@ -1000,6 +1091,40 @@ gp_model_service_use_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_i
 
 write_csv(gp_model_service_use_prop_cohort_pod, here::here("output", "describe_service_use", "gp_model_service_use_prop_cohort_pod.csv"))
 
+# Test differences proportion with at least 1 event with binomial model and identity link
+
+gp_model_emadm3_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_input %>%
+                                                                              select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                                                                              select(-contains("gp_hist")) %>% 
+                                                                              pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                                              select(measure))$measure
+                                                           , pod_ons_new = unique(df_input$pod_ons_new)) %>%
+  mutate(dataset = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
+                          filter(!is.na(study_cohort) & pod_ons_new == pod) %>% 
+                          select(cohort, pod_ons_new, all_of(var), starts_with("gp_hist")) %>%
+                          select(cohort, pod_ons_new, ends_with(str_sub(var, -3))) %>%
+                          rename(gp_hist = paste0("gp_hist_", str_sub(var, -2))) %>%
+                          pivot_longer(cols = -c(cohort, pod_ons_new, gp_hist), names_to = "measure", values_to = "value") %>%
+                          mutate(activity = str_sub(measure, 1, -4)
+                                 , period = str_sub(measure, -2, -1)
+                                 , cohort = as_factor(cohort)
+                                 , n_atleast3 = case_when(value >= 3 ~ 1
+                                                          , TRUE ~ 0)))
+         , model = map(dataset, function(dset) glm(n_atleast3 ~ cohort, data = dset, family = binomial(link = "identity")))
+         , observations     = map_dbl(model, nobs)
+         , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
+         , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
+         , intercept_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
+         , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
+         , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
+         , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
+         , cohort_0         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate)
+         , cohort_1         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate)
+  ) %>%
+  select(-dataset, -model)
+
+write_csv(gp_model_emadm3_prop_cohort_pod, here::here("output", "describe_service_use", "gp_model_emadm3_prop_cohort_pod.csv"))
+
 ################################################################################
 
 ########## Descriptive stats service use by study quarter and place of death ##########
@@ -1012,9 +1137,11 @@ service_use_mean_quarter_pod <- df_input %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+            , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+            , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
+         , n_atleast3 = plyr::round_any(n_atleast3, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
                             , TRUE ~ round(mean, 3))
          , sd = case_when(n_atleast1 == 0 ~ 0
@@ -1036,9 +1163,11 @@ gp_service_use_mean_quarter_pod <- df_input %>%
   summarise(n = n()
             , mean = mean(value, na.rm = TRUE)
             , sd = sd(value, na.rm = TRUE)
-            , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+            , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+            , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
   mutate(n = plyr::round_any(n, 10)
          , n_atleast1 = plyr::round_any(n_atleast1, 10)
+         , n_atleast3 = plyr::round_any(n_atleast3, 10)
          , mean = case_when(n_atleast1 == 0 ~ 0
                             , TRUE ~ round(mean, 3))
          , sd = case_when(n_atleast1 == 0 ~ 0
@@ -1052,9 +1181,11 @@ gp_service_use_mean_quarter_pod <- df_input %>%
               summarise(n = n()
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+                        , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                     , n_atleast3 = plyr::round_any(n_atleast3, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ round(mean, 3))
                      , sd = case_when(n_atleast1 == 0 ~ 0
@@ -1068,9 +1199,11 @@ gp_service_use_mean_quarter_pod <- df_input %>%
               summarise(n = n()
                         , mean = mean(value, na.rm = TRUE)
                         , sd = sd(value, na.rm = TRUE)
-                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)) %>%
+                        , n_atleast1 = sum(value >= 1, na.rm = TRUE)
+                        , n_atleast3 = sum(value >= 3, na.rm = TRUE)) %>%
               mutate(n = plyr::round_any(n, 10)
                      , n_atleast1 = plyr::round_any(n_atleast1, 10)
+                     , n_atleast3 = plyr::round_any(n_atleast3, 10)
                      , mean = case_when(n_atleast1 == 0 ~ 0
                                         , TRUE ~ round(mean, 3))
                      , sd = case_when(n_atleast1 == 0 ~ 0
