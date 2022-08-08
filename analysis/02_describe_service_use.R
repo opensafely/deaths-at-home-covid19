@@ -386,7 +386,6 @@ model_service_use_mean_cohort <- tibble(measure = unique(df_input %>%
                                                            select(-contains("gp_hist")) %>% 
                                                            pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
                                                            select(measure))$measure) %>%
-  filter(str_detect(measure, "_1m|_3m|_1y") & !str_detect(measure, "^gp_hist")) %>%
   mutate(dataset = map(measure, function(var) df_input %>%
                             filter(!is.na(study_cohort)) %>% 
                             select(cohort, all_of(var)) %>%
@@ -585,7 +584,6 @@ gp_model_service_use_mean_cohort <- tibble(measure = unique(df_input %>%
                                                               select(-contains("gp_hist")) %>% 
                                                               pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
                                                               select(measure))$measure) %>%
-  filter(str_detect(measure, "_1m|_3m|_1y") & !str_detect(measure, "^gp_hist")) %>%
   mutate(activity = str_sub(measure, 1, -4)
          , period = str_sub(measure, -2, -1)
     , dataset = map2(activity, period, function(var, time) df_input %>%
@@ -826,20 +824,22 @@ write_csv(service_use_mean_cohort_pod, here::here("output", "describe_service_us
 
 # Test differences in means with quasipoisson model
 
-model_service_use_mean_cohort_pod <- tidyr::expand_grid(measure = unique(df_input %>%
-                                                                           select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-                                                                           select(-contains("gp_hist")) %>% 
-                                                                           pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
-                                                                           select(measure))$measure
-                                                        , pod_ons_new = unique(df_input$pod_ons_new)) %>%
-  mutate(dataset = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
-                          filter(!is.na(study_cohort) & pod_ons_new == pod) %>% 
-                          select(cohort, pod_ons_new, all_of(var)) %>%
-                          pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
-                          mutate(activity = str_sub(measure, 1, -4)
-                                 , period = str_sub(measure, -2, -1)
-                                 , cohort = as_factor(cohort)))         
-         , model = map(dataset, function(dset) glm(value ~ cohort, data = dset, family = quasipoisson(link = "log")))
+model_service_use_mean_cohort_pod <- tibble(measure = unique(df_input %>%
+                                                               select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                                                               select(-contains("gp_hist")) %>% 
+                                                               pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                               select(measure))$measure) %>%
+  mutate(dataset = map(measure,  function(var) df_input %>%
+                         filter(!is.na(study_cohort)) %>% 
+                         select(cohort, pod_ons_new, all_of(var)) %>%
+                         pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
+                         mutate(activity = str_sub(measure, 1, -4)
+                                , period = str_sub(measure, -2, -1)
+                                , cohort = as_factor(cohort)
+                                , pod_ons_new = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital"
+                                                                               , "Hospice", "Elsewhere/other"))))         
+         , model = map(dataset, function(dset) glm(value ~ cohort*pod_ons_new, data = dset
+                                                   , family = quasipoisson(link = "log")))
          , observations     = map_dbl(model, nobs)
          , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -847,8 +847,53 @@ model_service_use_mean_cohort_pod <- tidyr::expand_grid(measure = unique(df_inpu
          , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
          , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
          , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
-         , cohort_0         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate))
-         , cohort_1         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate))
+         , carehome_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[3])
+         , carehome_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[3])
+         , carehome_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[3])
+         , hospital_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[4])
+         , hospital_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[4])
+         , hospital_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[4])
+         , hospice_coeff    = map_dbl(model, function(x) broom::tidy(x)$estimate[5])
+         , hospice_se       = map_dbl(model, function(x) broom::tidy(x)$std.error[5])
+         , hospice_pvalue   = map_dbl(model, function(x) broom::tidy(x)$p.value[5])
+         , other_coeff      = map_dbl(model, function(x) broom::tidy(x)$estimate[6])
+         , other_se         = map_dbl(model, function(x) broom::tidy(x)$std.error[6])
+         , other_pvalue     = map_dbl(model, function(x) broom::tidy(x)$p.value[6])
+         , interact_carehome_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[7])
+         , interact_carehome_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[7])
+         , interact_carehome_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[7])
+         , interact_hospital_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[8])
+         , interact_hospital_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[8])
+         , interact_hospital_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[8])
+         , interact_hospice_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[9])
+         , interact_hospice_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[9])
+         , interact_hospice_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[9])
+         , interact_other_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[10])
+         , interact_other_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[10])
+         , interact_other_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[10])
+         , home_cohort_0     = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
+         , home_cohort_1     = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
+         , carehome_cohort_0 = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
+         , carehome_cohort_1 = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 1, 0, 0, 0, 1, 0, 0, 0), 1)))$estimate))
+         , hospital_cohort_0 = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 1, 0, 0, 0, 0, 0, 0), 1)))$estimate))
+         , hospital_cohort_1 = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 1, 0, 0, 0, 1, 0, 0), 1)))$estimate))
+         , hospice_cohort_0  = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 1, 0, 0, 0, 0, 0), 1)))$estimate))
+         , hospice_cohort_1  = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 1, 0, 0, 0, 1, 0), 1)))$estimate))
+         , other_cohort_0    = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 1, 0, 0, 0, 0), 1)))$estimate))
+         , other_cohort_1    = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 1, 0, 0, 0, 1), 1)))$estimate))
+         , home_cohort_0_1_pvalue     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , carehome_cohort_0_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, -1, 0, 0, 0), 1)))$adj.p.value)
+         , hospital_cohort_0_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, -1, 0, 0), 1)))$adj.p.value)
+         , hospice_cohort_0_1_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, -1, 0), 1)))$adj.p.value)
+         , other_cohort_0_1_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, 0, -1), 1)))$adj.p.value)
+         , home_carehome_cohort_0_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, -1, 0, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospital_cohort_0_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, -1, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospice_cohort_0_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, 0, -1, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_other_cohort_0_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, 0, 0, -1, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_carehome_cohort_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, -1, 0, 0, 0, -1, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospital_cohort_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, -1, 0, 0, 0, -1, 0, 0), 1)))$adj.p.value)
+         , home_hospice_cohort_1_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, 0, -1, 0, 0, 0, -1, 0), 1)))$adj.p.value)
+         , home_other_cohort_1_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, 0, 0, -1, 0, 0, 0, -1), 1)))$adj.p.value) 
   ) %>%
   select(-dataset, -model)
 
@@ -856,22 +901,24 @@ write_csv(model_service_use_mean_cohort_pod, here::here("output", "describe_serv
 
 # Test differences proportion with at least 1 event with binomial model and identity link
 
-model_service_use_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_input %>%
+model_service_use_prop_cohort_pod <- tibble(measure = unique(df_input %>%
                                                                            select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
                                                                            select(-contains("gp_hist")) %>% 
                                                                            pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
-                                                                           select(measure))$measure
-                                                        , pod_ons_new = unique(df_input$pod_ons_new)) %>%
-  mutate(dataset = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
-                          filter(!is.na(study_cohort) & pod_ons_new == pod) %>% 
+                                                                           select(measure))$measure) %>%
+  mutate(dataset = map(measure, function(var) df_input %>%
+                          filter(!is.na(study_cohort)) %>% 
                           select(cohort, pod_ons_new, all_of(var)) %>%
                           pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
                           mutate(activity = str_sub(measure, 1, -4)
                                  , period = str_sub(measure, -2, -1)
                                  , cohort = as_factor(cohort)
                                  , n_atleast1 = case_when(value >= 1 ~ 1
-                                                 , TRUE ~ 0)))
-         , model = map(dataset, function(dset) glm(n_atleast1 ~ cohort, data = dset, family = binomial(link = "identity")))
+                                                 , TRUE ~ 0)
+                                 , pod_ons_new = factor(pod_ons_new
+                                                        , levels = c("Home", "Care home", "Hospital"
+                                                                     , "Hospice", "Elsewhere/other"))))   
+         , model = map(dataset, function(dset) glm(n_atleast1 ~ cohort*pod_ons_new, data = dset, family = binomial(link = "identity")))
          , observations     = map_dbl(model, nobs)
          , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -879,8 +926,53 @@ model_service_use_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_inpu
          , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
          , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
          , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
-         , cohort_0         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate)
-         , cohort_1         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate)
+         , carehome_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[3])
+         , carehome_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[3])
+         , carehome_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[3])
+         , hospital_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[4])
+         , hospital_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[4])
+         , hospital_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[4])
+         , hospice_coeff    = map_dbl(model, function(x) broom::tidy(x)$estimate[5])
+         , hospice_se       = map_dbl(model, function(x) broom::tidy(x)$std.error[5])
+         , hospice_pvalue   = map_dbl(model, function(x) broom::tidy(x)$p.value[5])
+         , other_coeff      = map_dbl(model, function(x) broom::tidy(x)$estimate[6])
+         , other_se         = map_dbl(model, function(x) broom::tidy(x)$std.error[6])
+         , other_pvalue     = map_dbl(model, function(x) broom::tidy(x)$p.value[6])
+         , interact_carehome_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[7])
+         , interact_carehome_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[7])
+         , interact_carehome_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[7])
+         , interact_hospital_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[8])
+         , interact_hospital_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[8])
+         , interact_hospital_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[8])
+         , interact_hospice_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[9])
+         , interact_hospice_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[9])
+         , interact_hospice_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[9])
+         , interact_other_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[10])
+         , interact_other_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[10])
+         , interact_other_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[10])
+         , home_cohort_0     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , home_cohort_1     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , carehome_cohort_0 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , carehome_cohort_1 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 1, 0, 0, 0, 1, 0, 0, 0), 1)))$estimate)
+         , hospital_cohort_0 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 1, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , hospital_cohort_1 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 1, 0, 0, 0, 1, 0, 0), 1)))$estimate)
+         , hospice_cohort_0  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 1, 0, 0, 0, 0, 0), 1)))$estimate)
+         , hospice_cohort_1  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 1, 0, 0, 0, 1, 0), 1)))$estimate)
+         , other_cohort_0    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 1, 0, 0, 0, 0), 1)))$estimate)
+         , other_cohort_1    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 1, 0, 0, 0, 1), 1)))$estimate)
+         , home_cohort_0_1_pvalue     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , carehome_cohort_0_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, -1, 0, 0, 0), 1)))$adj.p.value)
+         , hospital_cohort_0_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, -1, 0, 0), 1)))$adj.p.value)
+         , hospice_cohort_0_1_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, -1, 0), 1)))$adj.p.value)
+         , other_cohort_0_1_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, 0, -1), 1)))$adj.p.value)
+         , home_carehome_cohort_0_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, -1, 0, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospital_cohort_0_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, -1, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospice_cohort_0_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, 0, -1, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_other_cohort_0_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, 0, 0, -1, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_carehome_cohort_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, -1, 0, 0, 0, -1, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospital_cohort_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, -1, 0, 0, 0, -1, 0, 0), 1)))$adj.p.value)
+         , home_hospice_cohort_1_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, 0, -1, 0, 0, 0, -1, 0), 1)))$adj.p.value)
+         , home_other_cohort_1_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, 0, 0, -1, 0, 0, 0, -1), 1)))$adj.p.value) 
   ) %>%
   select(-dataset, -model)
 
@@ -888,21 +980,23 @@ write_csv(model_service_use_prop_cohort_pod, here::here("output", "describe_serv
 
 # Test differences proportion with at least 3 emergency admissions  with binomial model and identity link
 
-model_emadm3_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_input %>%
-                                                                           select(starts_with("emadm")) %>% 
-                                                                           pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
-                                                                           select(measure))$measure
-                                                        , pod_ons_new = unique(df_input$pod_ons_new)) %>%
-  mutate(dataset = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
-                          filter(!is.na(study_cohort) & pod_ons_new == pod) %>% 
-                          select(cohort, pod_ons_new, all_of(var)) %>%
-                          pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
-                          mutate(activity = str_sub(measure, 1, -4)
-                                 , period = str_sub(measure, -2, -1)
-                                 , cohort = as_factor(cohort)
-                                 , n_atleast3 = case_when(value >= 3 ~ 1
-                                                          , TRUE ~ 0)))
-         , model = map(dataset, function(dset) glm(n_atleast3 ~ cohort, data = dset, family = binomial(link = "identity")))
+model_emadm3_prop_cohort_pod <- tibble(measure = unique(df_input %>%
+                                                          select(starts_with("emadm")) %>% 
+                                                          pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                          select(measure))$measure) %>%
+  mutate(dataset = map(measure, function(var) df_input %>%
+                         filter(!is.na(study_cohort)) %>% 
+                         select(cohort, pod_ons_new, all_of(var)) %>%
+                         pivot_longer(cols = -c(cohort, pod_ons_new), names_to = "measure", values_to = "value") %>%
+                         mutate(activity = str_sub(measure, 1, -4)
+                                , period = str_sub(measure, -2, -1)
+                                , cohort = as_factor(cohort)
+                                , n_atleast3 = case_when(value >= 3 ~ 1
+                                                         , TRUE ~ 0)
+                                , pod_ons_new = factor(pod_ons_new
+                                                       , levels = c("Home", "Care home", "Hospital"
+                                                                    , "Hospice", "Elsewhere/other"))))   
+         , model = map(dataset, function(dset) glm(n_atleast3 ~ cohort*pod_ons_new, data = dset, family = binomial(link = "identity")))
          , observations     = map_dbl(model, nobs)
          , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -910,8 +1004,53 @@ model_emadm3_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_input %>%
          , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
          , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
          , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
-         , cohort_0         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate)
-         , cohort_1         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate)
+         , carehome_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[3])
+         , carehome_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[3])
+         , carehome_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[3])
+         , hospital_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[4])
+         , hospital_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[4])
+         , hospital_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[4])
+         , hospice_coeff    = map_dbl(model, function(x) broom::tidy(x)$estimate[5])
+         , hospice_se       = map_dbl(model, function(x) broom::tidy(x)$std.error[5])
+         , hospice_pvalue   = map_dbl(model, function(x) broom::tidy(x)$p.value[5])
+         , other_coeff      = map_dbl(model, function(x) broom::tidy(x)$estimate[6])
+         , other_se         = map_dbl(model, function(x) broom::tidy(x)$std.error[6])
+         , other_pvalue     = map_dbl(model, function(x) broom::tidy(x)$p.value[6])
+         , interact_carehome_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[7])
+         , interact_carehome_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[7])
+         , interact_carehome_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[7])
+         , interact_hospital_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[8])
+         , interact_hospital_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[8])
+         , interact_hospital_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[8])
+         , interact_hospice_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[9])
+         , interact_hospice_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[9])
+         , interact_hospice_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[9])
+         , interact_other_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[10])
+         , interact_other_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[10])
+         , interact_other_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[10])
+         , home_cohort_0     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , home_cohort_1     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , carehome_cohort_0 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , carehome_cohort_1 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 1, 0, 0, 0, 1, 0, 0, 0), 1)))$estimate)
+         , hospital_cohort_0 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 1, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , hospital_cohort_1 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 1, 0, 0, 0, 1, 0, 0), 1)))$estimate)
+         , hospice_cohort_0  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 1, 0, 0, 0, 0, 0), 1)))$estimate)
+         , hospice_cohort_1  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 1, 0, 0, 0, 1, 0), 1)))$estimate)
+         , other_cohort_0    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 1, 0, 0, 0, 0), 1)))$estimate)
+         , other_cohort_1    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 1, 0, 0, 0, 1), 1)))$estimate)
+         , home_cohort_0_1_pvalue     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , carehome_cohort_0_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, -1, 0, 0, 0), 1)))$adj.p.value)
+         , hospital_cohort_0_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, -1, 0, 0), 1)))$adj.p.value)
+         , hospice_cohort_0_1_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, -1, 0), 1)))$adj.p.value)
+         , other_cohort_0_1_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, 0, -1), 1)))$adj.p.value)
+         , home_carehome_cohort_0_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, -1, 0, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospital_cohort_0_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, -1, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospice_cohort_0_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, 0, -1, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_other_cohort_0_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, 0, 0, -1, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_carehome_cohort_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, -1, 0, 0, 0, -1, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospital_cohort_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, -1, 0, 0, 0, -1, 0, 0), 1)))$adj.p.value)
+         , home_hospice_cohort_1_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, 0, -1, 0, 0, 0, -1, 0), 1)))$adj.p.value)
+         , home_other_cohort_1_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, 0, 0, -1, 0, 0, 0, -1), 1)))$adj.p.value) 
   ) %>%
   select(-dataset, -model)
 
@@ -1026,23 +1165,25 @@ write_csv(gp_service_use_mean_cohort_pod, here::here("output", "describe_service
 
 # Test differences in means with quasipoisson model
 
-gp_model_service_use_mean_cohort_pod <- tidyr::expand_grid(measure = unique(df_input %>%
-                                                                              select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-                                                                              select(-contains("gp_hist")) %>% 
-                                                                              pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
-                                                                              select(measure))$measure
-                                                           , pod_ons_new = unique(df_input$pod_ons_new)) %>%
-  mutate(dataset = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
-                          filter(!is.na(study_cohort) & pod_ons_new == pod) %>% 
+gp_model_service_use_mean_cohort_pod <- tibble(measure = unique(df_input %>%
+                                                                  select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                                                                  select(-contains("gp_hist")) %>% 
+                                                                  pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                                  select(measure))$measure) %>%
+  mutate(dataset = map(measure,  function(var) df_input %>%
+                          filter(!is.na(study_cohort)) %>% 
                           select(cohort, pod_ons_new, all_of(var), starts_with("gp_hist")) %>%
                           select(cohort, pod_ons_new, ends_with(str_sub(var, -3))) %>%
                           rename(gp_hist = paste0("gp_hist_", str_sub(var, -2))) %>%
                           pivot_longer(cols = -c(cohort, pod_ons_new, gp_hist), names_to = "measure", values_to = "value") %>%
                           mutate(activity = str_sub(measure, 1, -4)
                                  , period = str_sub(measure, -2, -1)
-                                 , cohort = as_factor(cohort)) %>%
+                                 , cohort = as_factor(cohort)
+                                 , pod_ons_new = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital"
+                                                                                , "Hospice", "Elsewhere/other"))) %>%
                           filter(gp_hist == 1))         
-         , model = map(dataset, function(dset) glm(value ~ cohort, data = dset, family = quasipoisson(link = "log")))
+         , model = map(dataset, function(dset) glm(value ~ cohort*pod_ons_new, data = dset
+                                                   , family = quasipoisson(link = "log")))
          , observations     = map_dbl(model, nobs)
          , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -1050,8 +1191,53 @@ gp_model_service_use_mean_cohort_pod <- tidyr::expand_grid(measure = unique(df_i
          , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
          , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
          , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
-         , cohort_0         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate))
-         , cohort_1         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate))
+         , carehome_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[3])
+         , carehome_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[3])
+         , carehome_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[3])
+         , hospital_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[4])
+         , hospital_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[4])
+         , hospital_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[4])
+         , hospice_coeff    = map_dbl(model, function(x) broom::tidy(x)$estimate[5])
+         , hospice_se       = map_dbl(model, function(x) broom::tidy(x)$std.error[5])
+         , hospice_pvalue   = map_dbl(model, function(x) broom::tidy(x)$p.value[5])
+         , other_coeff      = map_dbl(model, function(x) broom::tidy(x)$estimate[6])
+         , other_se         = map_dbl(model, function(x) broom::tidy(x)$std.error[6])
+         , other_pvalue     = map_dbl(model, function(x) broom::tidy(x)$p.value[6])
+         , interact_carehome_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[7])
+         , interact_carehome_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[7])
+         , interact_carehome_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[7])
+         , interact_hospital_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[8])
+         , interact_hospital_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[8])
+         , interact_hospital_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[8])
+         , interact_hospice_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[9])
+         , interact_hospice_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[9])
+         , interact_hospice_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[9])
+         , interact_other_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[10])
+         , interact_other_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[10])
+         , interact_other_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[10])
+         , home_cohort_0     = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
+         , home_cohort_1     = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
+         , carehome_cohort_0 = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
+         , carehome_cohort_1 = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 1, 0, 0, 0, 1, 0, 0, 0), 1)))$estimate))
+         , hospital_cohort_0 = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 1, 0, 0, 0, 0, 0, 0), 1)))$estimate))
+         , hospital_cohort_1 = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 1, 0, 0, 0, 1, 0, 0), 1)))$estimate))
+         , hospice_cohort_0  = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 1, 0, 0, 0, 0, 0), 1)))$estimate))
+         , hospice_cohort_1  = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 1, 0, 0, 0, 1, 0), 1)))$estimate))
+         , other_cohort_0    = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 1, 0, 0, 0, 0), 1)))$estimate))
+         , other_cohort_1    = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 1, 0, 0, 0, 1), 1)))$estimate))
+         , home_cohort_0_1_pvalue     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , carehome_cohort_0_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, -1, 0, 0, 0), 1)))$adj.p.value)
+         , hospital_cohort_0_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, -1, 0, 0), 1)))$adj.p.value)
+         , hospice_cohort_0_1_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, -1, 0), 1)))$adj.p.value)
+         , other_cohort_0_1_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, 0, -1), 1)))$adj.p.value)
+         , home_carehome_cohort_0_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, -1, 0, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospital_cohort_0_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, -1, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospice_cohort_0_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, 0, -1, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_other_cohort_0_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, 0, 0, -1, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_carehome_cohort_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, -1, 0, 0, 0, -1, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospital_cohort_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, -1, 0, 0, 0, -1, 0, 0), 1)))$adj.p.value)
+         , home_hospice_cohort_1_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, 0, -1, 0, 0, 0, -1, 0), 1)))$adj.p.value)
+         , home_other_cohort_1_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, 0, 0, -1, 0, 0, 0, -1), 1)))$adj.p.value) 
   ) %>%
   select(-dataset, -model)
 
@@ -1059,14 +1245,13 @@ write_csv(gp_model_service_use_mean_cohort_pod, here::here("output", "describe_s
 
 # Test differences proportion with at least 1 event with binomial model and identity link
 
-gp_model_service_use_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_input %>%
+gp_model_service_use_prop_cohort_pod <- tibble(measure = unique(df_input %>%
                                                                               select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
                                                                               select(-contains("gp_hist")) %>% 
                                                                               pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
-                                                                              select(measure))$measure
-                                                           , pod_ons_new = unique(df_input$pod_ons_new)) %>%
-  mutate(dataset = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
-                          filter(!is.na(study_cohort) & pod_ons_new == pod) %>% 
+                                                                              select(measure))$measure) %>%
+  mutate(dataset = map(measure, function(var) df_input %>%
+                          filter(!is.na(study_cohort)) %>% 
                           select(cohort, pod_ons_new, all_of(var), starts_with("gp_hist")) %>%
                           select(cohort, pod_ons_new, ends_with(str_sub(var, -3))) %>%
                           rename(gp_hist = paste0("gp_hist_", str_sub(var, -2))) %>%
@@ -1075,8 +1260,11 @@ gp_model_service_use_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_i
                                  , period = str_sub(measure, -2, -1)
                                  , cohort = as_factor(cohort)
                                  , n_atleast1 = case_when(value >= 1 ~ 1
-                                                          , TRUE ~ 0)))
-         , model = map(dataset, function(dset) glm(n_atleast1 ~ cohort, data = dset, family = binomial(link = "identity")))
+                                                          , TRUE ~ 0)
+                                 , pod_ons_new = factor(pod_ons_new
+                                                        , levels = c("Home", "Care home", "Hospital"
+                                                                     , "Hospice", "Elsewhere/other")))) 
+         , model = map(dataset, function(dset) glm(n_atleast1 ~ cohort*pod_ons_new, data = dset, family = binomial(link = "identity")))
          , observations     = map_dbl(model, nobs)
          , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -1084,8 +1272,53 @@ gp_model_service_use_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_i
          , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
          , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
          , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
-         , cohort_0         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate)
-         , cohort_1         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate)
+         , carehome_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[3])
+         , carehome_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[3])
+         , carehome_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[3])
+         , hospital_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[4])
+         , hospital_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[4])
+         , hospital_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[4])
+         , hospice_coeff    = map_dbl(model, function(x) broom::tidy(x)$estimate[5])
+         , hospice_se       = map_dbl(model, function(x) broom::tidy(x)$std.error[5])
+         , hospice_pvalue   = map_dbl(model, function(x) broom::tidy(x)$p.value[5])
+         , other_coeff      = map_dbl(model, function(x) broom::tidy(x)$estimate[6])
+         , other_se         = map_dbl(model, function(x) broom::tidy(x)$std.error[6])
+         , other_pvalue     = map_dbl(model, function(x) broom::tidy(x)$p.value[6])
+         , interact_carehome_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[7])
+         , interact_carehome_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[7])
+         , interact_carehome_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[7])
+         , interact_hospital_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[8])
+         , interact_hospital_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[8])
+         , interact_hospital_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[8])
+         , interact_hospice_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[9])
+         , interact_hospice_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[9])
+         , interact_hospice_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[9])
+         , interact_other_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[10])
+         , interact_other_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[10])
+         , interact_other_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[10])
+         , home_cohort_0     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , home_cohort_1     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , carehome_cohort_0 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , carehome_cohort_1 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 1, 0, 0, 0, 1, 0, 0, 0), 1)))$estimate)
+         , hospital_cohort_0 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 1, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , hospital_cohort_1 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 1, 0, 0, 0, 1, 0, 0), 1)))$estimate)
+         , hospice_cohort_0  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 1, 0, 0, 0, 0, 0), 1)))$estimate)
+         , hospice_cohort_1  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 1, 0, 0, 0, 1, 0), 1)))$estimate)
+         , other_cohort_0    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 1, 0, 0, 0, 0), 1)))$estimate)
+         , other_cohort_1    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 1, 0, 0, 0, 1), 1)))$estimate)
+         , home_cohort_0_1_pvalue     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , carehome_cohort_0_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, -1, 0, 0, 0), 1)))$adj.p.value)
+         , hospital_cohort_0_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, -1, 0, 0), 1)))$adj.p.value)
+         , hospice_cohort_0_1_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, -1, 0), 1)))$adj.p.value)
+         , other_cohort_0_1_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, 0, -1), 1)))$adj.p.value)
+         , home_carehome_cohort_0_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, -1, 0, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospital_cohort_0_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, -1, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospice_cohort_0_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, 0, -1, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_other_cohort_0_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, 0, 0, -1, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_carehome_cohort_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, -1, 0, 0, 0, -1, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospital_cohort_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, -1, 0, 0, 0, -1, 0, 0), 1)))$adj.p.value)
+         , home_hospice_cohort_1_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, 0, -1, 0, 0, 0, -1, 0), 1)))$adj.p.value)
+         , home_other_cohort_1_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, 0, 0, -1, 0, 0, 0, -1), 1)))$adj.p.value) 
   ) %>%
   select(-dataset, -model)
 
@@ -1093,24 +1326,26 @@ write_csv(gp_model_service_use_prop_cohort_pod, here::here("output", "describe_s
 
 # Test differences proportion with at least 1 event with binomial model and identity link
 
-gp_model_emadm3_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_input %>%
-                                                                              select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
-                                                                              select(-contains("gp_hist")) %>% 
-                                                                              pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
-                                                                              select(measure))$measure
-                                                           , pod_ons_new = unique(df_input$pod_ons_new)) %>%
-  mutate(dataset = map2(measure, pod_ons_new,  function(var, pod) df_input %>%
-                          filter(!is.na(study_cohort) & pod_ons_new == pod) %>% 
-                          select(cohort, pod_ons_new, all_of(var), starts_with("gp_hist")) %>%
-                          select(cohort, pod_ons_new, ends_with(str_sub(var, -3))) %>%
-                          rename(gp_hist = paste0("gp_hist_", str_sub(var, -2))) %>%
-                          pivot_longer(cols = -c(cohort, pod_ons_new, gp_hist), names_to = "measure", values_to = "value") %>%
-                          mutate(activity = str_sub(measure, 1, -4)
-                                 , period = str_sub(measure, -2, -1)
-                                 , cohort = as_factor(cohort)
-                                 , n_atleast3 = case_when(value >= 3 ~ 1
-                                                          , TRUE ~ 0)))
-         , model = map(dataset, function(dset) glm(n_atleast3 ~ cohort, data = dset, family = binomial(link = "identity")))
+gp_model_emadm3_prop_cohort_pod <- tibble(measure = unique(df_input %>%
+                                                             select(ends_with("_1m"), ends_with("_3m"), ends_with("_1y")) %>%
+                                                             select(-contains("gp_hist")) %>% 
+                                                             pivot_longer(cols = everything(), names_to = "measure", values_to = "value") %>%
+                                                             select(measure))$measure) %>%
+  mutate(dataset = map(measure, function(var) df_input %>%
+                         filter(!is.na(study_cohort)) %>% 
+                         select(cohort, pod_ons_new, all_of(var), starts_with("gp_hist")) %>%
+                         select(cohort, pod_ons_new, ends_with(str_sub(var, -3))) %>%
+                         rename(gp_hist = paste0("gp_hist_", str_sub(var, -2))) %>%
+                         pivot_longer(cols = -c(cohort, pod_ons_new, gp_hist), names_to = "measure", values_to = "value") %>%
+                         mutate(activity = str_sub(measure, 1, -4)
+                                , period = str_sub(measure, -2, -1)
+                                , cohort = as_factor(cohort)
+                                , n_atleast3 = case_when(value >= 3 ~ 1
+                                                         , TRUE ~ 0)
+                                , pod_ons_new = factor(pod_ons_new
+                                                       , levels = c("Home", "Care home", "Hospital"
+                                                                    , "Hospice", "Elsewhere/other")))) 
+         , model = map(dataset, function(dset) glm(n_atleast3 ~ cohort*pod_ons_new, data = dset, family = binomial(link = "identity")))
          , observations     = map_dbl(model, nobs)
          , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -1118,8 +1353,53 @@ gp_model_emadm3_prop_cohort_pod <- tidyr::expand_grid(measure = unique(df_input 
          , cohort_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
          , cohort_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
          , cohort_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
-         , cohort_0         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0), 1)))$estimate)
-         , cohort_1         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1), 1)))$estimate)
+         , carehome_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[3])
+         , carehome_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[3])
+         , carehome_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[3])
+         , hospital_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[4])
+         , hospital_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[4])
+         , hospital_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[4])
+         , hospice_coeff    = map_dbl(model, function(x) broom::tidy(x)$estimate[5])
+         , hospice_se       = map_dbl(model, function(x) broom::tidy(x)$std.error[5])
+         , hospice_pvalue   = map_dbl(model, function(x) broom::tidy(x)$p.value[5])
+         , other_coeff      = map_dbl(model, function(x) broom::tidy(x)$estimate[6])
+         , other_se         = map_dbl(model, function(x) broom::tidy(x)$std.error[6])
+         , other_pvalue     = map_dbl(model, function(x) broom::tidy(x)$p.value[6])
+         , interact_carehome_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[7])
+         , interact_carehome_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[7])
+         , interact_carehome_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[7])
+         , interact_hospital_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[8])
+         , interact_hospital_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[8])
+         , interact_hospital_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[8])
+         , interact_hospice_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[9])
+         , interact_hospice_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[9])
+         , interact_hospice_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[9])
+         , interact_other_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[10])
+         , interact_other_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[10])
+         , interact_other_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[10])
+         , home_cohort_0     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , home_cohort_1     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , carehome_cohort_0 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , carehome_cohort_1 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 1, 0, 0, 0, 1, 0, 0, 0), 1)))$estimate)
+         , hospital_cohort_0 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 1, 0, 0, 0, 0, 0, 0), 1)))$estimate)
+         , hospital_cohort_1 = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 1, 0, 0, 0, 1, 0, 0), 1)))$estimate)
+         , hospice_cohort_0  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 1, 0, 0, 0, 0, 0), 1)))$estimate)
+         , hospice_cohort_1  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 1, 0, 0, 0, 1, 0), 1)))$estimate)
+         , other_cohort_0    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 1, 0, 0, 0, 0), 1)))$estimate)
+         , other_cohort_1    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 1, 0, 0, 0, 1), 1)))$estimate)
+         , home_cohort_0_1_pvalue     = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , carehome_cohort_0_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, -1, 0, 0, 0), 1)))$adj.p.value)
+         , hospital_cohort_0_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, -1, 0, 0), 1)))$adj.p.value)
+         , hospice_cohort_0_1_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, -1, 0), 1)))$adj.p.value)
+         , other_cohort_0_1_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0, 0, 0, 0, 0, 0, -1), 1)))$adj.p.value)
+         , home_carehome_cohort_0_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, -1, 0, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospital_cohort_0_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, -1, 0, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospice_cohort_0_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, 0, -1, 0, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_other_cohort_0_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, 0, 0, 0, -1, 0, 0, 0, 0), 1)))$adj.p.value)
+         , home_carehome_cohort_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, -1, 0, 0, 0, -1, 0, 0, 0), 1)))$adj.p.value)
+         , home_hospital_cohort_1_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, -1, 0, 0, 0, -1, 0, 0), 1)))$adj.p.value)
+         , home_hospice_cohort_1_pvalue  = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, 0, -1, 0, 0, 0, -1, 0), 1)))$adj.p.value)
+         , home_other_cohort_1_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, 0, 0, -1, 0, 0, 0, -1), 1)))$adj.p.value) 
   ) %>%
   select(-dataset, -model)
 
