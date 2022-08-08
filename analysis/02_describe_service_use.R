@@ -611,7 +611,7 @@ gp_model_service_use_mean_cohort <- tibble(measure = unique(df_input %>%
   ) %>%
   select(-dataset, -model)
 
-write_csv(gp_model_service_use_mean_cohort, here::here("output", "describe_service_use", "gp_model_service_use_mean_cohort.csv"))
+write_csv(gp_model_service_use_mean_cohort, here::here("output", "describe_service_use", "complete_gp_history", "gp_model_service_use_mean_cohort.csv"))
 
 # Test differences proportion with at least 1 event with binomial model and identity link
 
@@ -648,7 +648,7 @@ gp_model_service_use_prop_cohort <- tibble(measure = unique(df_input %>%
   ) %>%
   select(-dataset, -model)
 
-write_csv(gp_model_service_use_prop_cohort, here::here("output", "describe_service_use", "gp_model_service_use_prop_cohort.csv"))
+write_csv(gp_model_service_use_prop_cohort, here::here("output", "describe_service_use", "complete_gp_history", "gp_model_service_use_prop_cohort.csv"))
 
 # Test differences proportion with at least 3 emergency admissions with binomial model and identity link
 
@@ -683,7 +683,7 @@ gp_model_emadm3_prop_cohort <- tibble(measure = unique(df_input %>%
   ) %>%
   select(-dataset, -model)
 
-write_csv(gp_model_emadm3_prop_cohort, here::here("output", "describe_service_use", "gp_model_emadm3_prop_cohort.csv"))
+write_csv(gp_model_emadm3_prop_cohort, here::here("output", "describe_service_use", "complete_gp_history", "gp_model_emadm3_prop_cohort.csv"))
 
 
 ################################################################################
@@ -1055,7 +1055,7 @@ gp_model_service_use_mean_cohort_pod <- tidyr::expand_grid(measure = unique(df_i
   ) %>%
   select(-dataset, -model)
 
-write_csv(gp_model_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "gp_model_service_use_mean_cohort_pod.csv"))
+write_csv(gp_model_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "complete_gp_history", "gp_model_service_use_mean_cohort_pod.csv"))
 
 # Test differences proportion with at least 1 event with binomial model and identity link
 
