@@ -82,10 +82,10 @@ actions:
       moderately_sensitive:
         service_use_means: output/describe_service_use/service_use_mean*.csv
         service_use_means_plots: output/describe_service_use/plots/service_use_mean*.pdf
+        service_use_prop_plots: output/describe_service_use/plots/service_use_prop*.pdf
         gp_complete_service_use_means: output/describe_service_use/complete_gp_history/gp_service_use_mean*.csv
-        gp_complete_service_use_plots: output/describe_service_use/complete_gp_history/plots/gp_service_use_mean*.pdf
-        service_use_models: output/describe_service_use/model*.csv
-        gp_service_use_models: output/describe_service_use/complete_gp_history/gp_model*.csv
+        gp_complete_service_use_means_plots: output/describe_service_use/complete_gp_history/plots/gp_service_use_mean*.pdf
+        gp_complete_service_use_prop_plots: output/describe_service_use/complete_gp_history/plots/gp_service_use_prop*.pdf
 
   describe_service_use_home_cohort: 
     run: r:latest analysis/03_describe_service_use_home_cohort.R
