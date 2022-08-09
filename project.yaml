@@ -130,3 +130,11 @@ actions:
       moderately_sensitive:
         deciles_data: output/practice_measures/plots/deciles_*.csv
         deciles_plots: output/practice_measures/plots/deciles_*.png
+
+  service_use_models:
+    run: r:latest analysis/08_service_use_models.R
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        deciles_data: output/describe_service_use/model_*.csv
+        deciles_plots: output/describe_service_use/complete_gp_history/gp_model_*.csv
