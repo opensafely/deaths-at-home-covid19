@@ -136,5 +136,12 @@ actions:
     needs: [generate_study_population]
     outputs:
       moderately_sensitive:
-        deciles_data: output/describe_service_use/model_*.csv
-        deciles_plots: output/describe_service_use/complete_gp_history/gp_model_*.csv
+        service_use_models: output/describe_service_use/models/model_*.csv
+        gp_service_use_models: output/describe_service_use/complete_gp_history/models/gp_model_*.csv
+
+  service_use_home_models: 
+    run: r:latest analysis/09_home_service_use_models.R
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        service_use_models: output/describe_service_use_home/models/model_*.csv     

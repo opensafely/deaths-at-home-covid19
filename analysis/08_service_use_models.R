@@ -25,7 +25,9 @@ library("lubridate")
 ########## Save location ##########
 
 fs::dir_create(here::here("output", "describe_service_use"))
+fs::dir_create(here::here("output", "describe_service_use", "models"))
 fs::dir_create(here::here("output", "describe_service_use", "complete_gp_history"))
+fs::dir_create(here::here("output", "describe_service_use", "complete_gp_history", "models"))
 
 ################################################################################
 
@@ -137,7 +139,7 @@ model_service_use_mean_cohort <- tibble(measure = measure) %>%
   ) %>%
   select(-dataset, -model)
 
-write_csv(model_service_use_mean_cohort, here::here("output", "describe_service_use", "model_service_use_mean_cohort.csv"))
+write_csv(model_service_use_mean_cohort, here::here("output", "describe_service_use", "models", "model_service_use_mean_cohort.csv"))
 
 # Test differences proportion with at least 1 event with binomial model and identity link
 
@@ -165,7 +167,7 @@ model_service_use_prop_cohort <- tibble(measure = measure) %>%
   ) %>%
   select(-dataset, -model)
 
-write_csv(model_service_use_prop_cohort, here::here("output", "describe_service_use", "model_service_use_prop_cohort.csv"))
+write_csv(model_service_use_prop_cohort, here::here("output", "describe_service_use", "models", "model_service_use_prop_cohort.csv"))
 
 # Test differences proportion with at least 3 emergency admissions with binomial model and identity link
 
@@ -193,7 +195,7 @@ model_emadm3_prop_cohort <- tibble(measure = c("emadm_1m", "emadm_3m", "emadm_1y
   ) %>%
   select(-dataset, -model)
 
-write_csv(model_emadm3_prop_cohort, here::here("output", "describe_service_use", "model_emadm3_prop_cohort.csv"))
+write_csv(model_emadm3_prop_cohort, here::here("output", "describe_service_use", "models", "model_emadm3_prop_cohort.csv"))
 
 ##############################
 
@@ -228,7 +230,7 @@ gp_model_service_use_mean_cohort <- tibble(measure = measure) %>%
   ) %>%
   select(-dataset, -model)
 
-write_csv(gp_model_service_use_mean_cohort, here::here("output", "describe_service_use", "complete_gp_history", "gp_model_service_use_mean_cohort.csv"))
+write_csv(gp_model_service_use_mean_cohort, here::here("output", "describe_service_use", "complete_gp_history", "models", "gp_model_service_use_mean_cohort.csv"))
 
 # Test differences proportion with at least 1 event with binomial model and identity link
 
@@ -261,7 +263,7 @@ gp_model_service_use_prop_cohort <- tibble(measure = measure) %>%
   ) %>%
   select(-dataset, -model)
 
-write_csv(gp_model_service_use_prop_cohort, here::here("output", "describe_service_use", "complete_gp_history", "gp_model_service_use_prop_cohort.csv"))
+write_csv(gp_model_service_use_prop_cohort, here::here("output", "describe_service_use", "complete_gp_history", "models", "gp_model_service_use_prop_cohort.csv"))
 
 # Test differences proportion with at least 3 emergency admissions with binomial model and identity link
 
@@ -293,7 +295,7 @@ gp_model_emadm3_prop_cohort <- tibble(measure = c("emadm_1m", "emadm_3m", "emadm
   ) %>%
   select(-dataset, -model)
 
-write_csv(gp_model_emadm3_prop_cohort, here::here("output", "describe_service_use", "complete_gp_history", "gp_model_emadm3_prop_cohort.csv"))
+write_csv(gp_model_emadm3_prop_cohort, here::here("output", "describe_service_use", "complete_gp_history", "models", "gp_model_emadm3_prop_cohort.csv"))
 
 ################################################################################
 
@@ -373,7 +375,7 @@ model_service_use_mean_cohort_pod <- tibble(measure = measure) %>%
   ) %>%
   select(-dataset, -model)
 
-write_csv(model_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "model_service_use_mean_cohort_pod.csv"))
+write_csv(model_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "models", "model_service_use_mean_cohort_pod.csv"))
 
 # Test differences proportion with at least 1 event with binomial model and identity link
 
@@ -451,7 +453,7 @@ model_service_use_prop_cohort_pod <- tibble(measure = measure) %>%
   ) %>%
   select(-dataset, -model)
 
-write_csv(model_service_use_prop_cohort_pod, here::here("output", "describe_service_use", "model_service_use_prop_cohort_pod.csv"))
+write_csv(model_service_use_prop_cohort_pod, here::here("output", "describe_service_use", "models", "model_service_use_prop_cohort_pod.csv"))
 
 # Test differences proportion with at least 3 emergency admissions  with binomial model and identity link
 
@@ -528,7 +530,7 @@ model_emadm3_prop_cohort_pod <- tibble(measure = c("emadm_1m", "emadm_3m", "emad
   ) %>%
   select(-dataset, -model)
 
-write_csv(model_emadm3_prop_cohort_pod, here::here("output", "describe_service_use", "model_emadm3_prop_cohort_pod.csv"))
+write_csv(model_emadm3_prop_cohort_pod, here::here("output", "describe_service_use", "models", "model_emadm3_prop_cohort_pod.csv"))
 
 ##############################
 
@@ -611,7 +613,7 @@ gp_model_service_use_mean_cohort_pod <- tibble(measure = measure) %>%
   ) %>%
   select(-dataset, -model)
 
-write_csv(gp_model_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "complete_gp_history", "gp_model_service_use_mean_cohort_pod.csv"))
+write_csv(gp_model_service_use_mean_cohort_pod, here::here("output", "describe_service_use", "complete_gp_history", "models", "gp_model_service_use_mean_cohort_pod.csv"))
 
 # Test differences proportion with at least 1 event with binomial model and identity link
 
@@ -691,7 +693,7 @@ gp_model_service_use_prop_cohort_pod <- tibble(measure = measure) %>%
   ) %>%
   select(-dataset, -model)
 
-write_csv(gp_model_service_use_prop_cohort_pod, here::here("output", "describe_service_use", "gp_model_service_use_prop_cohort_pod.csv"))
+write_csv(gp_model_service_use_prop_cohort_pod, here::here("output", "describe_service_use", "complete_gp_history", "models", "gp_model_service_use_prop_cohort_pod.csv"))
 
 # Test differences proportion with at least 1 event with binomial model and identity link
 
@@ -770,6 +772,6 @@ gp_model_emadm3_prop_cohort_pod <- tibble(measure = c("emadm_1m", "emadm_3m", "e
   ) %>%
   select(-dataset, -model)
 
-write_csv(gp_model_emadm3_prop_cohort_pod, here::here("output", "describe_service_use", "gp_model_emadm3_prop_cohort_pod.csv"))
+write_csv(gp_model_emadm3_prop_cohort_pod, here::here("output", "describe_service_use", "complete_gp_history", "models", "gp_model_emadm3_prop_cohort_pod.csv"))
 
 ################################################################################

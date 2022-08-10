@@ -83,7 +83,7 @@ study = StudyDefinition(
         returning = "underlying_cause_of_death",
         return_expectations = {
             "rate": "universal",
-            "category": {"ratios": {"I6":0.17, "J4":0.1, "F01":0.06, "J1":0.11 , "I2":0.43 , "C3":0.13}}
+            "category": {"ratios": {"U071":0.03, "J4":0.1, "F01":0.06, "J1":0.11 , "I2":0.43 , "C3":0.13, "A1":0.14}}
         }
     ),
 
@@ -101,8 +101,8 @@ study = StudyDefinition(
     age = patients.age_as_of(
         "dod_ons",
         return_expectations = {
-            "rate": "universal",
-            "int": {"distribution": "population_ages"}
+            "int" : {"distribution": "normal", "mean": 60, "stddev": 15}, 
+            "incidence" : 1.0
         }
     ),
 
