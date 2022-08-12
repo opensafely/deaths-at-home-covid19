@@ -4,11 +4,13 @@
 
 ################################################################################
 
-# Model service use for home deaths by characteristic
+# Model service use for home deaths by characteristic:
 # - Poisson model of means
 # - Binomial models of proportions
 
-# Just for final service use types and characteristics
+# Just for final service use types and characteristics:
+# - aevis, community, eladm, elbeddays, emadm, embeddays, eol_med, gp, palliative, opapp, opatt
+# - sex, agegrp, ethnicity, imd_quintile, codgrp
 
 ################################################################################
 
@@ -109,7 +111,9 @@ measure <- colnames(df_input %>%
                       select(starts_with(c("aevis", "community", "eladm", "elbeddays", "emadm", "embeddays", "eol_med", "gp", "palliative", "opapp", "opatt"))) %>%
                       select(!starts_with("gp_hist"))) 
 
-# Sex
+## Sex ##
+
+# Test differences in means with poisson model and log link
 
 model_service_use_mean_cohort_sex <- tibble(measure = measure) %>%
   mutate(characteristic = "sex" 
@@ -123,24 +127,25 @@ model_service_use_mean_cohort_sex <- tibble(measure = measure) %>%
                                   , period = str_sub(measure, -2, -1)
                                   , cohort = as_factor(cohort)) %>%
                            rename(value = all_of(var)))
-         , model = map(dataset, function(dset) glm(value ~ cohort*category, data = dset, family = quasipoisson(link = "log")))
-         , observations         = map_dbl(model, nobs)
-         , intercept_coeff      = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
-         , intercept_se         = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
-         , intercept_pvalue     = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
-         , cohort_coeff         = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
-         , cohort_se            = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
-         , cohort_pvalue        = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
-         , male_coeff           = map_dbl(model, function(x) broom::tidy(x)$estimate[3])
-         , male_se              = map_dbl(model, function(x) broom::tidy(x)$std.error[3])
-         , male_pvalue          = map_dbl(model, function(x) broom::tidy(x)$p.value[3])
-         , interact_male_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[4])
-         , interact_male_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[4])
-         , interact_male_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[4])
-         , female_cohort_0      = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0), 1)))$estimate))
-         , female_cohort_1      = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0), 1)))$estimate))
-         , male_cohort_0        = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 1), 1)))$estimate))
-         , male_cohort_1        = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 1, 1), 1)))$estimate))
+         , model = map(dataset, function(dset) glm(value ~ cohort*category, data = dset, family = poisson(link = "log")))
+         , observations          = map_dbl(model, nobs)
+         , intercept_coeff       = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
+         , intercept_se          = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
+         , intercept_pvalue      = map_dbl(model, function(x) broom::tidy(x)$p.value[1])
+         , cohort_coeff          = map_dbl(model, function(x) broom::tidy(x)$estimate[2])
+         , cohort_se             = map_dbl(model, function(x) broom::tidy(x)$std.error[2])
+         , cohort_pvalue         = map_dbl(model, function(x) broom::tidy(x)$p.value[2])
+         , male_coeff            = map_dbl(model, function(x) broom::tidy(x)$estimate[3])
+         , male_se               = map_dbl(model, function(x) broom::tidy(x)$std.error[3])
+         , male_pvalue           = map_dbl(model, function(x) broom::tidy(x)$p.value[3])
+         , interact_male_coeff   = map_dbl(model, function(x) broom::tidy(x)$estimate[4])
+         , interact_male_se      = map_dbl(model, function(x) broom::tidy(x)$std.error[4])
+         , interact_male_pvalue  = map_dbl(model, function(x) broom::tidy(x)$p.value[4])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
+         , female_cohort_0       = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0), 1)))$estimate))
+         , female_cohort_1       = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0), 1)))$estimate))
+         , male_cohort_0         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 1), 1)))$estimate))
+         , male_cohort_1         = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 1, 1), 1)))$estimate))
          , female_cohort_0_1_pvalue    = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, 0), 1)))$adj.p.value)
          , male_cohort_0_1_pvalue      = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, -1, 0, -1), 1)))$adj.p.value)
          , female_male_cohort_0_pvalue = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 0, -1, 0), 1)))$adj.p.value)
@@ -180,6 +185,7 @@ model_service_use_prop_cohort_sex <- tibble(measure = measure) %>%
          , interact_male_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[4])
          , interact_male_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[4])
          , interact_male_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[4])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , female_cohort_0      = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0), 1)))$estimate)
          , female_cohort_1      = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0), 1)))$estimate)
          , male_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 1), 1)))$estimate)
@@ -193,10 +199,9 @@ model_service_use_prop_cohort_sex <- tibble(measure = measure) %>%
 
 write_csv(model_service_use_prop_cohort_sex, here::here("output", "describe_service_use_home", "models", "model_service_use_prop_cohort_sex.csv"))
 
+# Test differences proportion with at least 3 emergency admissions in 3 months with binomial model and identity link
 
-# Test differences proportion with at least 3 emergency admissions  with binomial model and identity link
-
-model_emadm3_prop_cohort_sex <- tibble(measure = measure) %>%
+model_emadm3_prop_cohort_sex <- tibble(measure = c("emadm_3m")) %>%
   mutate(characteristic = "sex" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
@@ -224,6 +229,7 @@ model_emadm3_prop_cohort_sex <- tibble(measure = measure) %>%
          , interact_male_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[4])
          , interact_male_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[4])
          , interact_male_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[4])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , female_cohort_0      = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0), 1)))$estimate)
          , female_cohort_1      = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0), 1)))$estimate)
          , male_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 1), 1)))$estimate)
@@ -237,10 +243,11 @@ model_emadm3_prop_cohort_sex <- tibble(measure = measure) %>%
 
 write_csv(model_emadm3_prop_cohort_sex, here::here("output", "describe_service_use_home", "models", "model_emadm3_prop_cohort_sex.csv"))
 
-
 ###################################
 
-# Age group
+## Age group ##
+
+# Test differences in means with poisson model and log link
 
 model_service_use_mean_cohort_agegrp <- tibble(measure = measure) %>%
   mutate(characteristic = "agegrp" 
@@ -254,7 +261,7 @@ model_service_use_mean_cohort_agegrp <- tibble(measure = measure) %>%
                                   , period = str_sub(measure, -2, -1)
                                   , cohort = as_factor(cohort)) %>%
                            rename(value = all_of(var)))
-         , model = map(dataset, function(dset) glm(value ~ cohort*category, data = dset, family = quasipoisson(link = "log")))
+         , model = map(dataset, function(dset) glm(value ~ cohort*category, data = dset, family = poisson(link = "log")))
          , observations                = map_dbl(model, nobs)
          , intercept_coeff             = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se                = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -304,6 +311,7 @@ model_service_use_mean_cohort_agegrp <- tibble(measure = measure) %>%
          , interact_agegrp_90_coeff    = map_dbl(model, function(x) broom::tidy(x)$estimate[16])
          , interact_agegrp_90_se       = map_dbl(model, function(x) broom::tidy(x)$std.error[16])
          , interact_agegrp_90_pvalue   = map_dbl(model, function(x) broom::tidy(x)$p.value[16])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , agegrp_0029_cohort_0        = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
          , agegrp_0029_cohort_1        = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
          , agegrp_3039_cohort_0        = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
@@ -455,6 +463,7 @@ model_service_use_prop_cohort_agegrp <- tibble(measure = measure) %>%
          , interact_agegrp_90_coeff    = map_dbl(model, function(x) broom::tidy(x)$estimate[16])
          , interact_agegrp_90_se       = map_dbl(model, function(x) broom::tidy(x)$std.error[16])
          , interact_agegrp_90_pvalue   = map_dbl(model, function(x) broom::tidy(x)$p.value[16])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , agegrp_0029_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , agegrp_0029_cohort_1        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , agegrp_3039_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
@@ -540,9 +549,9 @@ model_service_use_prop_cohort_agegrp <- tibble(measure = measure) %>%
 
 write_csv(model_service_use_prop_cohort_agegrp, here::here("output", "describe_service_use_home", "models", "model_service_use_prop_cohort_agegrp.csv"))
 
-# Test differences proportion with at least 3 emergency admissions  with binomial model and identity link
+# Test differences proportion with at least 3 emergency admissions in 3 months with binomial model and identity link
 
-model_emadm3_prop_cohort_agegrp <- tibble(measure = c("emadm_1m", "emadm_3m", "emadm_1y")) %>%
+model_emadm3_prop_cohort_agegrp <- tibble(measure = c("emadm_3m")) %>%
   mutate(characteristic = "agegrp" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
@@ -606,6 +615,7 @@ model_emadm3_prop_cohort_agegrp <- tibble(measure = c("emadm_1m", "emadm_3m", "e
          , interact_agegrp_90_coeff    = map_dbl(model, function(x) broom::tidy(x)$estimate[16])
          , interact_agegrp_90_se       = map_dbl(model, function(x) broom::tidy(x)$std.error[16])
          , interact_agegrp_90_pvalue   = map_dbl(model, function(x) broom::tidy(x)$p.value[16])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , agegrp_0029_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , agegrp_0029_cohort_1        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , agegrp_3039_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
@@ -688,11 +698,14 @@ model_emadm3_prop_cohort_agegrp <- tibble(measure = c("emadm_1m", "emadm_3m", "e
          , agegrp_8089_90_cohort_1_pvalue   = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(0, 1, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 1, -1), 1)))$adj.p.value)
   ) %>%
   select(-dataset, -model)
+
 write_csv(model_emadm3_prop_cohort_agegrp, here::here("output", "describe_service_use_home", "models", "model_emadm3_prop_cohort_agegrp.csv"))
 
 ###################################
 
-# Ethnic group
+## Ethnic group ##
+
+# Test differences in means with poisson model and log link
 
 model_service_use_mean_cohort_ethnicity <- tibble(measure = measure) %>%
   mutate(characteristic = "ethnicity" 
@@ -706,7 +719,7 @@ model_service_use_mean_cohort_ethnicity <- tibble(measure = measure) %>%
                                   , period = str_sub(measure, -2, -1)
                                   , cohort = as_factor(cohort)) %>%
                            rename(value = all_of(var)))
-         , model = map(dataset, function(dset) glm(value ~ cohort*category, data = dset, family = quasipoisson(link = "log")))
+         , model = map(dataset, function(dset) glm(value ~ cohort*category, data = dset, family = poisson(link = "log")))
          , observations          = map_dbl(model, nobs)
          , intercept_coeff       = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se          = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -744,6 +757,7 @@ model_service_use_mean_cohort_ethnicity <- tibble(measure = measure) %>%
          , interact_unknown_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[12])
          , interact_unknown_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[12])
          , interact_unknown_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[12])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , white_cohort_0        = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
          , white_cohort_1        = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
          , mixed_cohort_0        = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
@@ -841,6 +855,7 @@ model_service_use_prop_cohort_ethnicity <- tibble(measure = measure) %>%
          , interact_unknown_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[12])
          , interact_unknown_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[12])
          , interact_unknown_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[12])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , white_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , white_cohort_1        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , mixed_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
@@ -884,7 +899,7 @@ model_service_use_prop_cohort_ethnicity <- tibble(measure = measure) %>%
 
 write_csv(model_service_use_prop_cohort_ethnicity, here::here("output", "describe_service_use_home", "models", "model_service_use_prop_cohort_ethnicity.csv"))
 
-# Test differences proportion with at least 3 emergency admissions  with binomial model and identity link
+# Test differences proportion with at least 3 emergency admissions in 3 months with binomial model and identity link
 
 model_emadm3_prop_cohort_ethnicity <- tibble(measure = c("emadm_3m")) %>%
   mutate(characteristic = "ethnicity"
@@ -938,6 +953,7 @@ model_emadm3_prop_cohort_ethnicity <- tibble(measure = c("emadm_3m")) %>%
          , interact_unknown_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[12])
          , interact_unknown_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[12])
          , interact_unknown_pvalue = map_dbl(model, function(x) broom::tidy(x)$p.value[12])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , imd1_cohort_0         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , imd1_cohort_1         = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , mixed_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
@@ -983,7 +999,9 @@ write_csv(model_emadm3_prop_cohort_ethnicity, here::here("output", "describe_ser
 
 ###################################
 
-# IMD quintile
+## IMD quintile ##
+
+# Test differences in means with poisson model and log link
 
 model_service_use_mean_cohort_imd_quintile <- tibble(measure = measure) %>%
   mutate(characteristic = "imd_quintile" 
@@ -997,7 +1015,7 @@ model_service_use_mean_cohort_imd_quintile <- tibble(measure = measure) %>%
                                   , period = str_sub(measure, -2, -1)
                                   , cohort = as_factor(cohort)) %>%
                            rename(value = all_of(var)))
-         , model = map(dataset, function(dset) glm(value ~ cohort*category, data = dset, family = quasipoisson(link = "log")))
+         , model = map(dataset, function(dset) glm(value ~ cohort*category, data = dset, family = poisson(link = "log")))
          , observations         = map_dbl(model, nobs)
          , intercept_coeff      = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se         = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -1035,6 +1053,7 @@ model_service_use_mean_cohort_imd_quintile <- tibble(measure = measure) %>%
          , interact_imd0_coeff    = map_dbl(model, function(x) broom::tidy(x)$estimate[12])
          , interact_imd0_se       = map_dbl(model, function(x) broom::tidy(x)$std.error[12])
          , interact_imd0_pvalue   = map_dbl(model, function(x) broom::tidy(x)$p.value[12])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , imd1_cohort_0        = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
          , imd1_cohort_1        = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
          , imd2_cohort_0        = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
@@ -1132,6 +1151,7 @@ model_service_use_prop_cohort_imd_quintile <- tibble(measure = measure) %>%
          , interact_imd0_coeff    = map_dbl(model, function(x) broom::tidy(x)$estimate[12])
          , interact_imd0_se       = map_dbl(model, function(x) broom::tidy(x)$std.error[12])
          , interact_imd0_pvalue   = map_dbl(model, function(x) broom::tidy(x)$p.value[12])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , imd1_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , imd1_cohort_1        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , imd2_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
@@ -1175,9 +1195,9 @@ model_service_use_prop_cohort_imd_quintile <- tibble(measure = measure) %>%
 
 write_csv(model_service_use_prop_cohort_imd_quintile, here::here("output", "describe_service_use_home", "models", "model_service_use_prop_cohort_imd_quintile.csv"))
 
-# Test differences proportion with at least 3 emergency admissions  with binomial model and identity link
+# Test differences proportion with at least 3 emergency admissions in 3 months with binomial model and identity link
 
-model_emadm3_prop_cohort_imd_quintile <- tibble(measure = c("emadm_1m", "emadm_3m", "emadm_1y")) %>%
+model_emadm3_prop_cohort_imd_quintile <- tibble(measure = c("emadm_3m")) %>%
   mutate(characteristic = "imd_quintile" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
@@ -1229,6 +1249,7 @@ model_emadm3_prop_cohort_imd_quintile <- tibble(measure = c("emadm_1m", "emadm_3
          , interact_imd0_coeff    = map_dbl(model, function(x) broom::tidy(x)$estimate[12])
          , interact_imd0_se       = map_dbl(model, function(x) broom::tidy(x)$std.error[12])
          , interact_imd0_pvalue   = map_dbl(model, function(x) broom::tidy(x)$p.value[12])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , imd1_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , imd1_cohort_1        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , imd2_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
@@ -1274,7 +1295,9 @@ write_csv(model_emadm3_prop_cohort_imd_quintile, here::here("output", "describe_
 
 ###################################
 
-# Cause of death
+## Cause of death ##
+
+# Test differences in means with poisson model and log link
 
 model_service_use_mean_cohort_codgrp <- tibble(measure = measure) %>%
   mutate(characteristic = "codgrp" 
@@ -1291,7 +1314,7 @@ model_service_use_mean_cohort_codgrp <- tibble(measure = measure) %>%
                                   , cohort = as_factor(cohort)) %>%
                            rename(value = all_of(var)) %>%
                            filter(category != "Covid-19"))
-         , model = map(dataset, function(dset) glm(value ~ cohort*category, data = dset, family = quasipoisson(link = "log")))
+         , model = map(dataset, function(dset) glm(value ~ cohort*category, data = dset, family = poisson(link = "log")))
          , observations     = map_dbl(model, nobs)
          , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -1329,6 +1352,7 @@ model_service_use_mean_cohort_codgrp <- tibble(measure = measure) %>%
          , interact_other_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[12])
          , interact_other_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[12])
          , interact_other_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[12])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , cancer_cohort_0       = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
          , cancer_cohort_1       = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
          , circu_cohort_0        = map_dbl(model, function(x) exp(broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate))
@@ -1439,6 +1463,7 @@ model_service_use_prop_cohort_codgrp <- tibble(measure = measure) %>%
          , interact_other_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[12])
          , interact_other_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[12])
          , interact_other_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[12])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , cancer_cohort_0       = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , cancer_cohort_1       = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
          , circu_cohort_0        = map_dbl(model, function(x) broom::tidy(multcomp::glht(x, linfct = matrix(c(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0), 1)))$estimate)
@@ -1492,9 +1517,9 @@ model_service_use_prop_cohort_codgrp <- tibble(measure = measure) %>%
 
 write_csv(model_service_use_prop_cohort_codgrp, here::here("output", "describe_service_use_home", "models", "model_service_use_prop_cohort_codgrp.csv"))
 
-# Test differences proportion with at least 3 emergency admissions  with binomial model and identity link
+# Test differences proportion with at least 3 emergency admissions in 3 months with binomial model and identity link
 
-model_emadm3_prop_cohort_codgrp <- tibble(measure = c("emadm_1m", "emadm_3m", "emadm_1y")) %>%
+model_emadm3_prop_cohort_codgrp <- tibble(measure = c("emadm_3m")) %>%
   mutate(characteristic = "codgrp" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
@@ -1534,6 +1559,7 @@ model_emadm3_prop_cohort_codgrp <- tibble(measure = c("emadm_1m", "emadm_3m", "e
          , other_coeff      = map_dbl(model, function(x) broom::tidy(x)$estimate[7])
          , other_se         = map_dbl(model, function(x) broom::tidy(x)$std.error[7])
          , other_pvalue     = map_dbl(model, function(x) broom::tidy(x)$p.value[7])
+         , interact_chisq_pvalue = map_dbl(model, function(x) anova(x, test = "Chisq")$`Pr(>Chi)`[4])
          , interact_circu_coeff     = map_dbl(model, function(x) broom::tidy(x)$estimate[8])
          , interact_circu_se        = map_dbl(model, function(x) broom::tidy(x)$std.error[8])
          , interact_circu_pvalue    = map_dbl(model, function(x) broom::tidy(x)$p.value[8])

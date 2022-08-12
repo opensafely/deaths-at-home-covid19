@@ -115,7 +115,7 @@ df_input <- arrow::read_feather(file = here::here("output", "input.feather")) %>
 measure <- colnames(df_input %>%
                       select(starts_with(c("aevis", "community", "eladm", "elbeddays", "emadm", "embeddays", "eol_med", "gp", "palliative", "opapp", "opatt"))))
 
-# Test differences in means with quasipoisson model
+# Test differences in means with poisson model
 
 model_service_use_mean_cohort <- tibble(measure = measure) %>%
   filter(!str_detect(measure, "^gp_hist")) %>%
@@ -126,7 +126,7 @@ model_service_use_mean_cohort <- tibble(measure = measure) %>%
                          mutate(activity = str_sub(measure, 1, -4)
                                 , period = str_sub(measure, -2, -1)
                                 , cohort = as_factor(cohort)))
-         , model = map(dataset, function(dset) glm(value ~ cohort, data = dset, family = quasipoisson(link = "log")))
+         , model = map(dataset, function(dset) glm(value ~ cohort, data = dset, family = poisson(link = "log")))
          , observations     = map_dbl(model, nobs)
          , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -201,7 +201,7 @@ write_csv(model_emadm3_prop_cohort, here::here("output", "describe_service_use",
 
 # Calculate the same just for people with complete gp history
 
-# Test differences in activity counts with quasipoisson model
+# Test differences in activity counts with poisson model
 
 gp_model_service_use_mean_cohort <- tibble(measure = measure) %>%
   filter(!str_detect(measure, "^gp_hist")) %>%
@@ -217,7 +217,7 @@ gp_model_service_use_mean_cohort <- tibble(measure = measure) %>%
                                    , period = all_of(time)
                                    , cohort = as_factor(cohort)) %>%
                             filter(gp_hist == 1))
-         , model = map(dataset, function(dset) glm(value ~ cohort, data = dset, family = quasipoisson(link = "log")))
+         , model = map(dataset, function(dset) glm(value ~ cohort, data = dset, family = poisson(link = "log")))
          , observations     = map_dbl(model, nobs)
          , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -301,7 +301,7 @@ write_csv(gp_model_emadm3_prop_cohort, here::here("output", "describe_service_us
 
 ########## Model service use by cohort and place of death ##########
 
-# Test differences in means with quasipoisson model
+# Test differences in means with poisson model
 
 model_service_use_mean_cohort_pod <- tibble(measure = measure) %>%
   filter(!str_detect(measure, "^gp_hist")) %>%
@@ -317,7 +317,7 @@ model_service_use_mean_cohort_pod <- tibble(measure = measure) %>%
                                   , pod_ons_new = factor(pod_ons_new, levels = c("Home", "Care home", "Hospital"
                                                                                  , "Hospice", "Elsewhere/other"))))     
          , model = map(dataset, function(dset) glm(value ~ cohort*pod_ons_new, data = dset
-                                                   , family = quasipoisson(link = "log")))
+                                                   , family = poisson(link = "log")))
          , observations     = map_dbl(model, nobs)
          , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
@@ -536,7 +536,7 @@ write_csv(model_emadm3_prop_cohort_pod, here::here("output", "describe_service_u
 
 # Calculate the same just for people with complete gp history
 
-# Test differences in means with quasipoisson model
+# Test differences in means with poisson model
 
 gp_model_service_use_mean_cohort_pod <- tibble(measure = measure) %>%
   filter(!str_detect(measure, "^gp_hist")) %>%
@@ -555,7 +555,7 @@ gp_model_service_use_mean_cohort_pod <- tibble(measure = measure) %>%
                                                                                   , "Hospice", "Elsewhere/other"))) %>%
                             filter(gp_hist == 1))         
          , model = map(dataset, function(dset) glm(value ~ cohort*pod_ons_new, data = dset
-                                                   , family = quasipoisson(link = "log")))
+                                                   , family = poisson(link = "log")))
          , observations     = map_dbl(model, nobs)
          , intercept_coeff  = map_dbl(model, function(x) broom::tidy(x)$estimate[1])
          , intercept_se     = map_dbl(model, function(x) broom::tidy(x)$std.error[1])
