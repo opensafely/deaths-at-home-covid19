@@ -116,7 +116,9 @@ measure <- colnames(df_input %>%
 # Test differences in means with poisson model and log link
 
 model_service_use_mean_cohort_sex <- tibble(measure = measure) %>%
-  mutate(characteristic = "sex" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "sex" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, sex, all_of(var)) %>%
@@ -159,7 +161,9 @@ write_csv(model_service_use_mean_cohort_sex, here::here("output", "describe_serv
 # Test differences proportion with at least 1 event with binomial model and identity link
 
 model_service_use_prop_cohort_sex <- tibble(measure = measure) %>%
-  mutate(characteristic = "sex" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "sex" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, sex, all_of(var)) %>%
@@ -204,7 +208,9 @@ write_csv(model_service_use_prop_cohort_sex, here::here("output", "describe_serv
 # Test differences proportion with at least 3 emergency admissions in 3 months with binomial model and identity link
 
 model_emadm3_prop_cohort_sex <- tibble(measure = c("emadm_3m")) %>%
-  mutate(characteristic = "sex" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "sex" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, sex, all_of(var)) %>%
@@ -253,7 +259,9 @@ write_csv(model_emadm3_prop_cohort_sex, here::here("output", "describe_service_u
 # Test differences in means with poisson model and log link
 
 model_service_use_mean_cohort_agegrp <- tibble(measure = measure) %>%
-  mutate(characteristic = "agegrp" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "agegrp" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, agegrp, all_of(var)) %>%
@@ -404,7 +412,9 @@ write_csv(model_service_use_mean_cohort_agegrp, here::here("output", "describe_s
 # Test differences proportion with at least 1 event with binomial model and identity link
 
 model_service_use_prop_cohort_agegrp <- tibble(measure = measure) %>%
-  mutate(characteristic = "agegrp" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "agegrp" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, agegrp, all_of(var)) %>%
@@ -557,7 +567,9 @@ write_csv(model_service_use_prop_cohort_agegrp, here::here("output", "describe_s
 # Test differences proportion with at least 3 emergency admissions in 3 months with binomial model and identity link
 
 model_emadm3_prop_cohort_agegrp <- tibble(measure = c("emadm_3m")) %>%
-  mutate(characteristic = "agegrp" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "agegrp" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, agegrp, all_of(var)) %>%
@@ -714,7 +726,9 @@ write_csv(model_emadm3_prop_cohort_agegrp, here::here("output", "describe_servic
 # Test differences in means with poisson model and log link
 
 model_service_use_mean_cohort_ethnicity <- tibble(measure = measure) %>%
-  mutate(characteristic = "ethnicity" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "ethnicity" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, ethnicity, all_of(var)) %>%
@@ -811,7 +825,9 @@ write_csv(model_service_use_mean_cohort_ethnicity, here::here("output", "describ
 # Test differences proportion with at least 1 event with binomial model and identity link
 
 model_service_use_prop_cohort_ethnicity <- tibble(measure = measure) %>%
-  mutate(characteristic = "ethnicity" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "ethnicity" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, ethnicity, all_of(var)) %>%
@@ -910,7 +926,9 @@ write_csv(model_service_use_prop_cohort_ethnicity, here::here("output", "describ
 # Test differences proportion with at least 3 emergency admissions in 3 months with binomial model and identity link
 
 model_emadm3_prop_cohort_ethnicity <- tibble(measure = c("emadm_3m")) %>%
-  mutate(characteristic = "ethnicity"
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "ethnicity"
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>%
                            select(cohort, ethnicity, all_of(var)) %>%
@@ -1013,7 +1031,9 @@ write_csv(model_emadm3_prop_cohort_ethnicity, here::here("output", "describe_ser
 # Test differences in means with poisson model and log link
 
 model_service_use_mean_cohort_imd_quintile <- tibble(measure = measure) %>%
-  mutate(characteristic = "imd_quintile" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "imd_quintile" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, imd_quintile, all_of(var)) %>%
@@ -1110,7 +1130,9 @@ write_csv(model_service_use_mean_cohort_imd_quintile, here::here("output", "desc
 # Test differences proportion with at least 1 event with binomial model and identity link
 
 model_service_use_prop_cohort_imd_quintile <- tibble(measure = measure) %>%
-  mutate(characteristic = "imd_quintile" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "imd_quintile" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, imd_quintile, all_of(var)) %>%
@@ -1209,7 +1231,9 @@ write_csv(model_service_use_prop_cohort_imd_quintile, here::here("output", "desc
 # Test differences proportion with at least 3 emergency admissions in 3 months with binomial model and identity link
 
 model_emadm3_prop_cohort_imd_quintile <- tibble(measure = c("emadm_3m")) %>%
-  mutate(characteristic = "imd_quintile" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "imd_quintile" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, imd_quintile, all_of(var)) %>%
@@ -1312,7 +1336,9 @@ write_csv(model_emadm3_prop_cohort_imd_quintile, here::here("output", "describe_
 # Test differences in means with poisson model and log link
 
 model_service_use_mean_cohort_codgrp <- tibble(measure = measure) %>%
-  mutate(characteristic = "codgrp" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "codgrp" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, codgrp, all_of(var)) %>%
@@ -1422,7 +1448,9 @@ write_csv(model_service_use_mean_cohort_codgrp, here::here("output", "describe_s
 # Test differences proportion with at least 1 event with binomial model and identity link
 
 model_service_use_prop_cohort_codgrp <- tibble(measure = measure) %>%
-  mutate(characteristic = "codgrp" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "codgrp" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, codgrp, all_of(var)) %>%
@@ -1534,7 +1562,9 @@ write_csv(model_service_use_prop_cohort_codgrp, here::here("output", "describe_s
 # Test differences proportion with at least 3 emergency admissions in 3 months with binomial model and identity link
 
 model_emadm3_prop_cohort_codgrp <- tibble(measure = c("emadm_3m")) %>%
-  mutate(characteristic = "codgrp" 
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , characteristic = "codgrp" 
          , dataset = map(measure, function(var) df_input %>%
                            filter(!is.na(study_cohort) & pod_ons_new == "Home") %>% 
                            select(cohort, codgrp, all_of(var)) %>%

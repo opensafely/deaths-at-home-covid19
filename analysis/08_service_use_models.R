@@ -119,7 +119,9 @@ measure <- colnames(df_input %>%
 
 model_service_use_mean_cohort <- tibble(measure = measure) %>%
   filter(!str_detect(measure, "^gp_hist")) %>%
-  mutate(dataset = map(measure, function(var) df_input %>%
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , dataset = map(measure, function(var) df_input %>%
                          filter(!is.na(study_cohort)) %>% 
                          select(cohort, all_of(var)) %>%
                          pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
@@ -146,7 +148,9 @@ write_csv(model_service_use_mean_cohort, here::here("output", "describe_service_
 
 model_service_use_prop_cohort <- tibble(measure = measure) %>%
   filter(!str_detect(measure, "^gp_hist")) %>%
-  mutate(dataset = map(measure, function(var) df_input %>%
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , dataset = map(measure, function(var) df_input %>%
                          filter(!is.na(study_cohort)) %>% 
                          select(cohort, all_of(var)) %>%
                          pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
@@ -175,7 +179,9 @@ write_csv(model_service_use_prop_cohort, here::here("output", "describe_service_
 
 model_emadm3_prop_cohort <- tibble(measure = c("emadm_3m")) %>%
   filter(!str_detect(measure, "^gp_hist")) %>%
-  mutate(dataset = map(measure, function(var) df_input %>%
+  mutate(activity = str_sub(measure, 1, -4)
+         , period = str_sub(measure, -2, -1)
+         , dataset = map(measure, function(var) df_input %>%
                          filter(!is.na(study_cohort)) %>% 
                          select(cohort, all_of(var)) %>%
                          pivot_longer(cols = -c(cohort), names_to = "measure", values_to = "value") %>%
