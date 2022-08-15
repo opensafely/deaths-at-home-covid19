@@ -137,7 +137,7 @@ study = StudyDefinition(
         },
         return_expectations = {
             "category": {"ratios": {"0": 0.05, "1": 0.19, "2": 0.19, "3": 0.19, "4": 0.19, "5": 0.19}},
-            "incidence": 0.4
+            "incidence": 1.0
         }
     ),
 
