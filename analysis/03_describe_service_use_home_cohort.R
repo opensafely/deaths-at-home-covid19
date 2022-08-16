@@ -365,6 +365,8 @@ service_use_cohort_home <- tidyr::expand_grid(measure = unique(df_input %>%
          , sd_cohort_1 = map_dbl(dataset_1, function(dset1) round(sd(dset1$value, na.rm = TRUE), 3))
          , n_atleast1_cohort_0 = map_dbl(dataset_0, function(dset0) plyr::round_any(sum(dset0$value >= 1, na.rm = TRUE), 10))
          , n_atleast1_cohort_1 = map_dbl(dataset_1, function(dset1) plyr::round_any(sum(dset1$value >= 1, na.rm = TRUE), 10)) 
+         , n_atleast3_cohort_0 = map_dbl(dataset_0, function(dset0) plyr::round_any(sum(dset0$value >= 3, na.rm = TRUE), 10))
+         , n_atleast3_cohort_1 = map_dbl(dataset_1, function(dset1) plyr::round_any(sum(dset1$value >= 3, na.rm = TRUE), 10)) 
          , mean_cohort_0 = case_when(n_atleast1_cohort_0 == 0 ~ 0
                                      , TRUE ~ round(mean_cohort_0, 3))
          , mean_cohort_1 = case_when(n_atleast1_cohort_1 == 0 ~ 0
