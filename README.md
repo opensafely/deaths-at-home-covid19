@@ -1,18 +1,13 @@
 # deaths-at-home-covid19
 
-This is the code and configuration for deaths-at-home-covid19.
+[View on OpenSAFELY](https://jobs.opensafely.org/repo/https%253A%252F%252Fgithub.com%252Fopensafely%252Fdeaths-at-home-covid19)
 
-This project is a **_work in progress_**, it intends to look at:
-1. What services were provided to patients who died over the course of the pandemic, compared with pre-pandemic, and how did service use vary between sub-groups of patients?
-2. What is the quality of data relevant to assessing the quality of end of life care within OpenSAFELY?
+Details of the purpose and any published outputs from this project can be found at the link above.
 
-------------------------------------
-
-* The paper will be available here.
-* Raw model outputs, including charts, crosstabs, etc, are in `released_outputs/`
-* If you are interested in how we defined our variables, take a look at the [study definition](analysis/study_definition.py); this is written in `python`, but non-programmers should be able to understand what is going on there
-* If you are interested in how we defined our code lists, look in the [codelists folder](./codelists/).
-* Developers and epidemiologists interested in the framework should review [the OpenSAFELY documentation](https://docs.opensafely.org)
+The contents of this repository MUST NOT be considered an accurate or valid representation of the study or its purpose. 
+This repository may reflect an incomplete or incorrect analysis with no further ongoing work.
+The content has ONLY been made public to support the OpenSAFELY [open science and transparency principles](https://www.opensafely.org/about/#contributing-to-best-practice-around-open-science) and to support the sharing of re-usable code for other subsequent users.
+No clinical, policy or safety conclusions must be drawn from the contents of this repository.
 
 # About the OpenSAFELY framework
 
