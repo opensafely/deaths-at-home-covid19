@@ -1,3 +1,4 @@
+import csv
 from pathlib import Path
 from databuilder.codes import codelist_from_csv
 from databuilder.ehrql import Dataset, years
@@ -12,14 +13,15 @@ CODELIST_DIR = Path("validation-codelists")
 
 
 morphine_subcutaneous_dmd = codelist_from_csv(
-    CODELIST_DIR / "opensafely-morphine-subcutaneous-dmd-1185fc5b.csv"
+    CODELIST_DIR / "opensafely-morphine-subcutaneous-dmd-1185fc5b.csv", "dmd_id"
 )
 morphine_subcutaneous_dmd_updated = codelist_from_csv(
-    CODELIST_DIR / "opensafely-morphine-subcutaneous-dmd-69f036dd.csv"
+    CODELIST_DIR / "opensafely-morphine-subcutaneous-dmd-69f036dd.csv", "dmd_id"
 )
-morphine_subcutaneous_multilex = codelist_from_csv(
-    CODELIST_DIR / "opensafely-morphine-subcutaneous-multilex.csv"
-)
+
+with open(CODELIST_DIR / "opensafely-morphine-subcutaneous-multilex.csv", "r") as cf:
+    reader = csv.DictReader(cf, ["MultilexDrug_ID"])
+    morphine_subcutaneous_multilex = list(reader)
 
 EARLIEST = "2019-03-01"
 LATEST = "2021-02-28"
