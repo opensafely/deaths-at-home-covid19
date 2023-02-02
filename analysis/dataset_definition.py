@@ -13,26 +13,26 @@ CODELIST_DIR = Path("validation-codelists")
 
 
 morphine_subcutaneous_dmd = codelist_from_csv(
-    CODELIST_DIR / "opensafely-morphine-subcutaneous-dmd-1185fc5b.csv", "dmd_id"
+    CODELIST_DIR / "opensafely-morphine-subcutaneous-dmd-1185fc5b.csv", "dmd_id", "dmd"
 )
 morphine_subcutaneous_dmd_updated = codelist_from_csv(
-    CODELIST_DIR / "opensafely-morphine-subcutaneous-dmd-69f036dd.csv", "dmd_id"
+    CODELIST_DIR / "opensafely-morphine-subcutaneous-dmd-69f036dd.csv", "dmd_id", "dmd"
 )
 
 with open(CODELIST_DIR / "opensafely-morphine-subcutaneous-multilex.csv", "r") as cf:
     reader = csv.DictReader(cf, ["MultilexDrug_ID"])
-    morphine_subcutaneous_multilex = list(reader)
+    morphine_subcutaneous_multilex = [r["MultilexDrug_ID"] for r in reader]
 
 EARLIEST = "2019-03-01"
 LATEST = "2021-02-28"
 
 dataset = Dataset()
 
-date_of_death = ons_deaths.date
+date_of_death = ons_deaths.sort_by(ons_deaths.date).last_for_patient().date
 has_died = date_of_death.is_on_or_between(EARLIEST, LATEST)
 is_registered = (
-    practice_registrations.take(practice_registrations.date_start <= date_of_death)
-    .drop(practice_registrations.date_end <= date_of_death)
+    practice_registrations.take(practice_registrations.start_date <= date_of_death)
+    .drop(practice_registrations.end_date <= date_of_death)
     .exists_for_patient()
 )
 

@@ -145,3 +145,12 @@ actions:
     outputs:
       moderately_sensitive:
         service_use_models: output/describe_service_use_home/models/model_*.csv     
+  
+  generate_medication_codelist_comprison_dataset:
+    run: >
+      databuilder:v0 
+        generate-dataset analysis/dataset_definition.py
+        --output output/dataset.csv
+    outputs:
+      highly_sensitive:
+        cohort: output/dataset.csv
