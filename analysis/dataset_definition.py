@@ -46,8 +46,7 @@ def practice_registration_as_of(date):
 
 
 registered = practice_registration_as_of(date_of_death).exists_for_patient()
-
-dataset.set_population(has_died & registered & (patients.sex.is_in(["F", "M"])))
+dataset.set_population(has_died & registered & patients.sex.is_in(["female", "male"]))
 
 # Medication events in year before death
 relevant_medications = medications.take(
