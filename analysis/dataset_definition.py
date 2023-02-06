@@ -30,13 +30,24 @@ dataset = Dataset()
 
 date_of_death = ons_deaths.sort_by(ons_deaths.date).last_for_patient().date
 has_died = date_of_death.is_on_or_between(EARLIEST, LATEST)
-is_registered = (
-    practice_registrations.take(practice_registrations.start_date <= date_of_death)
-    .drop(practice_registrations.end_date <= date_of_death)
-    .exists_for_patient()
-)
 
-dataset.set_population(has_died & is_registered & (patients.sex.is_in(["F", "M"])))
+
+def _registrations_overlapping_period(start_date, end_date):
+    regs = practice_registrations
+    return regs.take(
+        regs.start_date.is_on_or_before(start_date)
+        & (regs.end_date.is_after(end_date) | regs.end_date.is_null())
+    )
+
+
+def practice_registration_as_of(date):
+    regs = _registrations_overlapping_period(date, date)
+    return regs.sort_by(regs.start_date, regs.end_date).first_for_patient()
+
+
+registered = practice_registration_as_of(date_of_death).exists_for_patient()
+
+dataset.set_population(has_died & registered & (patients.sex.is_in(["F", "M"])))
 
 # Medication events in year before death
 relevant_medications = medications.take(
