@@ -20,7 +20,7 @@ morphine_subcutaneous_dmd_updated = codelist_from_csv(
 )
 
 with open(CODELIST_DIR / "opensafely-morphine-subcutaneous-multilex.csv", "r") as cf:
-    reader = csv.DictReader(cf, ["MultilexDrug_ID"])
+    reader = csv.DictReader(cf)
     morphine_subcutaneous_multilex = [r["MultilexDrug_ID"] for r in reader]
 
 EARLIEST = "2019-03-01"
