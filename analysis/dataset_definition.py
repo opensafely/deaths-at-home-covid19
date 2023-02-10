@@ -1,66 +1,88 @@
-import csv
-from pathlib import Path
 from databuilder.codes import codelist_from_csv
 from databuilder.ehrql import Dataset, years
 from databuilder.tables.beta.tpp import (
-    medications,
+    medications as m,
     ons_deaths,
     patients,
-    practice_registrations,
+    practice_registrations as r,
 )
 
-CODELIST_DIR = Path("validation-codelists")
+# These codelists come from eol_med_codes defined here:
+# https://github.com/opensafely/deaths-at-home-covid19/blob/7dd124d4d104a83a3acb17209dc3baa6dfe3da89/analysis/codelists.py#L121-L129
+dmd_codelist_names = [
+    "glycopyrronium-subcutaneous-formulations",
+    "haloperidol-subcutaneous-dmd",
+    "hyoscine-butylbromide-subcutaneous-formulations",
+    "levomepromazine-subcutaneous",
+    "midazolam-end-of-life",
+    "morphine-subcutaneous-dmd",
+    "oxycodone-subcutaneous-dmd",
+]
 
+dmd_codelists = [
+    codelist_from_csv(
+        f"codelists/opensafely-{name.replace('_', '-')}.csv",
+        system="dmd",
+        column="dmd_id",
+    )
+    for name in dmd_codelist_names
+]
 
-morphine_subcutaneous_dmd = codelist_from_csv(
-    CODELIST_DIR / "opensafely-morphine-subcutaneous-dmd-1185fc5b.csv", "dmd_id", "dmd"
-)
-morphine_subcutaneous_dmd_updated = codelist_from_csv(
-    CODELIST_DIR / "opensafely-morphine-subcutaneous-dmd-69f036dd.csv", "dmd_id", "dmd"
-)
+# There's no way to combine codelists in ehrQL at the moment, so we do it manually.
+dmd_codes = set.union(*(codelist.codes for codelist in dmd_codelists))
 
-with open(CODELIST_DIR / "opensafely-morphine-subcutaneous-multilex.csv", "r") as cf:
-    reader = csv.DictReader(cf)
-    morphine_subcutaneous_multilex = [r["MultilexDrug_ID"] for r in reader]
+# These multilex codes correspond to three items in TPP's medications dictionary for
+# "morphine sulfate injection 10mg/1ml" that don't have dm+d codes.
+multilex_codes = [
+    "14319;1;0",
+    "14319;1;2",
+    "14319;1;3",
+]
 
-EARLIEST = "2019-03-01"
-LATEST = "2021-02-28"
 
 dataset = Dataset()
 
+# Set the population.  We're interested in patients who died between 1 March 2019 and 28
+# Feb 2021, who were registered with a TPP practice when they died, and whose recorded
+# sex was "female" or "male".
 date_of_death = ons_deaths.sort_by(ons_deaths.date).last_for_patient().date
-has_died = date_of_death.is_on_or_between(EARLIEST, LATEST)
-
-
-def _registrations_overlapping_period(start_date, end_date):
-    regs = practice_registrations
-    return regs.take(
-        regs.start_date.is_on_or_before(start_date)
-        & (regs.end_date.is_after(end_date) | regs.end_date.is_null())
-    )
-
-
-def practice_registration_as_of(date):
-    regs = _registrations_overlapping_period(date, date)
-    return regs.sort_by(regs.start_date, regs.end_date).first_for_patient()
-
-
-registered = practice_registration_as_of(date_of_death).exists_for_patient()
-dataset.set_population(has_died & registered & patients.sex.is_in(["female", "male"]))
-
-# Medication events in year before death
-relevant_medications = medications.take(
-    medications.date.is_on_or_between(date_of_death - years(1), date_of_death)
+has_died = date_of_death.is_on_or_between("2019-03-01", "2021-02-28")
+was_registered_at_death = (
+    r.take(r.start_date <= date_of_death)
+    .drop(r.end_date <= date_of_death)
+    .exists_for_patient()
+)
+dataset.set_population(
+    has_died & was_registered_at_death & patients.sex.is_in(["female", "male"])
 )
 
-dataset.morphine_subcutaneous_dmd_count = relevant_medications.take(
-    relevant_medications.dmd_code.is_in(morphine_subcutaneous_dmd)
-).count_for_patient()
+# We're interested in events in two periods.
+p1_date_range = ("2019-06-01", "2020-02-29")
+p2_date_range = ("2020-06-01", "2021-02-28")
 
-dataset.morphine_subcutaneous_dmd_updated_count = relevant_medications.take(
-    relevant_medications.dmd_code.is_in(morphine_subcutaneous_dmd_updated)
-).count_for_patient()
+# The column has, for each patient, a count of medication events in period 1 with a code
+# in the dm+d codelist.
+dataset.dmd_p1 = (
+    m.take(m.dmd_code.is_in(dmd_codes))
+    .take(m.date.is_on_or_between(*p1_date_range))
+    .count_for_patient()
+)
+# The column has, for each patient, a count of medication events in period 1 with a code
+# in the multilex codelist.
+dataset.multilex_p1 = (
+    m.take(m.multilex_code.is_in(multilex_codes))
+    .take(m.date.is_on_or_between(*p1_date_range))
+    .count_for_patient()
+)
 
-dataset.morphine_subcutaneous_multilex_count = relevant_medications.take(
-    relevant_medications.multilex_code.is_in(morphine_subcutaneous_multilex)
-).count_for_patient()
+# As above, for period 2.
+dataset.dmd_p2 = (
+    m.take(m.dmd_code.is_in(dmd_codes))
+    .take(m.date.is_on_or_between(*p2_date_range))
+    .count_for_patient()
+)
+dataset.multilex_p2 = (
+    m.take(m.multilex_code.is_in(multilex_codes))
+    .take(m.date.is_on_or_between(*p2_date_range))
+    .count_for_patient()
+)

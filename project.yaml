@@ -4,8 +4,7 @@ expectations:
   population_size: 10000
 
 actions:
-
-  generate_medication_codelist_comprison_dataset:
+  generate_dataset:
     run: >
       databuilder:v0
         generate-dataset analysis/dataset_definition.py
@@ -14,11 +13,11 @@ actions:
       highly_sensitive:
         cohort: output/dataset.csv
 
-  validate_medication_codelist_counts:
+  count_medication_events:
     run: >
       python:latest
-        python analysis/validate_prescription_counts.py
-    needs: [generate_medication_codelist_comprison_dataset]
+        python analysis/count_medication_events.py
+    needs: [generate_dataset]
     outputs:
       moderately_sensitive:
-        totals: output/validation_totals.csv
+        counts: output/medication-counts.json
