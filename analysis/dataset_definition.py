@@ -1,5 +1,5 @@
 from databuilder.codes import codelist_from_csv
-from databuilder.ehrql import Dataset, years
+from databuilder.ehrql import Dataset, months
 from databuilder.tables.beta.tpp import (
     medications as m,
     ons_deaths,
@@ -39,50 +39,68 @@ multilex_codes = [
     "14319;1;3",
 ]
 
+# We're interested in events in two periods.
+p1_date_range = ("2019-06-01", "2020-02-29")
+p2_date_range = ("2020-06-01", "2021-02-28")
+
 
 dataset = Dataset()
 
-# Set the population.  We're interested in patients who died between 1 March 2019 and 28
-# Feb 2021, who were registered with a TPP practice when they died, and whose recorded
-# sex was "female" or "male".
+# Record which period each patient died in
 date_of_death = ons_deaths.sort_by(ons_deaths.date).last_for_patient().date
-has_died = date_of_death.is_on_or_between("2019-03-01", "2021-02-28")
+dataset.died_in_p1 = date_of_death.is_on_or_between(*p1_date_range)
+dataset.died_in_p2 = date_of_death.is_on_or_between(*p2_date_range)
+
+# Set the population.  We're interested in patients:
+#  * who died in either of the periods above;
+#  * who were registered with a TPP practice when they died;
+#  * and whose recorded sex was "female" or "male".
 was_registered_at_death = (
     r.take(r.start_date <= date_of_death)
     .drop(r.end_date <= date_of_death)
     .exists_for_patient()
 )
 dataset.set_population(
-    has_died & was_registered_at_death & patients.sex.is_in(["female", "male"])
+    (dataset.died_in_p1 | dataset.died_in_p2)
+    & was_registered_at_death
+    & patients.sex.is_in(["female", "male"])
 )
 
-# We're interested in events in two periods.
-p1_date_range = ("2019-06-01", "2020-02-29")
-p2_date_range = ("2020-06-01", "2021-02-28")
-
-# The column has, for each patient, a count of medication events in period 1 with a code
-# in the dm+d codelist.
-dataset.dmd_p1 = (
+# The column indicates, for each patient, whether a medication event with a code in the
+# dm+d codelist was prescribed in the month before death
+dataset.dmd_1 = (
     m.take(m.dmd_code.is_in(dmd_codes))
-    .take(m.date.is_on_or_between(*p1_date_range))
-    .count_for_patient()
+    .take(m.date.is_on_or_between(date_of_death - months(1), date_of_death))
+    .exists_for_patient()
 )
-# The column has, for each patient, a count of medication events in period 1 with a code
-# in the multilex codelist.
-dataset.multilex_p1 = (
+# The column indicates, for each patient, whether a medication event with a code in the
+# multilex codelist was prescribed in the month before death
+dataset.multilex_1 = (
     m.take(m.multilex_code.is_in(multilex_codes))
-    .take(m.date.is_on_or_between(*p1_date_range))
-    .count_for_patient()
+    .take(m.date.is_on_or_between(date_of_death - months(1), date_of_death))
+    .exists_for_patient()
 )
 
-# As above, for period 2.
-dataset.dmd_p2 = (
+# As above, for the three months before death
+dataset.dmd_3 = (
     m.take(m.dmd_code.is_in(dmd_codes))
-    .take(m.date.is_on_or_between(*p2_date_range))
-    .count_for_patient()
+    .take(m.date.is_on_or_between(date_of_death - months(3), date_of_death))
+    .exists_for_patient()
 )
-dataset.multilex_p2 = (
+dataset.multilex_3 = (
     m.take(m.multilex_code.is_in(multilex_codes))
-    .take(m.date.is_on_or_between(*p2_date_range))
-    .count_for_patient()
+    .take(m.date.is_on_or_between(date_of_death - months(3), date_of_death))
+    .exists_for_patient()
+)
+
+# As above, for the twelve months before death
+dataset.dmd_12 = (
+    m.take(m.dmd_code.is_in(dmd_codes))
+    .take(m.date.is_on_or_between(date_of_death - months(12), date_of_death))
+    .exists_for_patient()
+)
+dataset.multilex_12 = (
+    m.take(m.multilex_code.is_in(multilex_codes))
+    .take(m.date.is_on_or_between(date_of_death - months(12), date_of_death))
+    .exists_for_patient()
 )
