@@ -1,5 +1,4 @@
-from databuilder.codes import codelist_from_csv
-from databuilder.ehrql import Dataset, months
+from databuilder.ehrql import Dataset, codelist_from_csv, months
 from databuilder.tables.beta.tpp import (
     medications as m,
     ons_deaths,
@@ -22,14 +21,13 @@ dmd_codelist_names = [
 dmd_codelists = [
     codelist_from_csv(
         f"codelists/opensafely-{name.replace('_', '-')}.csv",
-        system="dmd",
         column="dmd_id",
     )
     for name in dmd_codelist_names
 ]
 
 # There's no way to combine codelists in ehrQL at the moment, so we do it manually.
-dmd_codes = set.union(*(codelist.codes for codelist in dmd_codelists))
+dmd_codes = set().union(*(codelist for codelist in dmd_codelists))
 
 # These multilex codes correspond to three items in TPP's medications dictionary for
 # "morphine sulfate injection 10mg/1ml" that don't have dm+d codes.
