@@ -54,11 +54,11 @@ dataset.died_in_p2 = date_of_death.is_on_or_between(*p2_date_range)
 #  * who were registered with a TPP practice when they died;
 #  * and whose recorded sex was "female" or "male".
 was_registered_at_death = (
-    r.take(r.start_date <= date_of_death)
-    .drop(r.end_date <= date_of_death)
+    r.where(r.start_date <= date_of_death)
+    .except_where(r.end_date <= date_of_death)
     .exists_for_patient()
 )
-dataset.set_population(
+dataset.define_population(
     (dataset.died_in_p1 | dataset.died_in_p2)
     & was_registered_at_death
     & patients.sex.is_in(["female", "male"])
@@ -67,38 +67,38 @@ dataset.set_population(
 # The column indicates, for each patient, whether a medication event with a code in the
 # dm+d codelist was prescribed in the month before death
 dataset.dmd_1 = (
-    m.take(m.dmd_code.is_in(dmd_codes))
-    .take(m.date.is_on_or_between(date_of_death - months(1), date_of_death))
+    m.where(m.dmd_code.is_in(dmd_codes))
+    .where(m.date.is_on_or_between(date_of_death - months(1), date_of_death))
     .exists_for_patient()
 )
 # The column indicates, for each patient, whether a medication event with a code in the
 # multilex codelist was prescribed in the month before death
 dataset.multilex_1 = (
-    m.take(m.multilex_code.is_in(multilex_codes))
-    .take(m.date.is_on_or_between(date_of_death - months(1), date_of_death))
+    m.where(m.multilex_code.is_in(multilex_codes))
+    .where(m.date.is_on_or_between(date_of_death - months(1), date_of_death))
     .exists_for_patient()
 )
 
 # As above, for the three months before death
 dataset.dmd_3 = (
-    m.take(m.dmd_code.is_in(dmd_codes))
-    .take(m.date.is_on_or_between(date_of_death - months(3), date_of_death))
+    m.where(m.dmd_code.is_in(dmd_codes))
+    .where(m.date.is_on_or_between(date_of_death - months(3), date_of_death))
     .exists_for_patient()
 )
 dataset.multilex_3 = (
-    m.take(m.multilex_code.is_in(multilex_codes))
-    .take(m.date.is_on_or_between(date_of_death - months(3), date_of_death))
+    m.where(m.multilex_code.is_in(multilex_codes))
+    .where(m.date.is_on_or_between(date_of_death - months(3), date_of_death))
     .exists_for_patient()
 )
 
 # As above, for the twelve months before death
 dataset.dmd_12 = (
-    m.take(m.dmd_code.is_in(dmd_codes))
-    .take(m.date.is_on_or_between(date_of_death - months(12), date_of_death))
+    m.where(m.dmd_code.is_in(dmd_codes))
+    .where(m.date.is_on_or_between(date_of_death - months(12), date_of_death))
     .exists_for_patient()
 )
 dataset.multilex_12 = (
-    m.take(m.multilex_code.is_in(multilex_codes))
-    .take(m.date.is_on_or_between(date_of_death - months(12), date_of_death))
+    m.where(m.multilex_code.is_in(multilex_codes))
+    .where(m.date.is_on_or_between(date_of_death - months(12), date_of_death))
     .exists_for_patient()
 )
