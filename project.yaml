@@ -4,6 +4,15 @@ expectations:
   population_size: 10000
 
 actions:
+  generate_cohort:
+    run: >
+      cohortextractor:latest
+        generate_cohort --study-definition study_definition_validation
+        --output-file output/cohort.csv
+    outputs:
+      highly_sensitive:
+        cohort: output/cohort.csv
+
   generate_dataset:
     run: >
       databuilder:v0
@@ -17,7 +26,7 @@ actions:
     run: >
       python:latest
         python analysis/count_medication_events.py
-    needs: [generate_dataset]
+    needs: [generate_cohort, generate_dataset]
     outputs:
       moderately_sensitive:
         counts: output/medication-counts.json
