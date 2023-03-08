@@ -82,9 +82,18 @@ def dataset_counts():
     }
 
 
+def round_to_nearest_10(value):
+    if isinstance(value, dict):
+        return {k: round_to_nearest_10(v) for k, v in value.items()}
+    elif isinstance(value, int):
+        return round(value, -1)
+    else:
+        assert False, value
+
+
 counts = {
-    "cohort": cohort_counts(),
-    "dataset": dataset_counts(),
+    "cohort": round_to_nearest_10(cohort_counts()),
+    "dataset": round_to_nearest_10(dataset_counts()),
 }
 
 
