@@ -64,41 +64,43 @@ dataset.define_population(
     & patients.sex.is_in(["female", "male"])
 )
 
-# The column indicates, for each patient, whether a medication event with a code in the
-# dm+d codelist was prescribed in the month before death
+dataset.died_at_home = ons_deaths.sort_by(ons_deaths.date).last_for_patient().place == "Home"
+
+# The column counts, for each patient, the number of medication events with a code in
+# the dm+d codelist was prescribed in the month before death
 dataset.dmd_1 = (
     m.where(m.dmd_code.is_in(dmd_codes))
     .where(m.date.is_on_or_between(date_of_death - months(1), date_of_death))
-    .exists_for_patient()
+    .count_for_patient()
 )
-# The column indicates, for each patient, whether a medication event with a code in the
-# multilex codelist was prescribed in the month before death
+# The column counts, for each patient, the number of medication events with a code in
+# the multilex codelist was prescribed in the month before death
 dataset.multilex_1 = (
     m.where(m.multilex_code.is_in(multilex_codes))
     .where(m.date.is_on_or_between(date_of_death - months(1), date_of_death))
-    .exists_for_patient()
+    .count_for_patient()
 )
 
 # As above, for the three months before death
 dataset.dmd_3 = (
     m.where(m.dmd_code.is_in(dmd_codes))
     .where(m.date.is_on_or_between(date_of_death - months(3), date_of_death))
-    .exists_for_patient()
+    .count_for_patient()
 )
 dataset.multilex_3 = (
     m.where(m.multilex_code.is_in(multilex_codes))
     .where(m.date.is_on_or_between(date_of_death - months(3), date_of_death))
-    .exists_for_patient()
+    .count_for_patient()
 )
 
 # As above, for the twelve months before death
 dataset.dmd_12 = (
     m.where(m.dmd_code.is_in(dmd_codes))
     .where(m.date.is_on_or_between(date_of_death - months(12), date_of_death))
-    .exists_for_patient()
+    .count_for_patient()
 )
 dataset.multilex_12 = (
     m.where(m.multilex_code.is_in(multilex_codes))
     .where(m.date.is_on_or_between(date_of_death - months(12), date_of_death))
-    .exists_for_patient()
+    .count_for_patient()
 )

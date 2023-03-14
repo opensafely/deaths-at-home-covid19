@@ -2,84 +2,58 @@ import json
 import pandas as pd
 
 
-def cohort_counts():
-    df = pd.read_csv("output/cohort.csv")
-
-    # Remap all columns to booleans
-    for col in [
-        "died_in_p1",
-        "died_in_p2",
-        "dmd_1",
-        "dmd_3",
-        "dmd_12",
-    ]:
-        df[col] = df[col] == 1
-
-    # Pull out the two populations into separate dataframes
-    df1 = df[df["died_in_p1"]]
-    df2 = df[df["died_in_p2"]]
-
-    # For each period, count how many patients had a medication in the dm+d codelist in
-    # the 1 / 3 / 12 months before death.
-    return {
-        "p1": {
-            "dmd_1": len(df1[df1["dmd_1"]]),
-            "dmd_3": len(df1[df1["dmd_3"]]),
-            "dmd_12": len(df1[df1["dmd_12"]]),
-        },
-        "p2": {
-            "dmd_1": len(df2[df2["dmd_1"]]),
-            "dmd_3": len(df2[df2["dmd_3"]]),
-            "dmd_12": len(df2[df2["dmd_12"]]),
-        },
-    }
+def main(df):
+    return round_to_nearest_10(main_unrounded(df))
 
 
-def dataset_counts():
-    df = pd.read_csv("output/dataset.csv")
-
-    # Remap all columns to booleans
-    for col in [
-        "died_in_p1",
-        "died_in_p2",
-        "dmd_1",
-        "multilex_1",
-        "dmd_3",
-        "multilex_3",
-        "dmd_12",
-        "multilex_12",
-    ]:
-        df[col] = df[col] == "T"
-
-    # Double check that all records are for a patient who has died
+def main_unrounded(df):
     assert (df["died_in_p1"] | df["died_in_p2"]).all()
 
-    # Pull out the two populations into separate dataframes
-    df1 = df[df["died_in_p1"]]
-    df2 = df[df["died_in_p2"]]
-
-    # For each period, count how many patients:
-    #  * had a medication in the dm+d codelist
-    #  * had a medication in the multilex codelist but not in the dm+d codelist
-    # in the 1 / 3 / 12 months before death.
     return {
-        "p1": {
-            "dmd_1": len(df1[df1["dmd_1"]]),
-            "multilex_only_1": len(df1[df1["multilex_1"] & ~df1["dmd_1"]]),
-            "dmd_3": len(df1[df1["dmd_3"]]),
-            "multilex_only_3": len(df1[df1["multilex_3"] & ~df1["dmd_3"]]),
-            "dmd_12": len(df1[df1["dmd_12"]]),
-            "multilex_only_12": len(df1[df1["multilex_12"] & ~df1["dmd_12"]]),
-        },
-        "p2": {
-            "dmd_1": len(df2[df2["dmd_1"]]),
-            "multilex_only_1": len(df2[df2["multilex_1"] & ~df2["dmd_1"]]),
-            "dmd_3": len(df2[df2["dmd_3"]]),
-            "multilex_only_3": len(df2[df2["multilex_3"] & ~df2["dmd_3"]]),
-            "dmd_12": len(df2[df2["dmd_12"]]),
-            "multilex_only_12": len(df2[df2["multilex_12"] & ~df2["dmd_12"]]),
-        },
+        "p1_died": counts(df[df["died_in_p1"]]),
+        "p1_died_at_home": counts(df[df["died_in_p1"] & df["died_at_home"]]),
+        "p2_died": counts(df[df["died_in_p2"]]),
+        "p2_died_at_home": counts(df[df["died_in_p2"] & df["died_at_home"]]),
     }
+
+
+def counts(df):
+    return {str(m): counts_m(df, m) for m in [1, 3, 12]}
+
+
+def counts_m(df, m):
+    results = {}
+
+    has_dmd = df[f"dmd_{m}"] > 0
+    dmd_counts = df[has_dmd][f"dmd_{m}"]
+    # How many patients have had a prescription for a mediciation in the dm+d
+    # codelist in the m months before death?
+    results[f"dmd_patients"] = len(dmd_counts)
+    # How many prescription for a mediciation in the dm+d codelist were there in the
+    # m months before death?
+    results[f"dmd_prescriptions"] = int(dmd_counts.sum())
+
+    has_multilex = df[f"multilex_{m}"] > 0
+    multilex_counts = df[has_multilex][f"multilex_{m}"]
+    # How many patients have had a prescription for a mediciation in the multilex
+    # codelist in the m months before death?
+    results[f"multilex_patients"] = len(multilex_counts)
+    # How many prescription for a mediciation in the dm+d codelist were there in the
+    # m months before death?
+    results[f"multilex_prescriptions"] = int(multilex_counts.sum())
+
+    has_only_multilex = (df[f"multilex_{m}"] > 0) & (df[f"dmd_{m}"] == 0)
+    multilex_only_counts = df[has_only_multilex][f"multilex_{m}"]
+    # How many patients have had a prescription for a mediciation in the multilex
+    # codelist, but not a prescription for a medication in the dm+d codelist, in the
+    # m months before death?
+    results[f"multilex_only_patients"] = len(multilex_only_counts)
+    # How many prescriptions were there for patients have had a prescription for a
+    # mediciation in the multilex codelist, but not a prescription for a medication in
+    # the dm+d codelist, in the m months before death?
+    results[f"multilex_only_prescriptions"] = int(multilex_only_counts.sum())
+
+    return results
 
 
 def round_to_nearest_10(value):
@@ -91,11 +65,6 @@ def round_to_nearest_10(value):
         assert False, value
 
 
-counts = {
-    "cohort": round_to_nearest_10(cohort_counts()),
-    "dataset": round_to_nearest_10(dataset_counts()),
-}
-
-
-with open("output/medication-counts.json", "w") as f:
-    json.dump(counts, f, indent=2)
+if __name__ == "__main__":
+    with open("output/medication-counts.json", "w") as f:
+        json.dump(main(pd.read_feather("output/dataset.arrow")), f, indent=2)
