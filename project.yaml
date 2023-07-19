@@ -4,20 +4,144 @@ expectations:
   population_size: 10000
 
 actions:
-  generate_dataset:
-    run: >
-      databuilder:v0
-        generate-dataset analysis/dataset_definition.py
-        --output output/dataset.arrow
+
+  generate_study_population:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition --output-format feather
     outputs:
       highly_sensitive:
-        cohort: output/dataset.arrow
+        cohort: output/input.feather
 
-  count_medication_events:
-    run: >
-      python:latest
-        python analysis/count_medication_events.py
-    needs: [generate_dataset]
+  generate_flow_chart_population:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_flow_chart --output-format feather
+    outputs:
+      highly_sensitive:
+        cohort: output/input_flow_chart.feather
+
+
+  generate_study_population_measures:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_practice_measures --output-format feather --index-date-range "2019-03-01 to 2021-02-01 by month" --skip-existing --output-dir=output/practice_measures
+    outputs:
+      highly_sensitive:
+        cohort: output/practice_measures/input_*.feather
+
+  generate_practice_measures:
+      run: cohortextractor:latest generate_measures --study-definition study_definition_practice_measures --skip-existing --output-dir=output/practice_measures
+      needs: [generate_study_population_measures]
+      outputs:
+        moderately_sensitive:
+          measure_binary_csv: output/practice_measures/measure_*_binary.csv
+          measure_csv: output/practice_measures/measure_*_rate.csv
+
+  generate_report:
+    run: cohort-report:v3.0.0 output/input.feather
+    needs: [generate_study_population]
+    config:
+      output_path: output/cohort_reports_outputs
+    outputs: 
+      moderately_sensitive:
+        report: output/cohort_reports_outputs/descriptives_input.html
+        report_charts: output/cohort_reports_outputs/*.png
+
+  flow_chart:
+    run: r:latest analysis/00_flow_chart_data.R
+    needs: [generate_flow_chart_population]
     outputs:
       moderately_sensitive:
-        counts: output/medication-counts.json
+        flow_data: output/flow_chart_data/flow_chart_data.csv
+
+  describe_cohorts:
+    run: r:latest analysis/01_describe_cohorts.R
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        deaths_data: output/describe_cohorts/overall_death_counts/deaths_data.csv
+        deaths_cohort: output/describe_cohorts/overall_death_counts/deaths_cohort.csv
+        deaths_quarter: output/describe_cohorts/overall_death_counts/deaths_quarter.csv
+        deaths_quarter_figure: output/describe_cohorts/overall_death_counts/deaths_quarter.png
+        deaths_data_pod: output/describe_cohorts/overall_death_counts/deaths_data_pod.csv
+        deaths_cohort_pod: output/describe_cohorts/overall_death_counts/deaths_cohort_pod*.csv
+        deaths_quarter_pod: output/describe_cohorts/overall_death_counts/deaths_quarter_pod.csv
+        deaths_pod_figures: output/describe_cohorts/overall_death_counts/deaths_pod_cohort*.png
+        deaths_quarter_characteristic: output/describe_cohorts/quarter_death_counts/deaths_quarter_*.csv
+        quarter_summary_table: output/describe_cohorts/quarter_summary_table.csv
+        quarter_pod_summary_table: output/describe_cohorts/quarter_pod_summary_table.csv
+        deaths_quarter_ons: output/describe_cohorts/ons_death_comparisons/deaths_ons_quarter*.csv
+        deaths_month_ons: output/describe_cohorts/ons_death_comparisons/deaths_ons_month*.csv
+        deaths_ons_plots: output/describe_cohorts/ons_death_comparisons/deaths_ons*.png
+        cohort_summary_table: output/describe_cohorts/cohorts_summary_table.csv
+        cohort_pod_summary_table: output/describe_cohorts/cohorts_pod_summary_table*.csv
+        death_ratios_cohort: output/describe_cohorts/death_ratios_cohort/death_ratio_cohort*.csv
+        death_ratios_pod_cohort: output/describe_cohorts/death_ratios_pod_cohort/death_ratio_pod_cohort*.csv
+        deaths_region_ethnicity: output/describe_cohorts/overall_death_counts/deaths_region*.csv
+        deaths_characteristic_crosstabs: output/describe_cohorts/overall_death_counts/deaths_characteristic_crosstabs*.csv
+
+  describe_service_use:
+    run: r:latest analysis/02_describe_service_use.R
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        service_use_means: output/describe_service_use/service_use_mean*.csv
+        service_use_means_plots: output/describe_service_use/plots/service_use_mean*.pdf
+        service_use_prop_plots: output/describe_service_use/plots/service_use_prop*.pdf
+        gp_complete_service_use_means: output/describe_service_use/complete_gp_history/gp_service_use_mean*.csv
+        gp_complete_service_use_means_plots: output/describe_service_use/complete_gp_history/plots/gp_service_use_mean*.pdf
+        gp_complete_service_use_prop_plots: output/describe_service_use/complete_gp_history/plots/gp_service_use_prop*.pdf
+
+  describe_service_use_home_cohort: 
+    run: r:latest analysis/03_describe_service_use_home_cohort.R
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        service_use_cohort: output/describe_service_use_home/service_use_cohort_home*.csv     
+        service_use_cohort_plots: output/describe_service_use_home/plots/service_use_cohort_home_*.pdf        
+        service_use_cohort_prop_plots: output/describe_service_use_home/plots/service_prop_cohort_home_*.pdf
+
+  describe_service_use_home_quarter: 
+    run: r:latest analysis/04_describe_service_use_home_quarter.R
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        service_use_quarter: output/describe_service_use_home/service_use_quart_home.csv
+        service_use_quarter_plots: output/describe_service_use_home/plots/service_use_quart_home*.pdf
+        service_use_quarter_prop_plots: output/describe_service_use_home/plots/service_prop_quart_home*.pdf
+
+  describe_service_use_home_gp_cohort: 
+    run: r:latest analysis/05_describe_service_use_home_gp_cohort.R
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        gp_complete_service_use_cohort: output/describe_service_use_home/complete_gp_history/gp_service_use_cohort_home*.csv     
+        gp_complete_service_use_cohort_plots: output/describe_service_use_home/complete_gp_history/plots/gp_service_use_cohort_home_*.pdf
+        gp_complete_service_use_cohort_prop_plots: output/describe_service_use_home/complete_gp_history/plots/gp_service_prop_cohort_home_*.pdf
+
+  describe_service_use_home_gp_quarter: 
+    run: r:latest analysis/06_describe_service_use_home_gp_quarter.R
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        gp_complete_service_use_quarter: output/describe_service_use_home/complete_gp_history/gp_service_use_quart_home.csv
+        gp_complete_service_use_quarter_plots: output/describe_service_use_home/complete_gp_history/plots/gp_service_use_quart_home_*.pdf
+        gp_complete_service_use_quarter_prop_plots: output/describe_service_use_home/complete_gp_history/plots/gp_service_prop_quart_home_*.pdf
+
+  practice_measures_plots:
+    run: r:latest analysis/07_practice_measures_plots.R
+    needs: [generate_practice_measures]
+    outputs:
+      moderately_sensitive:
+        deciles_data: output/practice_measures/plots/deciles_*.csv
+        deciles_plots: output/practice_measures/plots/deciles_*.png
+
+  service_use_models:
+    run: r:latest analysis/08_service_use_models.R
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        service_use_models: output/describe_service_use/models/model_*.csv
+        gp_service_use_models: output/describe_service_use/complete_gp_history/models/gp_model_*.csv
+
+  service_use_home_models: 
+    run: r:latest analysis/09_home_service_use_models.R
+    needs: [generate_study_population]
+    outputs:
+      moderately_sensitive:
+        service_use_models: output/describe_service_use_home/models/model_*.csv     
