@@ -145,3 +145,9 @@ actions:
     outputs:
       moderately_sensitive:
         service_use_models: output/describe_service_use_home/models/model_*.csv     
+
+  generate_study_population_os_reports:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_os_reports --output-format feather
+    outputs:
+      highly_sensitive:
+        cohort: output/os_reports/input_os_reports.feather
