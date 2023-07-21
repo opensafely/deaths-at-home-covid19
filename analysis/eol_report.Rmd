@@ -1,0 +1,69 @@
+---
+title: "End-of-life care: Services used and quality indicators"
+author: "eilis.keeble@nuffieldtrust.org.uk"
+date: "Created July 2023"
+output:
+  html_document:
+    toc: no
+    df_print: paged
+  html_notebook:
+    theme: null
+    highlight: null
+    mathjax: null
+    toc: no
+    fig_caption: no
+    df_print: default
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lubridate)
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+**Produced using OpenSAFELY-TPP**
+
+Created July 2023.
+
+Last updated July 2023.
+
+Updated 3-monthly, next update due XX.
+
+This report extends on the analysis published [here](https://www.nuffieldtrust.org.uk/research/deaths-at-home-during-the-covid-19-pandemic-and-implications-for-patients-and-services).
+
+## Index
+
+1.  Background
+2.  Deaths recorded in OpenSAFELY-TPP
+3.  General practice interactions
+
+   * Place of death
+   * Cause of death
+
+4.  Medications for symptom management
+
+<br/><br/>
+
+## Background
+
+<br/><br/>
+
+## Deaths recorded in OpenSAFELY-TPP
+
+```{r create_table}
+#read_csv("output/table.csv")
+```
+
+<br/><br/>
+
+## General practice interactions
+
+### Place of death
+
+### Cause of death
+
+<br/><br/>
+
+## Medications for symptom management
+
+<br/><br/>
