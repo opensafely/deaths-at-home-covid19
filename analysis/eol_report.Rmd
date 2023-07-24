@@ -4,14 +4,11 @@ author: "eilis.keeble@nuffieldtrust.org.uk"
 date: "Created July 2023"
 output:
   html_document:
-    toc: no
-    df_print: paged
-  html_notebook:
     theme: null
     highlight: null
     mathjax: null
-    toc: no
-    fig_caption: no
+    toc: false
+    fig_caption: false
     df_print: default
 ---
 
@@ -19,6 +16,10 @@ output:
 library(tidyverse)
 library(lubridate)
 knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
+
+df <- arrow::read_feather(file = here::here("output", "os_reports", "input_os_reports.feather")) %>%
+  mutate(dod_ons = as_date(dod_ons)
+         , study_month = floor_date(dod_ons, unit = "month"))
 ```
 
 **Produced using OpenSAFELY-TPP**
@@ -36,10 +37,8 @@ This report extends on the analysis published [here](https://www.nuffieldtrust.o
 1.  Background
 2.  Deaths recorded in OpenSAFELY-TPP
 3.  General practice interactions
-
-   * Place of death
-   * Cause of death
-
+  + Place of death
+  + Cause of death
 4.  Medications for symptom management
 
 <br/><br/>
@@ -50,6 +49,8 @@ This report extends on the analysis published [here](https://www.nuffieldtrust.o
 
 ## Deaths recorded in OpenSAFELY-TPP
 
+Draft text...
+
 ```{r create_table}
 #read_csv("output/table.csv")
 ```
@@ -58,7 +59,17 @@ This report extends on the analysis published [here](https://www.nuffieldtrust.o
 
 ## General practice interactions
 
+Draft text...
+
 ### Place of death
+
+```{r create_chart_gp_place}
+df %>%
+  group_by(study_month) %>%
+  summarise(count = n()) %>%
+  ggplot() +
+  geom_line(mapping = aes(x = study_month, y = count))
+```
 
 ### Cause of death
 
