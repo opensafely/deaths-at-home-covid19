@@ -16,10 +16,6 @@ output:
 library(tidyverse)
 library(lubridate)
 knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
-
-df <- arrow::read_feather(file = here::here("output", "os_reports", "input_os_reports.feather")) %>%
-  mutate(dod_ons = as_date(dod_ons)
-         , study_month = floor_date(dod_ons, unit = "month"))
 ```
 
 **Produced using OpenSAFELY-TPP**
@@ -34,47 +30,45 @@ This report extends on the analysis published [here](https://www.nuffieldtrust.o
 
 ## Index
 
-1.  Background
-2.  Deaths recorded in OpenSAFELY-TPP
-3.  General practice interactions
-  + Place of death
-  + Cause of death
-4.  Medications for symptom management
+1. Background
+2. Deaths recorded in OpenSAFELY-TPP
+3. General practice interactions
+    + Place of death
+    + Cause of death
+4. Medications for symptom management
 
 <br/><br/>
 
-## Background
+## 1. Background
 
 <br/><br/>
 
-## Deaths recorded in OpenSAFELY-TPP
+## 2. Deaths recorded in OpenSAFELY-TPP
 
 Draft text...
 
-```{r create_table}
-#read_csv("output/table.csv")
+_Figure 1: Number of deaths by month and place of death_
+```{r fig1, fig.height=1, fig.width=2, fig.cap=""}
+knitr::include_graphics(here::here("output", "os_reports", "deaths_month_plot.png"))
 ```
 
 <br/><br/>
 
-## General practice interactions
+## 3. General practice interactions
 
 Draft text...
 
 ### Place of death
 
-```{r create_chart_gp_place}
-df %>%
-  group_by(study_month) %>%
-  summarise(count = n()) %>%
-  ggplot() +
-  geom_line(mapping = aes(x = study_month, y = count))
+_Figure 2: Average number of GP interactions per person by month and place of death_
+```{r fig2, fig.height=1, fig.width=2, fig.cap=""}
+knitr::include_graphics(here::here("output", "os_reports", "gp_month_plot.png"))
 ```
 
 ### Cause of death
 
 <br/><br/>
 
-## Medications for symptom management
+## 4. Medications for symptom management
 
 <br/><br/>
