@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Charts for eol_report
+# Charts for eol_service_report
 # Date: 26.07.2023
 # Author: Eilís
 # Aim: Create png image files of charts for OpenSAFELY reports
@@ -13,7 +13,7 @@ library(lubridate)
 
 # Create folder structure -------------------------------------------------
 
-fs::dir_create("output", "os_reports")
+fs::dir_create("output", "os_reports", "eol_service")
 
 
 # NT chart functions ------------------------------------------------------
@@ -244,14 +244,15 @@ enddate <- dmy("30-06-2023")
 df <- arrow::read_feather(file = here::here("output", "os_reports", "input_os_reports.feather")) %>%
   mutate(dod_ons = as_date(dod_ons)
          , study_month = floor_date(dod_ons, unit = "month")
-         , pod_ons_new = case_when(pod_ons == "Elsewhere" | pod_ons == "Other communal establishment" ~ "Elsewhere/other"
-                                   , TRUE ~ as.character(pod_ons))) %>%
+         , pod_ons_new = case_when(pod_ons == "Elsewhere" 
+                                   | pod_ons == "Other communal establishment" ~ "Elsewhere/other"
+                                   , TRUE ~ as_factor(pod_ons))) %>%
   filter(study_month >= startdate & study_month <= enddate)
 
 
 # Deaths in period --------------------------------------------------------
 
-# Number of death by month and place of death - including all deaths
+# Number of deaths by month and place of death - including all deaths
 deaths_month <- df %>%
   group_by(study_month, pod_ons_new) %>%
   summarise(count = n()) %>%
@@ -259,6 +260,8 @@ deaths_month <- df %>%
               group_by(study_month) %>%
               summarise(count = n()) %>%
               mutate(pod_ons_new = "All"))
+
+write_csv(deaths_month, here::here("output", "os_reports", "eol_service", "deaths_month.csv"))
 
 deaths_month_plot <- ggplot(deaths_month, aes(x = study_month, y = count
                                               , group = pod_ons_new
@@ -282,9 +285,9 @@ deaths_month_plot <- ggplot(deaths_month, aes(x = study_month, y = count
   NT_style() +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 
-ggsave(deaths_month_plot, dpi = 600, width = 20, height = 15, unit = "cm"
-       , filename = "deaths_month_plot.png", path = here::here("output", "os_reports"))
-
+ggsave(deaths_month_plot, dpi = 600, width = 20, height = 10, unit = "cm"
+       , filename = "deaths_month_plot.png"
+       , path = here::here("output", "os_reports", "eol_service"))
 
 # General practice interactions -------------------------------------------
 
@@ -296,6 +299,8 @@ gp_month <- df %>%
               group_by(study_month) %>%
               summarise(mean = mean(gp_1m, na.rm = TRUE)) %>%
               mutate(pod_ons_new = "All"))
+
+write_csv(gp_month, here::here("output", "os_reports", "eol_service", "gp_month.csv"))
 
 gp_month_plot <- ggplot(gp_month, aes(x = study_month, y = mean
                                               , group = pod_ons_new
@@ -320,5 +325,6 @@ gp_month_plot <- ggplot(gp_month, aes(x = study_month, y = mean
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 
 ggsave(gp_month_plot, dpi = 600, width = 20, height = 10, unit = "cm"
-       , filename = "gp_month_plot.png", path = here::here("output", "os_reports"))
+       , filename = "gp_month_plot.png"
+       , path = here::here("output", "os_reports", "eol_service"))
 

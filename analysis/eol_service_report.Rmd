@@ -1,5 +1,5 @@
 ---
-title: "End-of-life care: Services used and quality indicators"
+title: "End-of-life care: Services used"
 author: "eilis.keeble@nuffieldtrust.org.uk"
 date: "Created July 2023"
 output:
@@ -49,7 +49,7 @@ Draft text...
 
 _Figure 1: Number of deaths by month and place of death_
 ```{r fig1, fig.height=1, fig.width=2, fig.cap=""}
-knitr::include_graphics(here::here("output", "os_reports", "deaths_month_plot.png"))
+knitr::include_graphics(here::here("output", "os_reports", "eol_service", "deaths_month_plot.png"))
 ```
 
 <br/><br/>
@@ -62,7 +62,7 @@ Draft text...
 
 _Figure 2: Average number of GP interactions per person by month and place of death_
 ```{r fig2, fig.height=1, fig.width=2, fig.cap=""}
-knitr::include_graphics(here::here("output", "os_reports", "gp_month_plot.png"))
+knitr::include_graphics(here::here("output", "os_reports", "eol_service", "gp_month_plot.png"))
 ```
 
 ### Cause of death
