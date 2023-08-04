@@ -246,7 +246,7 @@ df <- arrow::read_feather(file = here::here("output", "os_reports", "input_os_re
          , study_month = floor_date(dod_ons, unit = "month")
          , pod_ons_new = case_when(pod_ons == "Elsewhere" 
                                    | pod_ons == "Other communal establishment" ~ "Elsewhere/other"
-                                   , TRUE ~ as_factor(pod_ons))) %>%
+                                   , TRUE ~ as.character(pod_ons))) %>%
   filter(study_month >= startdate & study_month <= enddate)
 
 

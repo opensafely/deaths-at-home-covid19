@@ -47,6 +47,19 @@ This report extends on the analysis published [here](https://www.nuffieldtrust.o
 
 Draft text...
 
+_Table 1: Number of deaths by place of death_
+```{r table1}
+read_csv(here::here("output", "os_reports", "eol_service", "deaths_month.csv")) %>%
+  mutate(start_date = as_date(cut(study_month, breaks = "3 months"))
+         , end_date = rollback(start_date + months(3))
+         , time_period = paste0(format(start_date, format = "%b-%y"), " - ", format(end_date, format = "%b-%y"))) %>%
+  group_by(time_period, start_date, end_date, pod_ons_new) %>%
+  summarise(count = sum(count, na.rm = TRUE)) %>%
+  pivot_wider(names_from = pod_ons_new, values_from = count) %>%
+  arrange(start_date)
+
+```
+
 _Figure 1: Number of deaths by month and place of death_
 ```{r fig1, fig.height=1, fig.width=2, fig.cap=""}
 knitr::include_graphics(here::here("output", "os_reports", "eol_service", "deaths_month_plot.png"))
