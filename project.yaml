@@ -153,16 +153,18 @@ actions:
         cohort: output/os_reports/input_os_reports.feather
           
   os_report_charts:
-    run: r:latest analysis/10_eol_report_charts.R
+    run: r:latest analysis/10_eol_service_report_charts.R
     needs: [generate_study_population_os_reports]
     outputs:
       moderately_sensitive:
-        monthly_deaths_place: output/os_reports/deaths_month_plot.png
-        monthly_gp_place: output/os_reports/gp_month_plot.png
+        monthly_deaths_place: output/os_reports/eol_service/deaths_month.csv
+        monthly_deaths_place_plot: output/os_reports/eol_service/deaths_month_plot.png
+        monthly_gp_place: output/os_reports/eol_service/gp_month.csv
+        monthly_gp_place_plot: output/os_reports/eol_service/gp_month_plot.png
 
   os_report:
-    run: r:latest analysis/10a_eol_report_html.R
+    run: r:latest analysis/10a_eol_service_report_html.R
     needs: [os_report_charts]
     outputs:
       moderately_sensitive:
-        os_report: output/os_reports/eol_report.html
+        os_report: output/os_reports/eol_service/eol_report.html
