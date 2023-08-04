@@ -20,8 +20,6 @@ knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
 
 **Produced using OpenSAFELY-TPP**
 
-Created July 2023.
-
 Last updated July 2023.
 
 Updated 3-monthly, next update due XX.
@@ -41,22 +39,27 @@ This report extends on the analysis published [here](https://www.nuffieldtrust.o
 
 ## 1. Background
 
+During the Covid-19 pandemic there was a large increase in both the number and proportion of people dying at home. People were less likely than previously to die in other settings as people or their loved ones chose to stay at home. This trend of increased deaths has continued to the present day but the reasons for people staying at home have changed. The access they have to services and the factors that influence this has also changed. During the pandemic the majority of elective hospital services were shut down. Now these services are available again but they are under strain due to the volumes of people requiring access. We wanted to see whether the changes in service use we saw for the pandemic have continued to the present day. We have therefore extended the time series of many of the measures we developed in our original report to explore this.
+
 <br/><br/>
 
 ## 2. Deaths recorded in OpenSAFELY-TPP
 
-Draft text...
+The number of deaths varies by setting and also over time, see _Table 1_ and _Figure 1_. In our report we found that deaths recorded for people registered with TPP practices represented around 40% of all deaths registered in England.
 
-_Table 1: Number of deaths by place of death_
+_Table 1: Number of deaths by 3 month interval and place of death_
 ```{r table1}
-read_csv(here::here("output", "os_reports", "eol_service", "deaths_month.csv")) %>%
+knitr::kable(read_csv(here::here("output", "os_reports", "eol_service", "deaths_month.csv")) %>%
   mutate(start_date = as_date(cut(study_month, breaks = "3 months"))
          , end_date = rollback(start_date + months(3))
-         , time_period = paste0(format(start_date, format = "%b-%y"), " - ", format(end_date, format = "%b-%y"))) %>%
+         , time_period = paste0(format(start_date, format = "%b-%y"), " to "
+                                , format(end_date, format = "%b-%y"))) %>%
   group_by(time_period, start_date, end_date, pod_ons_new) %>%
   summarise(count = sum(count, na.rm = TRUE)) %>%
   pivot_wider(names_from = pod_ons_new, values_from = count) %>%
-  arrange(start_date)
+  arrange(start_date), col.names = c("Time period", "Period start date"
+                                     , "Period end date", "All", "Care home"
+                                     , "Elsewhere/other", "Home", "Hospital", "Hospice"))
 
 ```
 

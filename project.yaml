@@ -163,8 +163,8 @@ actions:
         monthly_gp_place_plot: output/os_reports/eol_service/gp_month_plot.png
 
   os_report:
-    run: r:latest analysis/10a_eol_service_report_html.R
+    run: r:latest analysis/10b_eol_service_report_html.R
     needs: [os_report_charts]
     outputs:
       moderately_sensitive:
-        os_report: output/os_reports/eol_service/eol_report.html
+        os_report: output/os_reports/eol_service/eol_service_report.html
