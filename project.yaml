@@ -151,7 +151,7 @@ actions:
     outputs:
       highly_sensitive:
         cohort: output/os_reports/input_os_reports.feather
-          
+           
   os_report_charts:
     run: r:latest analysis/10_eol_service_report_charts.R
     needs: [generate_study_population_os_reports]
@@ -168,3 +168,10 @@ actions:
     outputs:
       moderately_sensitive:
         os_report: output/os_reports/eol_service/eol_service_report.html
+
+  generate_study_population_ehrql:
+    run: ehrql:v0 generate-dataset analysis/ehrql/study_definition_ehrql_example.py --output output/input_ehrql.csv.gz
+    outputs:
+      highly_sensitive:
+        cohort: output/input_ehrql.csv.gz
+    
