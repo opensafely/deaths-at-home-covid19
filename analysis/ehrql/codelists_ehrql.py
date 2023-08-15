@@ -218,15 +218,26 @@ oxycodone_codes = codelist_from_csv(
     column = "dmd_id"
 )
 
-eol_med_codes = (
-    midazolam_codes +
-    glycopyrronium_codes +
-    haloperidol_codes,
-    hyoscine_butylbromide_codes +
-    levomepromazine_codes +
-    morphine_codes +
-    oxycodone_codes
-)
+# There's no way to combine codelists in ehrQL at the moment, so we do it manually
+dmd_codelist_names = [
+    "glycopyrronium-subcutaneous-formulations",
+    "haloperidol-subcutaneous-dmd",
+    "hyoscine-butylbromide-subcutaneous-formulations",
+    "levomepromazine-subcutaneous",
+    "midazolam-end-of-life",
+    "morphine-subcutaneous-dmd",
+    "oxycodone-subcutaneous-dmd",
+]
+
+dmd_codelists = [
+    codelist_from_csv(
+        f"codelists/opensafely-{name.replace('_', '-')}.csv",
+        column="dmd_id",
+    )
+    for name in dmd_codelist_names
+]
+
+eol_med_codes = set().union(*(codelist for codelist in dmd_codelists))
 
 ## SERVICE USE ##
 
