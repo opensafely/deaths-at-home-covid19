@@ -69,16 +69,14 @@ dataset.cod_ons = last_ons_death.cause_of_death_01
 dataset.sex = patients.sex
 
 ## Ethnicity
-dataset.latest_ethnicity_code_gp = (
-    clinical_events.where(clinical_events.ctv3_code.is_in(codelists_ehrql.ethnicity_codes_6))
-    .where(clinical_events.date.is_on_or_before("2023-01-01"))
-    .sort_by(clinical_events.date)
-    .last_for_patient()
-    .ctv3_code
-)
-
-dataset.ethnicity_gp = dataset.latest_ethnicity_code_gp.to_category(
-    codelists_ehrql.ethnicity_codes_6
+dataset.ethnicity_gp = (
+    clinical_events.where(
+        clinical_events.ctv3_code.is_in(codelists_ehrql.ethnicity_codes_6)
+    ).where(
+        clinical_events.date.is_on_or_before(dod_ons)
+    ).sort_by(
+        clinical_events.date
+    ).last_for_patient().ctv3_code.to_category(codelists_ehrql.ethnicity_codes_6)
 )
 
 ## Services ##
